@@ -6,6 +6,9 @@
 #include "winsock2.h"
 #include "windows.h"
 
+/*
+*/
+
 class TConnectionThread : public QThread
 {
     Q_OBJECT
@@ -18,8 +21,9 @@ public:
     bool MotionCommandWaitAnswer; //флаг ожидания ответ на команлу
 
     const int CmbBufSize = 10;  //макисмальное колиичесвто команд в очереди
+    int CurrentCmdCount;        //текущее колличесвто обрабатывеемых команд
 
-    QString CurrentMotionCmd;
+    QString MotionCmd;
     int  MotionCommandExitCode;
     QString MotionCommandStatus;
 
@@ -33,7 +37,8 @@ public:
     explicit TConnectionThread(QObject *parent = nullptr, QString ip = "");
     ~TConnectionThread();
 
-    int ProcessCommand(QString str);
+    int StepMove(int coord_type, int axis, int step, QString &status);
+    int ProcessCommand(QString str, QString &state);
 
     bool CreateSocket();
     bool WaitData();
@@ -42,6 +47,7 @@ public:
     void run() override;
 
 signals:
+    void updatePos(QString pos);
 
 public slots:
 };

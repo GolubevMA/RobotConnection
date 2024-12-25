@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -23,16 +23,28 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 
+CONFIG += resources_big
+
 SOURCES += \
         main.cpp \
         tmainwindow.cpp \
-    tconnectionthread.cpp
+    trobotwidget.cpp \
+    trobotmotion.cpp \
+    vars.cpp \
+    trobotmodel.cpp
 
 HEADERS += \
         tmainwindow.h \
-    tconnectionthread.h
+    trobotwidget.h \
+    trobotmotion.h \
+    vars.h \
+    trobotmodel.h
 
 FORMS += \
         tmainwindow.ui
 
+LIBS += -lOpengl32
 LIBS += -lws2_32
+
+RESOURCES += \
+    res.qrc

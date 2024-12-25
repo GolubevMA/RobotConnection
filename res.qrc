@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>img/back.png</file>
+        <file>img/bottom.png</file>
+        <file>img/campus_map_markless.png</file>
+        <file>img/free-icon-map-marker-5860579.png</file>
+        <file>img/front.png</file>
+        <file>img/geometka.png</file>
+        <file>img/left.png</file>
+        <file>img/right.png</file>
+        <file>img/search.png</file>
+        <file>img/skybox.png</file>
+        <file>img/top.png</file>
+        <file>fshader.glsl</file>
+        <file>fshader_cube_map.glsl</file>
+        <file>vshader.glsl</file>
+        <file>vshader_cube_map.glsl</file>
+        <file>img/Bskybox.png</file>
+    </qresource>
+</RCC>

@@ -1,10 +1,9 @@
-#include "tconnectionthread.h"
+﻿#include "trobotmotion.h"
 #include "qdebug.h"
 #include <QApplication>
 //---------------------------------------------------------------------------
-TConnectionThread::TConnectionThread(QObject *parent, QString ip) : QThread(parent)
+TRobotMotion::TRobotMotion(QObject *parent, QString ip) : QThread(parent)
 {
-
     WSADATA WSAData;
     WSAStartup(0x101,(LPWSADATA)&WSAData);
 
@@ -12,19 +11,35 @@ TConnectionThread::TConnectionThread(QObject *parent, QString ip) : QThread(pare
     //заполняем струтуру хоста
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = inet_addr((char*)IPAddres.toLatin1().data());
-    serv_addr.sin_port = htons(9014);
+    serv_addr.sin_port = htons(9015);
     CurrentCmdCount = 0;
 }
 //------------------------------------------------------------------------------
-TConnectionThread::~TConnectionThread()
+TRobotMotion::~TRobotMotion()
 {
     WSACleanup();
+}
+//------------------------------------------------------------------------------
+//команда ВКЛЮЧения /выелючения питания мотора
+//------------------------------------------------------------------------------
+int TRobotMotion::MotorOnOF(bool on, QString &status)
+{
+    QString cmd = "MOTOR " + QString::number(on) + ",";
+    return ProcessCommand(cmd, status);
+}
+//------------------------------------------------------------------------------
+//команда перемещания в точку
+//------------------------------------------------------------------------------
+int TRobotMotion::MovePoint(int coord_type, QVector<int> point, QString &status)
+{
+    QString cmd = "MOVE " + QString::number(coord_type) + ",";
+    return ProcessCommand(cmd, status);
 }
 //------------------------------------------------------------------------------
 //команда перемещения оси axis на шаг step
 // coord_type - система координат
 //------------------------------------------------------------------------------
-int TConnectionThread::StepMove(int coord_type, int axis, int step, QString &status)
+int TRobotMotion::StepMove(int coord_type, int axis, int step, QString &status)
 {
     QString cmd = "STEP " + QString::number(coord_type) + "," + QString::number(axis) + "," + QString::number(step) + ",";
     return ProcessCommand(cmd, status);
@@ -40,51 +55,51 @@ int TConnectionThread::StepMove(int coord_type, int axis, int step, QString &sta
 // -2 - ошибка передачи команды котролдеру
 // -3 - ошибка приема ответа от контроллера
 //---------------------------------------------------------------------------
-int TConnectionThread::ProcessCommand(QString cmd, QString &state)
+int TRobotMotion::ProcessCommand(QString cmd, QString &state)
 {
     if (Active)
     {
         // займем процесс выполнения команды если он свободен
-       if (MotionCommandFree) {
-           MotionCommandFree = false;
-       }
-       else {
-          qDebug() << "waitng resp";
-          // будем ждать окончания выполнения предыдущей команды
-          DWORD time_out_time = GetTickCount() + 5000;
-          while (1) {
+        if (MotionCommandFree) {
+            MotionCommandFree = false;
+        }
+        else  {
+            // будем ждать окончания выполнения предыдущей команды
+            DWORD time_out_time = GetTickCount() + 5000;
+            qDebug() << "wiantg " << cmd;
+            while (1)  {
                 QApplication::processEvents();
                 // займем процесс выполнения команды если он освободился
                 if (MotionCommandFree) {
                    MotionCommandFree = false;
+                   qDebug() << "got respnse";
                    break;
                 }
                 // если время ожидания истекло - выйдем с ошибкой
                 if (GetTickCount() > time_out_time) return -1;
-          }
-       }
-       //добвим комеду в очердь обрабытваемых команд
-       MotionCmd = cmd;
-       qDebug() << "sendig command" << MotionCmd;
-       // установим флаг команды
-       MotionCommand = true;
-       // будем ждать окончания выполнения команды
-       int qq = 0;
-       while (MotionCommand) {  QApplication::processEvents(); qq++; } ;
-       // освободим процесс выполнения команды
-       MotionCommandFree = true;
-       qDebug() << "command sended ";
-       //запомним сотояние
-       state = MotionCommandStatus;
-       // выйдем с результатом выполнения команды
-       return MotionCommandExitCode;
+            }
+        }
+        //добвим комеду в очердь обрабытваемых команд
+        MotionCmd = cmd;
+        // установим флаг команды
+        MotionCommand = true;
+        // будем ждать окончания выполнения команды
+        int qq = 0;
+        qDebug() << "sengding" << MotionCmd;
+        while (MotionCommand) {  QApplication::processEvents(); qq++; } ;
+        // освободим процесс выполнения команды
+        MotionCommandFree = true;
+        // выйдем с результатом выполнения команды
+        //запомним сотояние
+        state = MotionCommandStatus;
+        return MotionCommandExitCode;
     }
     else return 0;
 }
 //------------------------------------------------------------------------------
 //создаем клиентсикй соект
 //------------------------------------------------------------------------------
-bool TConnectionThread::CreateSocket()
+bool TRobotMotion::CreateSocket()
 {
     DevSock = socket(AF_INET, SOCK_STREAM, 0);
     if (DevSock == INVALID_SOCKET) {
@@ -124,9 +139,8 @@ bool TConnectionThread::CreateSocket()
 //------------------------------------------------------------------------------
 //пытаемся утсановить tcp соеднинение
 //------------------------------------------------------------------------------
-bool TConnectionThread::WaitConnection()
+bool TRobotMotion::WaitConnection()
 {
-    qDebug() << "222crettee";
 
     fd_set write_set;
     fd_set error_set;
@@ -155,13 +169,12 @@ bool TConnectionThread::WaitConnection()
     }
 
     //если в соект можем писать - значит соедниение утсановлено
-    qDebug() << "checkCOnn";
     return FD_ISSET(DevSock, &write_set);
 }
 //------------------------------------------------------------------------------
 //проверим наличеие данных в tcp фрейме
 //------------------------------------------------------------------------------
-bool TConnectionThread::WaitData()
+bool TRobotMotion::WaitData()
 {
     timeval tv;
     tv.tv_sec = 0;
@@ -176,13 +189,13 @@ bool TConnectionThread::WaitData()
     return false;
 }
 //------------------------------------------------------------------------------
-void TConnectionThread::run()
+void TRobotMotion::run()
 {
     bool wait_data = false;
     uint32_t state_time = GetTickCount() + 5000;
     Terminate = false;
     Active = false;
-
+    //int vsl = 1;
     while (!Terminate)
     {
         //создаем и бнидм сокет прослушивания
@@ -190,18 +203,17 @@ void TConnectionThread::run()
         {
             Active = false;
             CreateSocket();
-            qDebug() << "crettee";
+            //qDebug() << "crettee";
         }
         //обраьотаем текущее активное соединение
-        else if (Active)
-        {
+        else if (Active) {
             //если не ждем ответа - отправим команду
             if (!wait_data)
             {
                 //если стоит флаг отпраки команды
                 if (MotionCommand)
                 {
-                    //qDebug() << "sebnd;";
+                    qDebug() << "sebnd;";
                     int tx_count = send(DevSock, (char*)MotionCmd.toLatin1().data(), MotionCmd.length(), 0);
                     if (tx_count == MotionCmd.length())
                     {
@@ -209,7 +221,7 @@ void TConnectionThread::run()
                        //поднменм флаг ожидания ответа
                        MotionCommandWaitAnswer = true;
                     }
-                    else {
+                        else {
                         MotionCommandWaitAnswer = false;
                         MotionCommandExitCode = -2;
                         MotionCommand = false;
@@ -222,7 +234,7 @@ void TConnectionThread::run()
                 //получения сотсояния
                 else  if (GetTickCount() >= state_time)
                 {
-                    QString cmd_pos = "GETPOS " + QString::number(1) + ",";
+                    QString cmd_pos = "GETPOS 1,";
                     int tx_count = send(DevSock, (char*)cmd_pos.toLatin1().data(), cmd_pos.length(), 0);
                     if (tx_count == cmd_pos.length())
                     {
@@ -238,20 +250,19 @@ void TConnectionThread::run()
                 }
             }
             //при нличии данных в буффере прочтем их
-            else  if (WaitData())
-            {
+            else  if (WaitData()) {
                 char buf[1000];
                 int rx_count = recv(DevSock, buf, 1000, 0);
                 if (rx_count > 0)
                 {
                     //если запрос оканчивается на OK - команда принята
                     QString resp = QString::fromLatin1(buf, rx_count);
-
                     if (MotionCommandWaitAnswer)
                     {
                         MotionCommand = false;
                         MotionCommandWaitAnswer = false;
 
+                        //MotionCommandFree
                         if (resp.endsWith(" OK")) {
                             MotionCommandExitCode = 1;
                         }
@@ -271,7 +282,6 @@ void TConnectionThread::run()
                     else {
                         emit updatePos(resp);
                     }
-
                     wait_data = false;
                 }
                 //получили ответ неправльиной дины
@@ -307,15 +317,13 @@ void TConnectionThread::run()
             MotionCommand = false;
             MotionCommandFree = true;
             MotionCommandExitCode = 0;
-            wait_data = false;
-
+            //wait_data = false;
             qDebug() << "connnn";
-
         }
         // если соединения нет больше заданного времени, удалим сокет
         else  if (GetTickCount() > 15000)
         {
-            qDebug() << "conn_timemout";
+            //qDebug() << "conn_timemout";
             closesocket(DevSock);
             DevSock = INVALID_SOCKET;
         }
