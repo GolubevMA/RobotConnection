@@ -1,8 +1,8 @@
-﻿#include "trobotmotion.h"
+﻿    #include "trobotmotion.h"
 #include "qdebug.h"
 #include <QApplication>
 //---------------------------------------------------------------------------
-TRobotMotion::TRobotMotion(QObject *parent, QString ip) : QThread(parent)
+TRobotMotion::TRobotMotion(QObject *parent, QString ip, int axis_count) : QThread(parent)
 {
     WSADATA WSAData;
     WSAStartup(0x101,(LPWSADATA)&WSAData);
@@ -12,7 +12,10 @@ TRobotMotion::TRobotMotion(QObject *parent, QString ip) : QThread(parent)
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = inet_addr((char*)IPAddres.toLatin1().data());
     serv_addr.sin_port = htons(9015);
+
     CurrentCmdCount = 0;
+    MotionMode= 0;
+    AxisCount = axis_count;
 }
 //------------------------------------------------------------------------------
 TRobotMotion::~TRobotMotion()
@@ -30,19 +33,33 @@ int TRobotMotion::MotorOnOF(bool on, QString &status)
 //------------------------------------------------------------------------------
 //команда перемещания в точку
 //------------------------------------------------------------------------------
-int TRobotMotion::MovePoint(int coord_type, QVector<int> point, QString &status)
+int TRobotMotion::MovePoint(float *point, QString &status)
 {
-    QString cmd = "MOVE " + QString::number(coord_type) + ",";
+    QString cmd = "MOVE " + QString::number(MotionMode) + ",";
+    for (int i = 0; i < AxisCount; i++) {
+        cmd += QString::number(point[i]) + ",";
+    }
     return ProcessCommand(cmd, status);
 }
 //------------------------------------------------------------------------------
 //команда перемещения оси axis на шаг step
 // coord_type - система координат
 //------------------------------------------------------------------------------
-int TRobotMotion::StepMove(int coord_type, int axis, int step, QString &status)
+int TRobotMotion::StepMove(int axis, int step, QString &status)
 {
-    QString cmd = "STEP " + QString::number(coord_type) + "," + QString::number(axis) + "," + QString::number(step) + ",";
+    QString cmd = "STEP " + QString::number(MotionMode) + "," + QString::number(axis) + "," + QString::number(step) + ",";
     return ProcessCommand(cmd, status);
+}
+//---------------------------------------------------------------------------
+int TRobotMotion::DepartMove(int step, QString &status)
+{
+    QString cmd = "DEPART " +  QString::number(step) + ",";
+    return ProcessCommand(cmd, status);
+}
+//---------------------------------------------------------------------------
+int TRobotMotion::SetZero(QString &status)
+{
+    return ProcessCommand("ZERO ", status);
 }
 //---------------------------------------------------------------------------
 // Функция выполнения команды:
@@ -65,7 +82,7 @@ int TRobotMotion::ProcessCommand(QString cmd, QString &state)
         }
         else  {
             // будем ждать окончания выполнения предыдущей команды
-            DWORD time_out_time = GetTickCount() + 5000;
+            DWORD time_out_time = GetTickCount() + 500;
             qDebug() << "wiantg " << cmd;
             while (1)  {
                 QApplication::processEvents();
@@ -76,11 +93,16 @@ int TRobotMotion::ProcessCommand(QString cmd, QString &state)
                    break;
                 }
                 // если время ожидания истекло - выйдем с ошибкой
-                if (GetTickCount() > time_out_time) return -1;
+                if (GetTickCount() > time_out_time) {
+                    qDebug() << "respnse TMEOUT";
+                    return -1;
+                }
             }
         }
+
         //добвим комеду в очердь обрабытваемых команд
         MotionCmd = cmd;
+        MotionFreq = 0;
         // установим флаг команды
         MotionCommand = true;
         // будем ждать окончания выполнения команды
@@ -92,6 +114,7 @@ int TRobotMotion::ProcessCommand(QString cmd, QString &state)
         // выйдем с результатом выполнения команды
         //запомним сотояние
         state = MotionCommandStatus;
+        qDebug() << "cngt " << MotionFreq;
         return MotionCommandExitCode;
     }
     else return 0;
@@ -196,6 +219,10 @@ void TRobotMotion::run()
     Terminate = false;
     Active = false;
     //int vsl = 1;
+
+    uint32_t cmd_time_counter;
+    int coord_cnt = 0;
+
     while (!Terminate)
     {
         //создаем и бнидм сокет прослушивания
@@ -213,17 +240,20 @@ void TRobotMotion::run()
                 //если стоит флаг отпраки команды
                 if (MotionCommand)
                 {
-                    qDebug() << "sebnd;";
+                    qDebug() << "star sending ";
                     int tx_count = send(DevSock, (char*)MotionCmd.toLatin1().data(), MotionCmd.length(), 0);
                     if (tx_count == MotionCmd.length())
                     {
                        wait_data = true;
                        //поднменм флаг ожидания ответа
                        MotionCommandWaitAnswer = true;
+                       qDebug() << "sebnd;" << tx_count;
+                       cmd_time_counter = GetTickCount();
+                       coord_cnt = 0;
                     }
-                        else {
+                    else {
                         MotionCommandWaitAnswer = false;
-                        MotionCommandExitCode = -2;
+                        MotionCommandExitCode = MotioCmdError::ConnetionError;
                         MotionCommand = false;
 
                         closesocket(DevSock);
@@ -231,10 +261,11 @@ void TRobotMotion::run()
                     }
                 }
                 //по истечении времени отправим команду
-                //получения сотсояния
+                //поддрежания соедниниея
                 else  if (GetTickCount() >= state_time)
                 {
-                    QString cmd_pos = "GETPOS 1,";
+                    //QString cmd_pos = "GETPOS 1,";
+                    QString cmd_pos = "STATUS ";
                     int tx_count = send(DevSock, (char*)cmd_pos.toLatin1().data(), cmd_pos.length(), 0);
                     if (tx_count == cmd_pos.length())
                     {
@@ -250,39 +281,62 @@ void TRobotMotion::run()
                 }
             }
             //при нличии данных в буффере прочтем их
-            else  if (WaitData()) {
+            else  if (WaitData())
+            {
                 char buf[1000];
                 int rx_count = recv(DevSock, buf, 1000, 0);
                 if (rx_count > 0)
                 {
-                    //если запрос оканчивается на OK - команда принята
                     QString resp = QString::fromLatin1(buf, rx_count);
+                    //елси ждем команду
                     if (MotionCommandWaitAnswer)
                     {
-                        MotionCommand = false;
-                        MotionCommandWaitAnswer = false;
+                        int cnd_pos = resp.lastIndexOf(" ");
+                       QString cmd = resp.left(cnd_pos);
+                       //qDebug() << "commm " << cmd << " waitt " << MotionCmd;
 
-                        //MotionCommandFree
-                        if (resp.endsWith(" OK")) {
-                            MotionCommandExitCode = 1;
+                       //пришел ответ на лждаемую команду
+                       if (cmd == MotionCmd)
+                       {
+                            MotionCommand = false;
+                            MotionCommandWaitAnswer = false;
+
+                            float time_sec = (GetTickCount() - cmd_time_counter) / 1000;
+                            MotionFreq = coord_cnt / time_sec;
+
+                            //MotionCommandFree
+                            if (resp.endsWith(" OK")) {
+                                MotionCommandExitCode = MotioCmdError::NoError;
+                            }
+                            else if (resp.endsWith(" NF")) {
+                                MotionCommandExitCode = MotioCmdError::NotFound;
+                                qDebug() << "cmd not giund";
+                            }
+                            else if (resp.endsWith(" RG_ERR")) {
+                                MotionCommandExitCode = MotioCmdError::Range;
+                            }
+                            else {
+                                MotionCommandExitCode = MotioCmdError::ConnetionError;
+                            }
+                            MotionCommandStatus = resp;
+                            wait_data = false;
                         }
-                        else if (resp.endsWith(" NF")) {
-                            MotionCommandExitCode = -1;
-                            qDebug() << "cmd not giund";
-                        }
-                        else if (resp.endsWith(" RG ERR")) {
-                            MotionCommandExitCode = -3;
-                        }
+                        //присали координиату (сделать проверку)
                         else {
-                            MotionCommandExitCode = -2;
+                           //qDebug()  << "udating pos" << resp;
+                           coord_cnt++;
+                           emit updatePos(resp);
                         }
-                        MotionCommandStatus= resp;
                     }
-                    //присалит координату
+                    else if (resp == "STATUS OK") {
+                        wait_data = false;
+                    }
+                    //ошибка
                     else {
-                        emit updatePos(resp);
+                        closesocket(DevSock);
+                        DevSock = INVALID_SOCKET;
+                        wait_data = false;
                     }
-                    wait_data = false;
                 }
                 //получили ответ неправльиной дины
                 else
@@ -290,11 +344,12 @@ void TRobotMotion::run()
                     //сброс выполения коанды
                     if (MotionCommandWaitAnswer) {
                         MotionCommandWaitAnswer = false;
-                        MotionCommandExitCode = -2;
+                        MotionCommandExitCode = MotioCmdError::ConnetionError;
                         MotionCommand = false;
                     }
                     closesocket(DevSock);
                     DevSock = INVALID_SOCKET;
+                    wait_data = false;
                 }
             }
             if (DevSock == INVALID_SOCKET)
@@ -304,7 +359,7 @@ void TRobotMotion::run()
                 //сброс выполения коанды
                 if (MotionCommandWaitAnswer) {
                     MotionCommandWaitAnswer = false;
-                    MotionCommandExitCode = -2;
+                    MotionCommandExitCode = MotioCmdError::ConnetionError;
                     MotionCommand = false;
                 }
             }
@@ -316,7 +371,8 @@ void TRobotMotion::run()
             Active = true;
             MotionCommand = false;
             MotionCommandFree = true;
-            MotionCommandExitCode = 0;
+            MotionCommandExitCode = MotioCmdError::ConnetionWait;
+            MotionCommandWaitAnswer = false;
             //wait_data = false;
             qDebug() << "connnn";
         }

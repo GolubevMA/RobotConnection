@@ -20,25 +20,32 @@ class TRobotMotion : public QThread
 {
     Q_OBJECT
 public:
-
     enum MotioType {JOIUNT,  BASE, TOOL};
 
+    enum MotioCmdError {Range=-3, ConnetionError, NotFound, ConnetionWait, NoError};
 
     //параметры движения
     int MotionMode = MotioType::JOIUNT;
     float MotionSpeed;
+    float MotionFreq;
 
+    int AxisCount = 6;
 
     QString IPAddres;
     bool Terminate;
 
-    explicit TRobotMotion(QObject *parent = nullptr, QString ip = "");
+    explicit TRobotMotion(QObject *parent = nullptr, QString ip = "", int axis_count = 6);
     ~TRobotMotion();
+
+//    //проверка диапазана
+//    bool checkCoord();
 
     //комаеды упралвения
     int MotorOnOF(bool on, QString &status);
-    int MovePoint(int coord_type, QVector<int> point, QString &status);
-    int StepMove(int coord_type, int axis, int step, QString &status);
+    int MovePoint(float *point, QString &status);
+    int StepMove(int axis, int step, QString &status);
+    int DepartMove(int step, QString &status);
+    int SetZero(QString &status);
     void run() override;
 
 private :

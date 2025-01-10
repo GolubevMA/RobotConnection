@@ -26,7 +26,6 @@ RbotPart::~RbotPart()
 //        delete vertices;
 //        vertices = NULL;
 //    }
-
 //    if (indexes != NULL)
 //    {
 //        delete indexes;
@@ -155,7 +154,7 @@ void TRobotModel::loadModel()
             {QVector3D(-1.5f,  2.0f,  0.7f), QVector2D(2.0/4.0, 2.0/3.0)},  // v15
 
             //нижняя грань
-            {QVector3D(-0.5f, -1.4f, -0.7f), QVector2D(2.0/4.0, 1.0f)}, // v16
+            {QVector3D(-1.5f, -1.4f, -0.7f), QVector2D(2.0/4.0, 1.0f)}, // v16
             {QVector3D( -1.0f, -1.4f, -0.7f), QVector2D(1.0/4.0, 1.0f)}, // v17
             {QVector3D( -1.0f, -1.4f,  0.7f), QVector2D(1.0/4.0, 2.0/3.0)}, // v19
             {QVector3D(-1.5f, -1.4f,  0.7f), QVector2D(2.0/4.0, 2.0/3.0)}, // v18
@@ -181,9 +180,9 @@ void TRobotModel::loadModel()
     ConnectionPoints.append(QVector3D(0,2,0));
     //вращаем отностиедбно вектора
     //перпедникулярного левой грании перовй детали
-    v1 = RobotAxis1.vertices[6].position; //v6
-    v2 = RobotAxis1.vertices[5].position; //v5
-    v3= RobotAxis1.vertices[4].position; //v4
+    v1 = QVector3D( -1.0f,  2.0f,  0);
+    v2 = QVector3D( -1.0f, -1.4f, -0.7f);
+    v3= QVector3D( -1.0f, -1.4f,  0);
     RotationAxis.append(QVector3D::normal(v1,v2,v3));
     DetalCount++;
 

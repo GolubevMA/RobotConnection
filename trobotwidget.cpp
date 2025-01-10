@@ -57,42 +57,42 @@ void TRobotWidget::SetRobotModel(TRobotModel *model)
 }
 //------------------------------------------------------------------------------
 void TRobotWidget::SetPlane(int plane) {
-    switch (plane) {
-    //XZ
-    case 0:
+    switch (plane)
     {
-        QVector3D AxisX = QVector3D(0, 0, 1);
-        //стчиаем кватериан как произведение кватерианов
-        //поворта вокруг каждых осей
-        //вращаем
-        QQuaternion rotate_y = QQuaternion::fromAxisAndAngle(AxisX, -M_PI / 2);
-        Rotate = rotate_y;
-        updateGL();
-    }
-        break;
-    case 1:
-        break;
-    case 2:
-        break;
-    case 3:
-        break;
-    default:
-        break;
+        //XZ
+        case 0:
+        {
+            QVector3D AxisX = QVector3D(0, 0, 1);
+            //стчиаем кватериан как произведение кватерианов
+            //поворта вокруг каждых осей //вращаем
+            QQuaternion rotate_y = QQuaternion::fromAxisAndAngle(AxisX, -M_PI / 2);
+            Rotate = rotate_y;
+            updateGL();
+        }
+            break;
+        case 1:
+            break;
+        case 2:
+            break;
+        case 3:
+            break;
+        default:
+            break;
     }
 }
 //------------------------------------------------------------------------------
 // вращаем оси робота
 //------------------------------------------------------------------------------
-void TRobotWidget::SetRobotRotation(QVector<float> angles)
+void TRobotWidget::SetRobotRotation(float *angles, int ang_count)
 {
-    //if (CurrentModel->DetalCount != angles.size()) return;
+    if (ang_count > CurrentModel->DetalCount) ang_count = CurrentModel->DetalCount;
     rotations.clear();
 
+
     //фоирмуем  список квартенинов поврота вокрук каждой оси на каждый угол
-    for (int i = 0; i < CurrentModel->DetalCount; i++) {
+    for (int i = 0; i < ang_count; i++) {
         rotations.append(QQuaternion::fromAxisAndAngle(CurrentModel->RotationAxis[i], angles[i]));
     }
-
     updateGL();
 }
 //------------------------------------------------------------------------------
@@ -191,7 +191,6 @@ void TRobotWidget::LoadCubeTexture()
              0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, posz.constBits());
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
              0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, negz.constBits());
-
 
 }
 //------------------------------------------------------------------------------

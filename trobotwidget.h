@@ -23,7 +23,7 @@ public:
 
     void SetPlane(int plane);
     void SetRobotModel(TRobotModel *model);
-    void SetRobotRotation(QVector<float> angles);
+    void SetRobotRotation(float *angles, int ang_count);
     void SetTexture(QString path);
 
     void initShaders();
