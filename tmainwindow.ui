@@ -70,69 +70,6 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QPushButton" name="pushButton_XZ_PLane">
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>XZ</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_XY_PLane">
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>XY</string>
-            </property>
-            <property name="iconSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushButton_YZ_Plane">
-            <property name="minimumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>40</width>
-              <height>40</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>YZ</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QSpinBox" name="spinBox_JT1">
             <property name="minimumSize">
              <size>
@@ -226,9 +163,9 @@
          </layout>
         </item>
         <item>
-         <widget class="TRobotWidget" name="widget_Robot" native="true">
+         <widget class="OcctQtViewer" name="widget_Robot">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -945,10 +882,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>TRobotWidget</class>
-   <extends>QWidget</extends>
-   <header location="global">trobotwidget.h</header>
-   <container>1</container>
+   <class>OcctQtViewer</class>
+   <extends>QOpenGLWidget</extends>
+   <header location="global">occtqtviewer.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

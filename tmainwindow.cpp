@@ -1,9 +1,11 @@
 ﻿#include "tmainwindow.h"
 #include "ui_tmainwindow.h"
+#include "trobotmotion.h"
 #include "qdebug.h"
 #include "tpointdialog.h"
 #include <QSettings>
 #include "stepfile.h"
+#include <QMessageBox>
 //------------------------------------------------------------------------------
 TMainWindow::TMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -11,18 +13,18 @@ TMainWindow::TMainWindow(QWidget *parent) :
 {   
     step = 5;
 
+//    ExpressSchema *schema = new ExpressSchema("J://WorkProjects//RobotConnection//debug//ap203.exp");
+//    StepFile stepFile("J://WorkProjects//RobotConnection//debug//sample02.step", schema);
 
-    ExpressSchema *schema = new ExpressSchema("J://WorkProjects//RobotConnection//debug//ap203.exp");
-    StepFile stepFile("J://WorkProjects//RobotConnection//debug//sample02.step", schema);
+    //грузим модель
+    CSystemModel = new ControlSystemModel();
+    CSystemModel->LoadSystemModel("J:\\WorkProjects\\RobotConnection\\RS007N-BC01.stp");
 
-
+    //создаем потк
     RobotMotion = new TRobotMotion(this, "192.168.0.1");
     RobotMotion->Terminate = false;
     RobotMotion->start();
 
-
-    RobotModel = new TRobotModel();
-    RobotModel->loadModel();
 
     ui->setupUi(this);
 
@@ -30,7 +32,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
     connect(RobotMotion, SIGNAL(UpdateSystemState()), this ,SLOT(UpdateSystemState()));
     connect(RobotMotion, SIGNAL(calcAngle()), this, SLOT(calcAngles()));
 
-    ui->widget_Robot->SetRobotModel(RobotModel);
+    ui->widget_Robot->SetControlModel(CSystemModel);
 
     QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
         ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7
@@ -38,14 +40,18 @@ TMainWindow::TMainWindow(QWidget *parent) :
     for (int i = 6; i < MAX_AXIS_COUNT;  i++) {
         axisis[i]->setVisible(false);
     }
+
+    test << 10 << 10 << 10 <<  10 << 10 << 10;
 }
 //------------------------------------------------------------------------------
 TMainWindow::~TMainWindow()
 {
     RobotMotion->Terminate = true;
     RobotMotion->terminate();
+
     delete RobotMotion;
-    delete RobotModel;
+    delete CSystemModel;
+
     delete ui;
 }
 //------------------------------------------------------------------------------
@@ -108,6 +114,7 @@ void TMainWindow::UpdateSystemState()
             axisis[i]->setText(QString::number(RobotMotion->coord_xyz.at(i)));
         }
     }
+    ui->widget_Robot->SetRobotAngles(RobotMotion->coord_jt);
 
 
     UpdateVarsFlag = false;
@@ -285,21 +292,6 @@ void TMainWindow::on_pushButton_ZERO_clicked()
     cherResonse(RobotMotion->SetZero(satte));
 }
 //------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_XY_PLane_clicked()
-{
-   //ui->widget->
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_YZ_Plane_clicked()
-{
-
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_XZ_PLane_clicked()
-{
-    ui->widget_Robot->SetPlane(0);
-}
-//------------------------------------------------------------------------------
 void TMainWindow::on_pushButton_CMD_clicked()
 {
     //менем ск
@@ -314,40 +306,39 @@ void TMainWindow::on_pushButton_CMD_clicked()
 
 }
 //------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT1_valueChanged(int arg1)
-//{
-//    coord[0] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-////------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT2_valueChanged(int arg1)
-//{
-//    coord[1] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-////------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT3_valueChanged(int arg1)
-//{
-//    coord[2] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-////------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT4_valueChanged(int arg1)
-//{
-//    coord[3] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-////------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT5_valueChanged(int arg1)
-//{
-//    coord[4] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-////------------------------------------------------------------------------------
-//void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
-//{
-//    coord[5] = arg1;
-//    ui->widget_Robot->SetRobotRotation(coord);
-//}
-
+void TMainWindow::on_spinBox_JT1_valueChanged(int arg1)
+{
+    test[0] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::on_spinBox_JT2_valueChanged(int arg1)
+{
+    test[1] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::on_spinBox_JT3_valueChanged(int arg1)
+{
+    test[2] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::on_spinBox_JT4_valueChanged(int arg1)
+{
+    test[3] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::on_spinBox_JT5_valueChanged(int arg1)
+{
+    test[4] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
+{
+    test[5] = arg1;
+    ui->widget_Robot->SetRobotAngles(test);
+}
 

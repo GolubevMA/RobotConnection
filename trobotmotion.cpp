@@ -87,7 +87,7 @@ void TRobotMotion::updatePos(QString pos)
         QString num_jt = jt_pos.mid(seek_pos_jt -1, ind_jt - seek_pos_jt);
         QString num_xyz = xyz_pos.mid(seek_pos_xyz -1, ind_xyz - seek_pos_xyz);
 
-        if (AxisCount < 0)
+        if (AxisCount <= 0)
         {
             //добвлаем значения оси в массив координат
             coord_jt.append(num_jt.toFloat());
@@ -106,7 +106,7 @@ void TRobotMotion::updatePos(QString pos)
     }
 
     //если число осей не установлено - установим
-    if (AxisCount < 0)
+    if (AxisCount <= 0)
     {
         AxisCount = cnt;
     }

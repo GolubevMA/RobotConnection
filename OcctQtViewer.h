@@ -22,6 +22,8 @@
 #ifndef OCCTQTVIEWER_H
 #define OCCTQTVIEWER_H
 
+#include "vars.h"
+
 #include <Standard_WarningsDisable.hxx>
 #include <QOpenGLWidget>
 #include <Standard_WarningsRestore.hxx>
@@ -29,34 +31,7 @@
 #include <AIS_InteractiveContext.hxx>
 #include <AIS_ViewController.hxx>
 #include <V3d_View.hxx>
-#include "STEPControl_Reader.hxx"
-#include "STEPCAFControl_Reader.hxx"
-#include "STEPControl_Controller.hxx"
 #include  "BRepBuilderAPI_Transform.hxx"
-#include <AIS_Shape.hxx>
-#include <AIS_Point.hxx>
-#include <Geom_Point.hxx>
-#include "StepData_StepModel.hxx"
-#include  "Standard_Transient.hxx"
-#include  "Interface_EntityIterator.hxx"
-#include  "XSControl_TransferReader.hxx"
-#include  "XSControl_WorkSession.hxx"
-#include  "StepRepr_NextAssemblyUsageOccurrence.hxx"
-#include  "Transfer_Binder.hxx"
-#include  "TransferBRep.hxx"
-#include  "Transfer_TransientProcess.hxx"
-#include  "StepBasic_ProductDefinition.hxx"
-#include  "StepBasic_Product.hxx"
-#include  "XSControl_WorkSession.hxx"
-#include  "StepRepr_RepresentationItem.hxx"
-#include  "StepBasic_PlaneAngleUnit.hxx"
-#include  "gp_Quaternion.hxx"
-#include  "Graphic3d_TransformPers.hxx"
-#include  "Geom2d_Circle.hxx"
-#include  "gp_Circ2d.hxx"
-#include  "BRepBuilderAPI_MakeVertex.hxx"
-#include  "TopOpeBRep_ShapeIntersector.hxx"
-#include  "TopoDS.hxx"
 
 
 class AIS_ViewCube;
@@ -81,6 +56,9 @@ public:
   //возращет контектс opengl
   const Handle(AIS_InteractiveContext)& Context() const { return myContext; }
 
+  //загружаем модель сисетмы контроля
+  void SetControlModel(ControlSystemModel * model) { robotModel = model;}
+
   //парметтыр opengl
   const QString& getGlInfo() const { return myGlInfo; }
   virtual QSize minimumSizeHint() const override { return QSize(200, 200); }
@@ -91,9 +69,6 @@ public:
                                 const Handle(V3d_View)& theNewView) override;
 
   void SetRobotAngles(QList<float> angles);
-
-  void LoadStep(QString fname);
-  void LoadStepShapes();
 
 protected:
   virtual void initializeGL() override;
@@ -129,15 +104,13 @@ private:
   Handle(V3d_View)               myFocusView;
 
   Handle(AIS_Shape)              aShape;  
-  //список AIS предствлений подвижный осей робота в модели
-  QList<Handle(AIS_Shape)>       robotShape;  
 
   QString myGlInfo;
   bool myIsCoreProfile;
 
-  //здесь храним точки вокруг которой вращаются соовтветсвующеи оси робота (точки крепления)
-  //и единичиниые векторы, описывающие тракетории  вращенмя
-  QList<gp_Ax1> rotateDirections;
+
+  //струкутра визулаиции робота
+  ControlSystemModel *robotModel;
 
 
 

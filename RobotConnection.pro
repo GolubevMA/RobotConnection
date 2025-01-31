@@ -30,10 +30,8 @@ SOURCES += \
     OcctQtViewer.cpp \
         main.cpp \
         tmainwindow.cpp \
-    trobotwidget.cpp \
     trobotmotion.cpp \
     vars.cpp \
-    trobotmodel.cpp \
     expressschema.cpp \
     stepfile.cpp \
     tpointdialog.cpp
@@ -42,10 +40,8 @@ HEADERS += \
     OcctGlTools.h \
     OcctQtViewer.h \
         tmainwindow.h \
-    trobotwidget.h \
     trobotmotion.h \
     vars.h \
-    trobotmodel.h \
     expressschema.h \
     stepfile.h \
     tpointdialog.h
