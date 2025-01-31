@@ -27,7 +27,7 @@ RbotPart::~RbotPart()
 //        vertices = NULL;
 //    }
 //    if (indexes != NULL)
-//    {
+//       {
 //        delete indexes;
 //        indexes = NULL;
 //    }

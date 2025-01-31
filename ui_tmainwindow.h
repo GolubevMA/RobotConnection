@@ -19,7 +19,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
-#include <QtWidgets/QPlainTextEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
@@ -42,12 +41,10 @@ public:
     QSpacerItem *horizontalSpacer_2;
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout;
-    QHBoxLayout *horizontalLayout_3;
+    QHBoxLayout *horizontalLayout_6;
+    QPushButton *pushButton_XZ_PLane;
     QPushButton *pushButton_XY_PLane;
     QPushButton *pushButton_YZ_Plane;
-    QPushButton *pushButton_XZ_PLane;
-    QSpacerItem *horizontalSpacer_4;
-    QHBoxLayout *horizontalLayout_6;
     QSpinBox *spinBox_JT1;
     QSpinBox *spinBox_JT2;
     QSpinBox *spinBox_JT3;
@@ -57,57 +54,54 @@ public:
     QSpacerItem *horizontalSpacer_5;
     TRobotWidget *widget_Robot;
     QGridLayout *gridLayout;
-    QSpacerItem *horizontalSpacer;
+    QFrame *frame_2;
+    QGridLayout *gridLayout_4;
+    QPushButton *pushButton;
+    QDoubleSpinBox *doubleSpinBox_Depart;
+    QPushButton *pushButton_CMD;
+    QPushButton *pushButton_Move;
+    QPushButton *pushButton_ZERO;
+    QPushButton *pushButton_2;
     QFrame *frame;
     QGridLayout *gridLayout_3;
-    QSpinBox *spinBox_reserv;
-    QLabel *label_13;
-    QLabel *label_15;
-    QLabel *label;
-    QSpinBox *spinBox_X;
-    QLabel *label_2;
-    QSpinBox *spinBox_Z;
-    QLabel *label_5;
-    QLabel *label_4;
-    QSpinBox *spinBox_Y;
-    QSpinBox *spinBox_rx;
-    QSpinBox *spinBox_ry;
-    QLabel *label_6;
+    QLabel *label_axis3;
+    QLabel *label_axis5;
+    QLabel *label_axis7;
+    QLabel *label_axis2;
+    QLabel *label_axis4;
+    QLabel *label_axis6;
     QLabel *label_3;
-    QPushButton *pushButton_Move;
-    QSpinBox *spinBox_rz;
-    QPushButton *pushButton_2;
+    QLabel *label;
+    QLabel *label_15;
+    QLabel *label_axis1;
+    QLabel *label_6;
+    QLabel *label_4;
+    QLabel *label_2;
+    QLabel *label_5;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout;
     QGridLayout *gridLayout_2;
-    QSpacerItem *verticalSpacer_4;
-    QSpacerItem *verticalSpacer;
-    QSpacerItem *verticalSpacer_2;
-    QLabel *label_17;
-    QSpinBox *spinBox_Step;
+    QPushButton *pushButton_x_plus;
     QLabel *label_7;
     QPushButton *pushButton_x_minus;
-    QPushButton *pushButton_y_plus;
-    QLabel *label_8;
-    QPushButton *pushButton_z_plus;
-    QPushButton *pushButton_x_plus;
-    QPushButton *pushButton_y_minus;
-    QPushButton *pushButton_ry_plus;
-    QPushButton *pushButton_z_minus;
-    QLabel *label_9;
     QPushButton *pushButton_rx_plus;
+    QPushButton *pushButton_rx_minus;
+    QPushButton *pushButton_rz_minus;
+    QPushButton *pushButton_y_plus;
+    QLabel *label_9;
     QLabel *label_10;
     QPushButton *pushButton_rz_plus;
-    QPushButton *pushButton_rx_minus;
-    QPushButton *pushButton_ry_minus;
     QLabel *label_12;
     QLabel *label_11;
-    QPushButton *pushButton_rz_minus;
-    QHBoxLayout *horizontalLayout_7;
-    QPushButton *pushButton;
-    QDoubleSpinBox *doubleSpinBox_Depart;
-    QPushButton *pushButton_ZERO;
-    QPlainTextEdit *plainTextEdit;
+    QPushButton *pushButton_y_minus;
+    QSpinBox *spinBox_Step;
+    QSpacerItem *verticalSpacer_2;
+    QLabel *label_17;
+    QPushButton *pushButton_z_plus;
+    QLabel *label_8;
+    QPushButton *pushButton_z_minus;
+    QPushButton *pushButton_ry_minus;
+    QPushButton *pushButton_ry_plus;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
@@ -155,41 +149,31 @@ public:
         verticalLayout = new QVBoxLayout();
         verticalLayout->setSpacing(6);
         verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
-        horizontalLayout_3 = new QHBoxLayout();
-        horizontalLayout_3->setSpacing(6);
-        horizontalLayout_3->setObjectName(QStringLiteral("horizontalLayout_3"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(6);
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
+        pushButton_XZ_PLane = new QPushButton(centralWidget);
+        pushButton_XZ_PLane->setObjectName(QStringLiteral("pushButton_XZ_PLane"));
+        pushButton_XZ_PLane->setMinimumSize(QSize(40, 40));
+        pushButton_XZ_PLane->setMaximumSize(QSize(40, 40));
+
+        horizontalLayout_6->addWidget(pushButton_XZ_PLane);
+
         pushButton_XY_PLane = new QPushButton(centralWidget);
         pushButton_XY_PLane->setObjectName(QStringLiteral("pushButton_XY_PLane"));
         pushButton_XY_PLane->setMinimumSize(QSize(40, 40));
         pushButton_XY_PLane->setMaximumSize(QSize(40, 40));
         pushButton_XY_PLane->setIconSize(QSize(40, 40));
 
-        horizontalLayout_3->addWidget(pushButton_XY_PLane);
+        horizontalLayout_6->addWidget(pushButton_XY_PLane);
 
         pushButton_YZ_Plane = new QPushButton(centralWidget);
         pushButton_YZ_Plane->setObjectName(QStringLiteral("pushButton_YZ_Plane"));
         pushButton_YZ_Plane->setMinimumSize(QSize(40, 40));
         pushButton_YZ_Plane->setMaximumSize(QSize(40, 40));
 
-        horizontalLayout_3->addWidget(pushButton_YZ_Plane);
+        horizontalLayout_6->addWidget(pushButton_YZ_Plane);
 
-        pushButton_XZ_PLane = new QPushButton(centralWidget);
-        pushButton_XZ_PLane->setObjectName(QStringLiteral("pushButton_XZ_PLane"));
-        pushButton_XZ_PLane->setMinimumSize(QSize(40, 40));
-        pushButton_XZ_PLane->setMaximumSize(QSize(40, 40));
-
-        horizontalLayout_3->addWidget(pushButton_XZ_PLane);
-
-        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_3->addItem(horizontalSpacer_4);
-
-
-        verticalLayout->addLayout(horizontalLayout_3);
-
-        horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setSpacing(6);
-        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
         spinBox_JT1 = new QSpinBox(centralWidget);
         spinBox_JT1->setObjectName(QStringLiteral("spinBox_JT1"));
         spinBox_JT1->setMinimumSize(QSize(100, 0));
@@ -252,9 +236,47 @@ public:
         gridLayout = new QGridLayout();
         gridLayout->setSpacing(6);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        frame_2 = new QFrame(centralWidget);
+        frame_2->setObjectName(QStringLiteral("frame_2"));
+        frame_2->setFrameShape(QFrame::StyledPanel);
+        frame_2->setFrameShadow(QFrame::Raised);
+        gridLayout_4 = new QGridLayout(frame_2);
+        gridLayout_4->setSpacing(6);
+        gridLayout_4->setContentsMargins(11, 11, 11, 11);
+        gridLayout_4->setObjectName(QStringLiteral("gridLayout_4"));
+        pushButton = new QPushButton(frame_2);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
 
-        gridLayout->addItem(horizontalSpacer, 0, 0, 1, 1);
+        gridLayout_4->addWidget(pushButton, 2, 0, 1, 1);
+
+        doubleSpinBox_Depart = new QDoubleSpinBox(frame_2);
+        doubleSpinBox_Depart->setObjectName(QStringLiteral("doubleSpinBox_Depart"));
+        doubleSpinBox_Depart->setMinimumSize(QSize(100, 0));
+
+        gridLayout_4->addWidget(doubleSpinBox_Depart, 2, 1, 1, 1);
+
+        pushButton_CMD = new QPushButton(frame_2);
+        pushButton_CMD->setObjectName(QStringLiteral("pushButton_CMD"));
+
+        gridLayout_4->addWidget(pushButton_CMD, 0, 0, 1, 1);
+
+        pushButton_Move = new QPushButton(frame_2);
+        pushButton_Move->setObjectName(QStringLiteral("pushButton_Move"));
+
+        gridLayout_4->addWidget(pushButton_Move, 0, 1, 1, 1);
+
+        pushButton_ZERO = new QPushButton(frame_2);
+        pushButton_ZERO->setObjectName(QStringLiteral("pushButton_ZERO"));
+
+        gridLayout_4->addWidget(pushButton_ZERO, 3, 1, 1, 1);
+
+        pushButton_2 = new QPushButton(frame_2);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+
+        gridLayout_4->addWidget(pushButton_2, 3, 0, 1, 1);
+
+
+        gridLayout->addWidget(frame_2, 0, 0, 1, 1);
 
         frame = new QFrame(centralWidget);
         frame->setObjectName(QStringLiteral("frame"));
@@ -264,122 +286,99 @@ public:
         gridLayout_3->setSpacing(6);
         gridLayout_3->setContentsMargins(11, 11, 11, 11);
         gridLayout_3->setObjectName(QStringLiteral("gridLayout_3"));
-        spinBox_reserv = new QSpinBox(frame);
-        spinBox_reserv->setObjectName(QStringLiteral("spinBox_reserv"));
+        label_axis3 = new QLabel(frame);
+        label_axis3->setObjectName(QStringLiteral("label_axis3"));
+        label_axis3->setStyleSheet(QStringLiteral("background-color:white"));
 
-        gridLayout_3->addWidget(spinBox_reserv, 7, 1, 1, 1);
+        gridLayout_3->addWidget(label_axis3, 1, 1, 1, 1);
 
-        label_13 = new QLabel(frame);
-        label_13->setObjectName(QStringLiteral("label_13"));
-        label_13->setMinimumSize(QSize(0, 28));
-        label_13->setMaximumSize(QSize(16777215, 28));
-        label_13->setAlignment(Qt::AlignCenter);
+        label_axis5 = new QLabel(frame);
+        label_axis5->setObjectName(QStringLiteral("label_axis5"));
+        label_axis5->setMinimumSize(QSize(100, 0));
+        label_axis5->setStyleSheet(QStringLiteral("background-color:white"));
 
-        gridLayout_3->addWidget(label_13, 0, 0, 1, 8);
+        gridLayout_3->addWidget(label_axis5, 4, 1, 1, 1);
+
+        label_axis7 = new QLabel(frame);
+        label_axis7->setObjectName(QStringLiteral("label_axis7"));
+        label_axis7->setMinimumSize(QSize(100, 0));
+        label_axis7->setStyleSheet(QStringLiteral("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis7, 6, 1, 1, 1);
+
+        label_axis2 = new QLabel(frame);
+        label_axis2->setObjectName(QStringLiteral("label_axis2"));
+        label_axis2->setMinimumSize(QSize(100, 0));
+        label_axis2->setStyleSheet(QStringLiteral("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis2, 0, 3, 1, 1);
+
+        label_axis4 = new QLabel(frame);
+        label_axis4->setObjectName(QStringLiteral("label_axis4"));
+        label_axis4->setMinimumSize(QSize(100, 0));
+        label_axis4->setStyleSheet(QStringLiteral("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis4, 1, 3, 1, 1);
+
+        label_axis6 = new QLabel(frame);
+        label_axis6->setObjectName(QStringLiteral("label_axis6"));
+        label_axis6->setMinimumSize(QSize(100, 0));
+        label_axis6->setStyleSheet(QStringLiteral("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis6, 4, 3, 1, 1);
+
+        label_3 = new QLabel(frame);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        label_3->setMinimumSize(QSize(120, 0));
+        label_3->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label_3, 4, 0, 1, 1);
+
+        label = new QLabel(frame);
+        label->setObjectName(QStringLiteral("label"));
+        label->setMinimumSize(QSize(120, 0));
+        label->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label, 0, 0, 1, 1);
 
         label_15 = new QLabel(frame);
         label_15->setObjectName(QStringLiteral("label_15"));
 
-        gridLayout_3->addWidget(label_15, 7, 0, 1, 1);
+        gridLayout_3->addWidget(label_15, 6, 0, 1, 1);
 
-        label = new QLabel(frame);
-        label->setObjectName(QStringLiteral("label"));
-        label->setMinimumSize(QSize(150, 0));
-        label->setMaximumSize(QSize(150, 16777215));
+        label_axis1 = new QLabel(frame);
+        label_axis1->setObjectName(QStringLiteral("label_axis1"));
+        label_axis1->setMinimumSize(QSize(100, 0));
+        label_axis1->setStyleSheet(QStringLiteral("background-color:white"));
 
-        gridLayout_3->addWidget(label, 1, 0, 1, 1);
-
-        spinBox_X = new QSpinBox(frame);
-        spinBox_X->setObjectName(QStringLiteral("spinBox_X"));
-        spinBox_X->setMinimumSize(QSize(120, 0));
-        spinBox_X->setMinimum(-1000);
-        spinBox_X->setMaximum(1000);
-
-        gridLayout_3->addWidget(spinBox_X, 1, 1, 1, 1);
-
-        label_2 = new QLabel(frame);
-        label_2->setObjectName(QStringLiteral("label_2"));
-        label_2->setMinimumSize(QSize(150, 0));
-        label_2->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout_3->addWidget(label_2, 1, 3, 1, 1);
-
-        spinBox_Z = new QSpinBox(frame);
-        spinBox_Z->setObjectName(QStringLiteral("spinBox_Z"));
-        spinBox_Z->setMinimumSize(QSize(120, 0));
-        spinBox_Z->setMinimum(-360);
-        spinBox_Z->setMaximum(360);
-
-        gridLayout_3->addWidget(spinBox_Z, 2, 1, 1, 1);
-
-        label_5 = new QLabel(frame);
-        label_5->setObjectName(QStringLiteral("label_5"));
-        label_5->setMinimumSize(QSize(150, 0));
-        label_5->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout_3->addWidget(label_5, 2, 3, 1, 1);
-
-        label_4 = new QLabel(frame);
-        label_4->setObjectName(QStringLiteral("label_4"));
-        label_4->setMinimumSize(QSize(150, 0));
-
-        gridLayout_3->addWidget(label_4, 2, 0, 1, 1);
-
-        spinBox_Y = new QSpinBox(frame);
-        spinBox_Y->setObjectName(QStringLiteral("spinBox_Y"));
-        spinBox_Y->setMinimumSize(QSize(100, 0));
-        spinBox_Y->setMinimum(-360);
-        spinBox_Y->setMaximum(360);
-
-        gridLayout_3->addWidget(spinBox_Y, 1, 4, 1, 1);
-
-        spinBox_rx = new QSpinBox(frame);
-        spinBox_rx->setObjectName(QStringLiteral("spinBox_rx"));
-        spinBox_rx->setMinimumSize(QSize(120, 0));
-        spinBox_rx->setMinimum(-360);
-        spinBox_rx->setMaximum(360);
-
-        gridLayout_3->addWidget(spinBox_rx, 2, 4, 1, 1);
-
-        spinBox_ry = new QSpinBox(frame);
-        spinBox_ry->setObjectName(QStringLiteral("spinBox_ry"));
-        spinBox_ry->setMinimumSize(QSize(120, 0));
-        spinBox_ry->setMinimum(-360);
-        spinBox_ry->setMaximum(360);
-
-        gridLayout_3->addWidget(spinBox_ry, 5, 1, 1, 2);
+        gridLayout_3->addWidget(label_axis1, 0, 1, 1, 1);
 
         label_6 = new QLabel(frame);
         label_6->setObjectName(QStringLiteral("label_6"));
-        label_6->setMinimumSize(QSize(150, 0));
+        label_6->setMinimumSize(QSize(120, 0));
         label_6->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_3->addWidget(label_6, 5, 3, 1, 1);
+        gridLayout_3->addWidget(label_6, 4, 2, 1, 1);
 
-        label_3 = new QLabel(frame);
-        label_3->setObjectName(QStringLiteral("label_3"));
-        label_3->setMinimumSize(QSize(150, 0));
-        label_3->setMaximumSize(QSize(150, 16777215));
+        label_4 = new QLabel(frame);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setMinimumSize(QSize(120, 0));
 
-        gridLayout_3->addWidget(label_3, 5, 0, 1, 1);
+        gridLayout_3->addWidget(label_4, 1, 0, 1, 1);
 
-        pushButton_Move = new QPushButton(frame);
-        pushButton_Move->setObjectName(QStringLiteral("pushButton_Move"));
+        label_2 = new QLabel(frame);
+        label_2->setObjectName(QStringLiteral("label_2"));
+        label_2->setMinimumSize(QSize(120, 0));
+        label_2->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_3->addWidget(pushButton_Move, 7, 3, 1, 1);
+        gridLayout_3->addWidget(label_2, 0, 2, 1, 1);
 
-        spinBox_rz = new QSpinBox(frame);
-        spinBox_rz->setObjectName(QStringLiteral("spinBox_rz"));
-        spinBox_rz->setMinimumSize(QSize(120, 0));
-        spinBox_rz->setMinimum(-360);
-        spinBox_rz->setMaximum(360);
+        label_5 = new QLabel(frame);
+        label_5->setObjectName(QStringLiteral("label_5"));
+        label_5->setMinimumSize(QSize(120, 0));
+        label_5->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_3->addWidget(spinBox_rz, 5, 4, 1, 1);
-
-        pushButton_2 = new QPushButton(frame);
-        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
-
-        gridLayout_3->addWidget(pushButton_2, 7, 4, 1, 1);
+        gridLayout_3->addWidget(label_5, 1, 2, 1, 1);
 
 
         gridLayout->addWidget(frame, 0, 1, 1, 1);
@@ -399,29 +398,12 @@ public:
         gridLayout_2 = new QGridLayout();
         gridLayout_2->setSpacing(6);
         gridLayout_2->setObjectName(QStringLiteral("gridLayout_2"));
-        verticalSpacer_4 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        pushButton_x_plus = new QPushButton(centralWidget);
+        pushButton_x_plus->setObjectName(QStringLiteral("pushButton_x_plus"));
+        pushButton_x_plus->setMinimumSize(QSize(40, 40));
+        pushButton_x_plus->setMaximumSize(QSize(40, 40));
 
-        gridLayout_2->addItem(verticalSpacer_4, 6, 1, 1, 1);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        gridLayout_2->addItem(verticalSpacer, 12, 1, 1, 1);
-
-        verticalSpacer_2 = new QSpacerItem(20, 180, QSizePolicy::Minimum, QSizePolicy::Fixed);
-
-        gridLayout_2->addItem(verticalSpacer_2, 10, 1, 1, 1);
-
-        label_17 = new QLabel(centralWidget);
-        label_17->setObjectName(QStringLiteral("label_17"));
-
-        gridLayout_2->addWidget(label_17, 7, 0, 1, 1);
-
-        spinBox_Step = new QSpinBox(centralWidget);
-        spinBox_Step->setObjectName(QStringLiteral("spinBox_Step"));
-        spinBox_Step->setMinimum(-180);
-        spinBox_Step->setMaximum(180);
-
-        gridLayout_2->addWidget(spinBox_Step, 7, 1, 1, 2);
+        gridLayout_2->addWidget(pushButton_x_plus, 0, 0, 1, 1);
 
         label_7 = new QLabel(centralWidget);
         label_7->setObjectName(QStringLiteral("label_7"));
@@ -439,55 +421,33 @@ public:
 
         gridLayout_2->addWidget(pushButton_x_minus, 0, 2, 1, 1);
 
+        pushButton_rx_plus = new QPushButton(centralWidget);
+        pushButton_rx_plus->setObjectName(QStringLiteral("pushButton_rx_plus"));
+        pushButton_rx_plus->setMinimumSize(QSize(40, 40));
+        pushButton_rx_plus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_rx_plus, 3, 0, 1, 1);
+
+        pushButton_rx_minus = new QPushButton(centralWidget);
+        pushButton_rx_minus->setObjectName(QStringLiteral("pushButton_rx_minus"));
+        pushButton_rx_minus->setMinimumSize(QSize(40, 40));
+        pushButton_rx_minus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_rx_minus, 3, 2, 1, 1);
+
+        pushButton_rz_minus = new QPushButton(centralWidget);
+        pushButton_rz_minus->setObjectName(QStringLiteral("pushButton_rz_minus"));
+        pushButton_rz_minus->setMinimumSize(QSize(40, 40));
+        pushButton_rz_minus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_rz_minus, 5, 2, 1, 1);
+
         pushButton_y_plus = new QPushButton(centralWidget);
         pushButton_y_plus->setObjectName(QStringLiteral("pushButton_y_plus"));
         pushButton_y_plus->setMinimumSize(QSize(40, 40));
         pushButton_y_plus->setMaximumSize(QSize(40, 40));
 
         gridLayout_2->addWidget(pushButton_y_plus, 1, 0, 1, 1);
-
-        label_8 = new QLabel(centralWidget);
-        label_8->setObjectName(QStringLiteral("label_8"));
-        label_8->setFont(font);
-        label_8->setStyleSheet(QStringLiteral("background-color:white"));
-        label_8->setAlignment(Qt::AlignCenter);
-
-        gridLayout_2->addWidget(label_8, 1, 1, 1, 1);
-
-        pushButton_z_plus = new QPushButton(centralWidget);
-        pushButton_z_plus->setObjectName(QStringLiteral("pushButton_z_plus"));
-        pushButton_z_plus->setMinimumSize(QSize(40, 40));
-        pushButton_z_plus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_z_plus, 2, 0, 1, 1);
-
-        pushButton_x_plus = new QPushButton(centralWidget);
-        pushButton_x_plus->setObjectName(QStringLiteral("pushButton_x_plus"));
-        pushButton_x_plus->setMinimumSize(QSize(40, 40));
-        pushButton_x_plus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_x_plus, 0, 0, 1, 1);
-
-        pushButton_y_minus = new QPushButton(centralWidget);
-        pushButton_y_minus->setObjectName(QStringLiteral("pushButton_y_minus"));
-        pushButton_y_minus->setMinimumSize(QSize(40, 40));
-        pushButton_y_minus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_y_minus, 1, 2, 1, 1);
-
-        pushButton_ry_plus = new QPushButton(centralWidget);
-        pushButton_ry_plus->setObjectName(QStringLiteral("pushButton_ry_plus"));
-        pushButton_ry_plus->setMinimumSize(QSize(40, 40));
-        pushButton_ry_plus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_ry_plus, 4, 0, 1, 1);
-
-        pushButton_z_minus = new QPushButton(centralWidget);
-        pushButton_z_minus->setObjectName(QStringLiteral("pushButton_z_minus"));
-        pushButton_z_minus->setMinimumSize(QSize(40, 40));
-        pushButton_z_minus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_z_minus, 2, 2, 1, 1);
 
         label_9 = new QLabel(centralWidget);
         label_9->setObjectName(QStringLiteral("label_9"));
@@ -496,13 +456,6 @@ public:
         label_9->setAlignment(Qt::AlignCenter);
 
         gridLayout_2->addWidget(label_9, 2, 1, 1, 1);
-
-        pushButton_rx_plus = new QPushButton(centralWidget);
-        pushButton_rx_plus->setObjectName(QStringLiteral("pushButton_rx_plus"));
-        pushButton_rx_plus->setMinimumSize(QSize(40, 40));
-        pushButton_rx_plus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_rx_plus, 3, 0, 1, 1);
 
         label_10 = new QLabel(centralWidget);
         label_10->setObjectName(QStringLiteral("label_10"));
@@ -518,20 +471,6 @@ public:
         pushButton_rz_plus->setMaximumSize(QSize(40, 40));
 
         gridLayout_2->addWidget(pushButton_rz_plus, 5, 0, 1, 1);
-
-        pushButton_rx_minus = new QPushButton(centralWidget);
-        pushButton_rx_minus->setObjectName(QStringLiteral("pushButton_rx_minus"));
-        pushButton_rx_minus->setMinimumSize(QSize(40, 40));
-        pushButton_rx_minus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_rx_minus, 3, 2, 1, 1);
-
-        pushButton_ry_minus = new QPushButton(centralWidget);
-        pushButton_ry_minus->setObjectName(QStringLiteral("pushButton_ry_minus"));
-        pushButton_ry_minus->setMinimumSize(QSize(40, 40));
-        pushButton_ry_minus->setMaximumSize(QSize(40, 40));
-
-        gridLayout_2->addWidget(pushButton_ry_minus, 4, 2, 1, 1);
 
         label_12 = new QLabel(centralWidget);
         label_12->setObjectName(QStringLiteral("label_12"));
@@ -549,34 +488,64 @@ public:
 
         gridLayout_2->addWidget(label_11, 4, 1, 1, 1);
 
-        pushButton_rz_minus = new QPushButton(centralWidget);
-        pushButton_rz_minus->setObjectName(QStringLiteral("pushButton_rz_minus"));
-        pushButton_rz_minus->setMinimumSize(QSize(40, 40));
-        pushButton_rz_minus->setMaximumSize(QSize(40, 40));
+        pushButton_y_minus = new QPushButton(centralWidget);
+        pushButton_y_minus->setObjectName(QStringLiteral("pushButton_y_minus"));
+        pushButton_y_minus->setMinimumSize(QSize(40, 40));
+        pushButton_y_minus->setMaximumSize(QSize(40, 40));
 
-        gridLayout_2->addWidget(pushButton_rz_minus, 5, 2, 1, 1);
+        gridLayout_2->addWidget(pushButton_y_minus, 1, 2, 1, 1);
 
-        horizontalLayout_7 = new QHBoxLayout();
-        horizontalLayout_7->setSpacing(6);
-        horizontalLayout_7->setObjectName(QStringLiteral("horizontalLayout_7"));
-        pushButton = new QPushButton(centralWidget);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
+        spinBox_Step = new QSpinBox(centralWidget);
+        spinBox_Step->setObjectName(QStringLiteral("spinBox_Step"));
+        spinBox_Step->setMinimum(-180);
+        spinBox_Step->setMaximum(180);
 
-        horizontalLayout_7->addWidget(pushButton);
+        gridLayout_2->addWidget(spinBox_Step, 6, 1, 1, 2);
 
-        doubleSpinBox_Depart = new QDoubleSpinBox(centralWidget);
-        doubleSpinBox_Depart->setObjectName(QStringLiteral("doubleSpinBox_Depart"));
-        doubleSpinBox_Depart->setMinimumSize(QSize(100, 0));
+        verticalSpacer_2 = new QSpacerItem(20, 180, QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-        horizontalLayout_7->addWidget(doubleSpinBox_Depart);
+        gridLayout_2->addItem(verticalSpacer_2, 7, 1, 1, 1);
 
+        label_17 = new QLabel(centralWidget);
+        label_17->setObjectName(QStringLiteral("label_17"));
 
-        gridLayout_2->addLayout(horizontalLayout_7, 9, 0, 1, 3);
+        gridLayout_2->addWidget(label_17, 6, 0, 1, 1);
 
-        pushButton_ZERO = new QPushButton(centralWidget);
-        pushButton_ZERO->setObjectName(QStringLiteral("pushButton_ZERO"));
+        pushButton_z_plus = new QPushButton(centralWidget);
+        pushButton_z_plus->setObjectName(QStringLiteral("pushButton_z_plus"));
+        pushButton_z_plus->setMinimumSize(QSize(40, 40));
+        pushButton_z_plus->setMaximumSize(QSize(40, 40));
 
-        gridLayout_2->addWidget(pushButton_ZERO, 11, 0, 1, 3);
+        gridLayout_2->addWidget(pushButton_z_plus, 2, 0, 1, 1);
+
+        label_8 = new QLabel(centralWidget);
+        label_8->setObjectName(QStringLiteral("label_8"));
+        label_8->setFont(font);
+        label_8->setStyleSheet(QStringLiteral("background-color:white"));
+        label_8->setAlignment(Qt::AlignCenter);
+
+        gridLayout_2->addWidget(label_8, 1, 1, 1, 1);
+
+        pushButton_z_minus = new QPushButton(centralWidget);
+        pushButton_z_minus->setObjectName(QStringLiteral("pushButton_z_minus"));
+        pushButton_z_minus->setMinimumSize(QSize(40, 40));
+        pushButton_z_minus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_z_minus, 2, 2, 1, 1);
+
+        pushButton_ry_minus = new QPushButton(centralWidget);
+        pushButton_ry_minus->setObjectName(QStringLiteral("pushButton_ry_minus"));
+        pushButton_ry_minus->setMinimumSize(QSize(40, 40));
+        pushButton_ry_minus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_ry_minus, 4, 2, 1, 1);
+
+        pushButton_ry_plus = new QPushButton(centralWidget);
+        pushButton_ry_plus->setObjectName(QStringLiteral("pushButton_ry_plus"));
+        pushButton_ry_plus->setMinimumSize(QSize(40, 40));
+        pushButton_ry_plus->setMaximumSize(QSize(40, 40));
+
+        gridLayout_2->addWidget(pushButton_ry_plus, 4, 0, 1, 1);
 
 
         horizontalLayout->addLayout(gridLayout_2);
@@ -589,17 +558,6 @@ public:
 
 
         verticalLayout_2->addLayout(horizontalLayout_2);
-
-        plainTextEdit = new QPlainTextEdit(centralWidget);
-        plainTextEdit->setObjectName(QStringLiteral("plainTextEdit"));
-        QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(plainTextEdit->sizePolicy().hasHeightForWidth());
-        plainTextEdit->setSizePolicy(sizePolicy1);
-        plainTextEdit->setMaximumSize(QSize(16777215, 60));
-
-        verticalLayout_2->addWidget(plainTextEdit);
 
         TMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(TMainWindow);
@@ -626,40 +584,47 @@ public:
         comboBox->setItemText(1, QApplication::translate("TMainWindow", "BASE", nullptr));
         comboBox->setItemText(2, QApplication::translate("TMainWindow", "TOOl", nullptr));
 
+        pushButton_XZ_PLane->setText(QApplication::translate("TMainWindow", "XZ", nullptr));
         pushButton_XY_PLane->setText(QApplication::translate("TMainWindow", "XY", nullptr));
         pushButton_YZ_Plane->setText(QApplication::translate("TMainWindow", "YZ", nullptr));
-        pushButton_XZ_PLane->setText(QApplication::translate("TMainWindow", "XZ", nullptr));
-        label_13->setText(QApplication::translate("TMainWindow", "Coord", nullptr));
-        label_15->setText(QApplication::translate("TMainWindow", "reserv", nullptr));
+        pushButton->setText(QApplication::translate("TMainWindow", "Depart", nullptr));
+        pushButton_CMD->setText(QApplication::translate("TMainWindow", "CMD", nullptr));
+        pushButton_Move->setText(QApplication::translate("TMainWindow", "Move", nullptr));
+        pushButton_ZERO->setText(QApplication::translate("TMainWindow", "SET ZERO", nullptr));
+        pushButton_2->setText(QApplication::translate("TMainWindow", "Stop", nullptr));
+        label_axis3->setText(QString());
+        label_axis5->setText(QString());
+        label_axis7->setText(QString());
+        label_axis2->setText(QString());
+        label_axis4->setText(QString());
+        label_axis6->setText(QString());
+        label_3->setText(QApplication::translate("TMainWindow", "5/ry", nullptr));
         label->setText(QApplication::translate("TMainWindow", "1/X", nullptr));
+        label_15->setText(QApplication::translate("TMainWindow", "reserv", nullptr));
+        label_axis1->setText(QString());
+        label_6->setText(QApplication::translate("TMainWindow", "6/rz", nullptr));
+        label_4->setText(QApplication::translate("TMainWindow", "3/Z", nullptr));
         label_2->setText(QApplication::translate("TMainWindow", "2/Y", nullptr));
         label_5->setText(QApplication::translate("TMainWindow", "4/rx", nullptr));
-        label_4->setText(QApplication::translate("TMainWindow", "3/Z", nullptr));
-        label_6->setText(QApplication::translate("TMainWindow", "6/rz", nullptr));
-        label_3->setText(QApplication::translate("TMainWindow", "5/ry", nullptr));
-        pushButton_Move->setText(QApplication::translate("TMainWindow", "Move", nullptr));
-        pushButton_2->setText(QApplication::translate("TMainWindow", "Stop", nullptr));
-        label_17->setText(QApplication::translate("TMainWindow", "Setp", nullptr));
+        pushButton_x_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
         label_7->setText(QApplication::translate("TMainWindow", "1/x", nullptr));
         pushButton_x_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
-        pushButton_y_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
-        label_8->setText(QApplication::translate("TMainWindow", "2/y", nullptr));
-        pushButton_z_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
-        pushButton_x_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
-        pushButton_y_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
-        pushButton_ry_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
-        pushButton_z_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
-        label_9->setText(QApplication::translate("TMainWindow", "3/z", nullptr));
         pushButton_rx_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
+        pushButton_rx_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
+        pushButton_rz_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
+        pushButton_y_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
+        label_9->setText(QApplication::translate("TMainWindow", "3/z", nullptr));
         label_10->setText(QApplication::translate("TMainWindow", "4/rx", nullptr));
         pushButton_rz_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
-        pushButton_rx_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
-        pushButton_ry_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
         label_12->setText(QApplication::translate("TMainWindow", "6/rz", nullptr));
         label_11->setText(QApplication::translate("TMainWindow", "5/ry", nullptr));
-        pushButton_rz_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
-        pushButton->setText(QApplication::translate("TMainWindow", "Depart", nullptr));
-        pushButton_ZERO->setText(QApplication::translate("TMainWindow", "SET ZERO", nullptr));
+        pushButton_y_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
+        label_17->setText(QApplication::translate("TMainWindow", "Setp", nullptr));
+        pushButton_z_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
+        label_8->setText(QApplication::translate("TMainWindow", "2/y", nullptr));
+        pushButton_z_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
+        pushButton_ry_minus->setText(QApplication::translate("TMainWindow", "-", nullptr));
+        pushButton_ry_plus->setText(QApplication::translate("TMainWindow", "+", nullptr));
     } // retranslateUi
 
 };

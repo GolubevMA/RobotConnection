@@ -26,25 +26,82 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += resources_big
 
 SOURCES += \
+    OcctGlTools.cpp \
+    OcctQtViewer.cpp \
         main.cpp \
         tmainwindow.cpp \
     trobotwidget.cpp \
     trobotmotion.cpp \
     vars.cpp \
-    trobotmodel.cpp
+    trobotmodel.cpp \
+    expressschema.cpp \
+    stepfile.cpp \
+    tpointdialog.cpp
 
 HEADERS += \
+    OcctGlTools.h \
+    OcctQtViewer.h \
         tmainwindow.h \
     trobotwidget.h \
     trobotmotion.h \
     vars.h \
-    trobotmodel.h
+    trobotmodel.h \
+    expressschema.h \
+    stepfile.h \
+    tpointdialog.h
 
 FORMS += \
-        tmainwindow.ui
+        tmainwindow.ui \
+    tpointdialog.ui
 
 LIBS += -lOpengl32
 LIBS += -lws2_32
 
 RESOURCES += \
     res.qrc
+
+INCLUDEPATH += j:\OCCT_7.8.0\dev\build\inc
+
+#LIBS +=  j:\Qt\Qt5.13.0\5.13.0\mingw73_64\bin\libgcc_s_seh-1.dll
+
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKernel.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKGeomAlgo.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKGeomBase.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKG2d.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKV3d.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKHLR.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKService.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKMath.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBRep.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKTopAlgo.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKOpenGl.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKPrim.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKOpenGlTest.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKXSBase.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKG3d.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKMesh.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKQADraw.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKCDF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKCAF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBRep.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBool.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBO.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBinXCAF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBinTObj.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBinL.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKBin.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDE.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKHLR.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDCAF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDEGLTF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDE.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDECascade.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDEGLTF.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDEIGES.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDEOBJ.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDEPLY.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDraw.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKShHealing.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKService.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKXSDRAWSTEP.dll
+LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKDESTEP.dll

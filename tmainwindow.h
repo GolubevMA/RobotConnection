@@ -20,15 +20,18 @@ public:
 
     int speed;
     int step;
-    QVector<float> coord;
+
+    bool UpdateVarsFlag = false;
 
     TRobotMotion *RobotMotion;
-
     //геометрическая модель робота
     TRobotModel *RobotModel;
 
     explicit TMainWindow(QWidget *parent = 0);
     ~TMainWindow();
+
+    void cherResonse(int code);
+
 
     void showEvent(QShowEvent *event);
     void closeEvent(QCloseEvent *event);
@@ -68,8 +71,13 @@ private slots:
 
     void on_pushButton_ZERO_clicked();
 
+
+    void on_pushButton_CMD_clicked();
+
 public slots:
-    void updatePos(QString pos);
+    //void updatePos(QString pos);
+    void UpdateSystemState();
+    void calcAngles();
 
 private:
     Ui::TMainWindow *ui;

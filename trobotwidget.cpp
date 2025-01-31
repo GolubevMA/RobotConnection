@@ -83,15 +83,20 @@ void TRobotWidget::SetPlane(int plane) {
 //------------------------------------------------------------------------------
 // вращаем оси робота
 //------------------------------------------------------------------------------
-void TRobotWidget::SetRobotRotation(float *angles, int ang_count)
+void TRobotWidget::SetRobotRotation(QList<float> angles)
 {
-    if (ang_count > CurrentModel->DetalCount) ang_count = CurrentModel->DetalCount;
     rotations.clear();
 
+    int len = angles.length();
+    if (len > CurrentModel->DetalCount) {
+        for (int i = 0; i < len - CurrentModel->DetalCount; i++)
+            angles.removeLast();
+    }
 
     //фоирмуем  список квартенинов поврота вокрук каждой оси на каждый угол
-    for (int i = 0; i < ang_count; i++) {
+    for (int i = 0; i < angles.length(); i++) {
         rotations.append(QQuaternion::fromAxisAndAngle(CurrentModel->RotationAxis[i], angles[i]));
+        qDebug() << " I " << i << " " << angles[i];
     }
     updateGL();
 }
@@ -199,7 +204,10 @@ void TRobotWidget::LoadCubeTexture()
 void TRobotWidget::drawRobot(QMatrix4x4 matrx, QMatrix4x4 &projection)
 {
     //прохоимся по всем деталям
-    for (int i = 0; i < CurrentModel->DetalCount; i++)
+    int det_count = rotations.length();
+    if (det_count > CurrentModel->DetalCount) det_count = CurrentModel->DetalCount;
+
+    for (int i = 0; i < det_count; i++)
     {
         RbotPart &part  = CurrentModel->DetalList[i];
         //буффер точек соответкующей детали
@@ -210,7 +218,8 @@ void TRobotWidget::drawRobot(QMatrix4x4 matrx, QMatrix4x4 &projection)
         //позиционируем  текущкю деталь относиетлльно установленного смщеенения камеры
         matrx.translate(pos);
         //вращем деталь на соответсвующий угол
-        if (!rotations.isEmpty()) matrx.rotate(rotations[i]);
+        if (!rotations.isEmpty())
+            matrx.rotate(rotations[i]);
 
         //загруем матрцу проэкуций
         tex_ShaderProg.setUniformValue("mvp_matrix", projection * matrx);

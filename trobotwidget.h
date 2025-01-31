@@ -22,8 +22,7 @@ public:
     ~TRobotWidget();
 
     void SetPlane(int plane);
-    void SetRobotModel(TRobotModel *model);
-    void SetRobotRotation(float *angles, int ang_count);
+    void SetRobotModel(TRobotModel *model);    
     void SetTexture(QString path);
 
     void initShaders();
@@ -41,6 +40,9 @@ public:
     //void mouseReleaseEvent(QMouseEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+
+public slots:
+    void SetRobotRotation(QList<float> axis);
 
 private:
 

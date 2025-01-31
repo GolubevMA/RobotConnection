@@ -1,11 +1,11 @@
-﻿    #ifndef TRobotMotion_H
+﻿#ifndef TRobotMotion_H
 #define TRobotMotion_H
-
+//------------------------------------------------------------------------------
 #include <QObject>
 #include <QThread>
 #include "winsock2.h"
 #include "windows.h"
-
+//------------------------------------------------------------------------------
 /*
     Класс инкапсулирующий управление робоитом
      реалихует интерфейc команд упрвления
@@ -15,12 +15,14 @@
      если при поапытке выполнить движение получили ошибку - остновим прем команд
      до тех пор, пока пользовтель не подтвердит ошибку
 */
-
+//------------------------------------------------------------------------------
+const int MAX_AXIS_COUNT = 7;
+//------------------------------------------------------------------------------
 class TRobotMotion : public QThread
 {
     Q_OBJECT
 public:
-    enum MotioType {JOIUNT,  BASE, TOOL};
+    enum MotioType {JOIUNT=1,  BASE, TOOL};
 
     enum MotioCmdError {Range=-3, ConnetionError, NotFound, ConnetionWait, NoError};
 
@@ -29,24 +31,29 @@ public:
     float MotionSpeed;
     float MotionFreq;
 
-    int AxisCount = 6;
+    int AxisCount;              //чилос осей робота
+    QList<float>  coord_jt;     //координаты jt
+    QList<float>  coord_xyz;    //кординаты xyz
 
     QString IPAddres;
     bool Terminate;
 
-    explicit TRobotMotion(QObject *parent = nullptr, QString ip = "", int axis_count = 6);
+    explicit TRobotMotion(QObject *parent = nullptr, QString ip = "");
     ~TRobotMotion();
 
-//    //проверка диапазана
-//    bool checkCoord();
 
     //комаеды упралвения
     int MotorOnOF(bool on, QString &status);
-    int MovePoint(float *point, QString &status);
+    int MovePoint(QList<float> point, QString &status);
     int StepMove(int axis, int step, QString &status);
     int DepartMove(int step, QString &status);
     int SetZero(QString &status);
+
+    void updatePos(QString pos);
+
+
     void run() override;
+
 
 private :
 
@@ -74,7 +81,10 @@ private :
 
 
 signals:
-    void updatePos(QString pos);
+    //void updatePos(QString pos);
+    //void SetRobotRotation(float *jt_coord, int cnt);
+    void calcAngle();
+    void UpdateSystemState();
 
 public slots:
 };
