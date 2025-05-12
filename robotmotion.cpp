@@ -9,6 +9,8 @@ RobotMotion::RobotMotion(QObject *parent)
     m_WorkSocket = new QTcpSocket(this);
     //создаем таймер таймута ответа
     m_timerAnsTimeout = new QTimer(this);
+    //создаем таймер таймута отправки
+    m_timerCmdTimeout = new QTimer(this);
 
     //создаем и стартуем отдельный поток обработчик
     mThread = new QThread(); mThread->start();
@@ -18,6 +20,7 @@ RobotMotion::RobotMotion(QObject *parent)
     //connect(m_WorkSocket, SIGNAL(aboutToClose()), this, SLOT(slotSocketClose()));
     connect(m_WorkSocket, SIGNAL(readyRead()), this, SLOT(checkResponse()));
     connect(m_timerAnsTimeout, SIGNAL(timeout()), this, SLOT(timerAnsTimeout()));
+    connect(m_timerCmdTimeout, SIGNAL(timeout()), this, SLOT(writeCommand()));
     connect(m_WorkSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 
     m_waitStatus = STATE_NO_WAIT_DATA;
@@ -234,7 +237,7 @@ void RobotMotion::sendCmdEvent(QString cmd)
     //межпоотчный вызов (через 0 милискеуд)
     // в event_Loop потка данного обьект постопуит обрабочтки фукцнии
     //загрузки данных во фреймбуффер сокета
-    QTimer::singleShot(0, this, SLOT(writeCommand()));
+    //QTimer::singleShot(0, this, SLOT(writeCommand()));
 
 }
 //---------------------------------------------------------------------------
@@ -299,28 +302,45 @@ void RobotMotion::slotSocketClose()
 //---------------------------------------------------------------------------
 void RobotMotion::writeCommand()
 {
+//    //есть команда ответ на которую еще не получен
+//    // или выполение команды двжиения еще не закночилось
+//    if (m_waitStatus == STATE_WAIT_ANS && !MotionProgramm) {
+//        //повторим запрос немного позже
+//        QTimer::singleShot(5, this, SLOT(writeCommand()));
+//        return;
+//    }
+
+
     //есть команда ответ на которую еще не получен
-    // или выполение команды двжиения еще не закночилось
-    if (m_waitStatus == STATE_WAIT_ANS && !MotionProgramm) {
-        //повторим запрос немного позже
-        QTimer::singleShot(5, this, SLOT(writeCommand()));
-        return;
+    if (m_waitStatus == STATE_WAIT_ANS) {
+        //отправи запрос координаты
+        m_mutexObj.lock();
+        m_WorkSocket->write(m_coord_ident.toUtf8(), m_coord_ident.size());
+        m_mutexObj.unlock();
     }
+    //отправляем команду и следим за ответом
+    else {
+        // отправим первую команду в очереди
+        m_mutexObj.lock();
+        QString cmd = m_queueWriteSocket.dequeue();
+        // если выполение команды двжиения еще не закночилось
+        //модем отправить тоьлько команду прерываения дижения
+        bool enable = !MotionProgramm; // && cmd == BRAEAK
+        if (enable) {
+            m_WorkSocket->write(cmd.toUtf8(), cmd.size());
+        }
+        m_mutexObj.unlock();
 
-    // отправим первую команду в очереди
-    m_mutexObj.lock();
-    QString cmd = m_queueWriteSocket.dequeue();
-    m_WorkSocket->write(cmd.toUtf8(), cmd.size());
-    m_mutexObj.unlock();
+        if (enable) {
+            //запомниаем на какую команул ждем ответ
+            m_wait_cmd = cmd;
+            qDebug() << "cmd " << cmd;
 
-    //запомниаем на какую команул ждем ответ
-    //m_wait_ident = cmd.ident;
-    m_wait_cmd = cmd;
-    qDebug() << "cmd " << cmd;
-
-    //активерум таймер оканчания ожижаения ответа
-    m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
-    m_waitStatus = STATE_WAIT_ANS;
+            //активерум таймер оканчания ожижаения ответа
+            m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
+            m_waitStatus = STATE_WAIT_ANS;
+        }
+    }
 }
 //---------------------------------------------------------------------------
 // прерывание исполняемой команды
