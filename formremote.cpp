@@ -24,6 +24,9 @@ FormRemote::FormRemote(QWidget *parent) :
         axisis[i]->setVisible(false);
     }
 
+    updateTimer = new QTimer();
+    updateTimer->start(16);
+
     connect(ui->pushButton_x_plus, SIGNAL(clicked()), this, SLOT(step_plus_clicked()));
     connect(ui->pushButton_y_plus, SIGNAL(clicked()), this, SLOT(step_plus_clicked()));
     connect(ui->pushButton_z_plus, SIGNAL(clicked()), this, SLOT(step_plus_clicked()));
@@ -37,17 +40,20 @@ FormRemote::FormRemote(QWidget *parent) :
     connect(ui->pushButton_rx_minus, SIGNAL(clicked()), this, SLOT(step_minus_clicked()));
     connect(ui->pushButton_ry_minus, SIGNAL(clicked()), this, SLOT(step_minus_clicked()));
     connect(ui->pushButton_rz_minus, SIGNAL(clicked()), this, SLOT(step_minus_clicked()));
+
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
 }
 //------------------------------------------------------------------------------
 FormRemote::~FormRemote()
 {
+    updateTimer->stop();
+    delete  updateTimer;
     delete ui;
 }
 //------------------------------------------------------------------------------
 void FormRemote::setObjMotion(RobotMotion *obj)
 {
     m_RobotMotion = obj;
-    connect(m_RobotMotion, SIGNAL(coordChanged()), this ,SLOT(UpdateSystemState()));
 }
 //------------------------------------------------------------------------------
 void FormRemote::showEvent(QShowEvent  *event)
@@ -92,6 +98,7 @@ void FormRemote::closeEvent(QCloseEvent *event)
 //------------------------------------------------------------------------------
 void FormRemote::UpdateSystemState()
 {
+    if (m_RobotMotion == NULL) return;
 
     QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
         ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7

@@ -25,6 +25,8 @@ public:
 
     QList<float> test;
 
+    QTimer *updateTimer;
+
     explicit TMainWindow(QWidget *parent = 0);
     ~TMainWindow();
 
@@ -48,7 +50,7 @@ private slots:
     void on_pushButton_Remote_clicked(bool checked);
 
 public slots :
-    void updateRobotCoord();
+    void UpdateSystemState();
 
 private:
     Ui::TMainWindow *ui;

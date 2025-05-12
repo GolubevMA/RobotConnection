@@ -26,6 +26,7 @@ RobotMotion::RobotMotion(QObject *parent)
     m_waitStatus = STATE_NO_WAIT_DATA;
     m_MotionWait = false; m_MotionAck = true;
     MotionProgramm = false;
+    m_queueWriteSocket.clear();
 
     //очищам буффер примеа
     memset(RxBuffer, 0, sizeof(RxBuffer));
@@ -38,6 +39,9 @@ RobotMotion::RobotMotion(QObject *parent)
 //---------------------------------------------------------------------------
 RobotMotion::~RobotMotion()
 {
+    m_timerCmdTimeout->stop();
+    delete m_timerCmdTimeout;
+
     closeConnection();
     mThread->exit();
     mThread->wait();
@@ -256,6 +260,8 @@ void RobotMotion::slotSocketOpen()
             m_WorkSocket->connectToHost(m_HostIp, m_HostPort);
             if (m_WorkSocket->waitForConnected(500)) {
                 qDebug() << "connctede";
+                //активурем таймер отправки
+                m_timerCmdTimeout->start(TIMEOUT_COORD);
             }
             else {
                 qDebug() << "conn error" << m_WorkSocket->error();
@@ -310,36 +316,39 @@ void RobotMotion::writeCommand()
 //        return;
 //    }
 
+    try {
+        //qDebug() << "wc";
 
-    //есть команда ответ на которую еще не получен
-    if (m_waitStatus == STATE_WAIT_ANS) {
-        //отправи запрос координаты
-        m_mutexObj.lock();
-        m_WorkSocket->write(m_coord_ident.toUtf8(), m_coord_ident.size());
-        m_mutexObj.unlock();
-    }
-    //отправляем команду и следим за ответом
-    else {
-        // отправим первую команду в очереди
+        //если буффер команд пустой
+        if (m_queueWriteSocket.isEmpty()) throw m_CmdCoord;
+        //есть команда ответ на которую еще не получен
+        if (m_waitStatus == STATE_WAIT_ANS) throw m_CmdCoord;
+        // если выполение команды двжиения еще не закночилось
+        //можем отправить тоьлько команду прерываения дижения
+        if (MotionProgramm) throw m_CmdCoord;
+
+        //qDebug() << "sendinf";
+
+        //отправим команду
         m_mutexObj.lock();
         QString cmd = m_queueWriteSocket.dequeue();
-        // если выполение команды двжиения еще не закночилось
-        //модем отправить тоьлько команду прерываения дижения
-        bool enable = !MotionProgramm; // && cmd == BRAEAK
-        if (enable) {
-            m_WorkSocket->write(cmd.toUtf8(), cmd.size());
-        }
+        m_WorkSocket->write(cmd.toUtf8(), cmd.size());
         m_mutexObj.unlock();
 
-        if (enable) {
-            //запомниаем на какую команул ждем ответ
-            m_wait_cmd = cmd;
-            qDebug() << "cmd " << cmd;
+        //запомниаем на какую команул ждем ответ
+        m_wait_cmd = cmd;
+        qDebug() << "cmd " << cmd;
 
-            //активерум таймер оканчания ожижаения ответа
-            m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
-            m_waitStatus = STATE_WAIT_ANS;
-        }
+        //активерум таймер оканчания ожижаения ответа
+        m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
+        m_waitStatus = STATE_WAIT_ANS;
+    }
+    catch (QString cmd)
+    {
+        //отправи запрос координаты
+        m_mutexObj.lock();
+        m_WorkSocket->write(cmd.toUtf8(), cmd.size());
+        m_mutexObj.unlock();
     }
 }
 //---------------------------------------------------------------------------
@@ -446,6 +455,10 @@ void RobotMotion::timerAnsTimeout()
 //---------------------------------------------------------------------------
 void RobotMotion::parseResponse(QString &resp)
 {
+    //счеччики
+    static int cmd_count = 0;
+    static long timer =0;
+
     //resp.remove(m_coord_ident);
     //определим состояние
     int sep_lst = resp.length() -  resp.lastIndexOf(";");
@@ -487,12 +500,23 @@ void RobotMotion::parseResponse(QString &resp)
         axis_cnt++;
     }
 
-    //здесь можно испосукать сигнал измения координаты
-    emit coordChanged();
+    //потаем чатоту получения координаты
+    cmd_count++;
+    if (GetTickCount() - timer >= 1000) {
+        //число кооритан в скеунду
+        CoordFreq = cmd_count;
+        cmd_count = 0;
+        timer = GetTickCount();
+    }
+
+    ////здесь можно испосукать сигнал измения координаты
+    ///emit coordChanged();
 }
 //---------------------------------------------------------------------------
 void RobotMotion::Disconnect()
 {
     qDebug() << "dicsted ";
+    //сбросим таймер отрпрвки
+    m_timerCmdTimeout->stop();
 }
 //---------------------------------------------------------------------------

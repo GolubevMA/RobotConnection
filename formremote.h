@@ -5,6 +5,7 @@
 #include "robotmotion.h"
 #include "vars.h"
 #include <QDialog>
+#include <QTimer>
 
 namespace Ui {
 class FormRemote;
@@ -30,6 +31,8 @@ private:
 
     //обьект упровения роботом
     RobotMotion *m_RobotMotion;
+
+    QTimer *updateTimer;
 
     Ui::FormRemote *ui;
 

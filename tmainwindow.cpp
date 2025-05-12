@@ -18,16 +18,15 @@ TMainWindow::TMainWindow(QWidget *parent) :
     CSystemModel = new ControlSystemModel();
     CSystemModel->LoadSystemModel("J:\\WorkProjects\\RobotConnection\\RS007N-BC01.stp");
     //CSystemModel->LoadSystemModel("J:\\WorkProjects\\RoboScan\\RobotConnection\\RS007N-BC01_mod.STEP");
-
-
-//    //создаем потк
-//    RobotMotion = new TRobotMotionThread(this, "192.168.0.1");
-//    RobotMotion->Terminate = false;
-//    RobotMotion->start();
+    test = {0,0,0,0,0,0};
 
     m_RobotMotion = new RobotMotion();
     //отруваем соедининиеме
     bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015);
+
+    //таймер обнвления ui
+    updateTimer = new QTimer();
+    updateTimer->start(30);
 
     ui->setupUi(this);
 
@@ -36,8 +35,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->widget_Robot->SetControlModel(CSystemModel);
 
     connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
-
-    test = {0,0,0,0,0,0};
+    connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
 
 }
 //------------------------------------------------------------------------------
@@ -48,6 +46,8 @@ TMainWindow::~TMainWindow()
 
     if (CSystemModel != NULL )delete CSystemModel;
 
+    updateTimer->stop();
+    delete updateTimer;
     delete ui;
 }
 //------------------------------------------------------------------------------
@@ -57,6 +57,14 @@ void TMainWindow::showEvent(QShowEvent  *event)
 //------------------------------------------------------------------------------
 void TMainWindow::closeEvent(QCloseEvent *event)
 {
+}
+//------------------------------------------------------------------------------
+//обновеям стостяние системы
+//------------------------------------------------------------------------------
+void TMainWindow::UpdateSystemState()
+{
+    ui->widget_Robot->SetRobotAngles(m_RobotMotion->GetCurrentJT());
+    ui->label_freq->setText(QString::number(m_RobotMotion->GetFreq()));
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_pushButton_conn_clicked()
@@ -109,12 +117,5 @@ void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
 void TMainWindow::on_pushButton_Remote_clicked(bool checked)
 {
     ui->widget_Remote->setVisible(checked);
-}
-//------------------------------------------------------------------------------
-void TMainWindow::updateRobotCoord()
-{
-//    qDebug() << "update cd";
-    ui->widget_Robot->SetRobotAngles(m_RobotMotion->GetCurrentJT());
-//    qDebug() << "updated";
 }
 //------------------------------------------------------------------------------
