@@ -11,10 +11,6 @@
         <file>img/search.png</file>
         <file>img/skybox.png</file>
         <file>img/top.png</file>
-        <file>fshader.glsl</file>
-        <file>fshader_cube_map.glsl</file>
-        <file>vshader.glsl</file>
-        <file>vshader_cube_map.glsl</file>
         <file>img/Bskybox.png</file>
     </qresource>
 </RCC>

@@ -2,10 +2,11 @@
 #define TMAINWINDOW_H
 
 #include <QMainWindow>
-#include "trobotmotion.h"
+#include "robotmotion.h"
 #include "vars.h"
 #include <QShowEvent>
 #include <QCloseEvent>
+#include "formremote.h"
 
 namespace Ui {
 class TMainWindow;
@@ -17,14 +18,8 @@ class TMainWindow : public QMainWindow
 
 public:
 
-    int speed;
-    int step;
-
-    bool UpdateVarsFlag = false;
-
     //обьект упровения роботом
-    TRobotMotion *RobotMotion;
-
+    RobotMotion *m_RobotMotion;
     //обьект графического предсталения робота
     ControlSystemModel *CSystemModel;
 
@@ -42,24 +37,6 @@ public:
 
 private slots:
 
-    void on_pushButton_x_plus_clicked();
-    void on_pushButton_x_minus_clicked();
-    void on_pushButton_y_plus_clicked();
-    void on_pushButton_y_minus_clicked();
-    void on_pushButton_z_minus_clicked();
-    void on_pushButton_z_plus_clicked();
-    void on_pushButton_rx_plus_clicked();
-    void on_pushButton_rx_minus_clicked();
-    void on_pushButton_ry_plus_clicked();
-    void on_pushButton_ry_minus_clicked();
-    void on_pushButton_rz_plus_clicked();
-    void on_pushButton_rz_minus_clicked();
-
-    void on_spinBox_Step_valueChanged(int arg1);
-
-    void on_comboBox_activated(int index);
-
-
     void on_spinBox_JT1_valueChanged(int arg1);
     void on_spinBox_JT2_valueChanged(int arg1);
     void on_spinBox_JT3_valueChanged(int arg1);
@@ -67,19 +44,11 @@ private slots:
     void on_spinBox_JT5_valueChanged(int arg1);
     void on_spinBox_JT6_valueChanged(int arg1);
 
-    void on_pushButton_Move_clicked();
+    void on_pushButton_conn_clicked();
+    void on_pushButton_Remote_clicked(bool checked);
 
-    void on_pushButton_clicked();
-
-    void on_pushButton_ZERO_clicked();
-
-
-    void on_pushButton_CMD_clicked();
-
-public slots:
-    //void updatePos(QString pos);
-    void UpdateSystemState();
-    void calcAngles();
+public slots :
+    void updateRobotCoord();
 
 private:
     Ui::TMainWindow *ui;

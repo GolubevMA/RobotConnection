@@ -255,17 +255,26 @@ void OcctQtViewer::initializeGL()
     //отрисовываем сисему контроляч
     if (robotModel != NULL)
     {
-        myContext->Display(robotModel->staticShape, AIS_Shaded, 0, true);
+        //gp_Trsf offset;
+        //offset.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,300,0)));
+
+        foreach (const Handle(AIS_Shape) &shape, robotModel->staticShape)
+        {
+            //shape->SetLocalTransformation(offset);
+            myContext->Display(shape, AIS_Shaded, 0, true);
+        }
+
         foreach (const Handle(AIS_Shape) &shape, robotModel->robotShape)
         {
+            //shape->SetLocalTransformation(offset);
             myContext->Display(shape, AIS_Shaded, 0, true);
         }
     }
 
 //    //тествоые фигуры
-//    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(10, 50).Shape();
+//    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(80, 200).Shape();
 //    gp_Trsf trf;
-//    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,20)));
+//    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,300,0)));
 //    aCylc.Move(trf);
 //    aShape = new AIS_Shape(aCylc);
 //    myContext->Display (aShape, AIS_Shaded, 0, false);
@@ -279,16 +288,12 @@ void OcctQtViewer::closeEvent (QCloseEvent* theEvent)
 //------------------------------------------------------------------------------
 // вращаем детали робота
 //------------------------------------------------------------------------------
-void OcctQtViewer::SetRobotAngles(QList<float> angles)
+void OcctQtViewer::SetRobotAngles(JTPoint angles)
 {
-    if (robotModel == NULL) return;
-
-
-    qDebug() << " angles " << angles.length() << "axixis " << robotModel->rotateDirections.length();
+    if (robotModel == NULL || !robotModel->Created) return;
 
     int angl_count = angles.length();
     if (angl_count > robotModel->rotateDirections.length()) return;
-
 
     //корфигруции поворта осей
     QList<gp_Trsf> trsf;
@@ -297,7 +302,7 @@ void OcctQtViewer::SetRobotAngles(QList<float> angles)
     {
         gp_Trsf tmp;
         //угол на ктороый вращем текеую деталь робота в радианах
-        double angle = static_cast<double>(angles[i]) * M_PI / 180;
+        double angle = static_cast<double>(angles[i]) * M_PI / 180;        
         tmp.SetRotation(robotModel->rotateDirections[i], angle);
         trsf.append(tmp);
     }
@@ -493,13 +498,11 @@ void OcctQtViewer::paintGL()
     }
   }
 
+
   // flush pending input events and redraw the viewer
   Handle(V3d_View) aView = !myFocusView.IsNull() ? myFocusView : myView;
   aView->InvalidateImmediate();
   FlushViewEvents(myContext, aView, true);
-
-
-
 }
 //------------------------------------------------------------------------------
 // handleViewRedraw

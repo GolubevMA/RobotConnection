@@ -32,6 +32,7 @@
 #include <AIS_ViewController.hxx>
 #include <V3d_View.hxx>
 #include  "BRepBuilderAPI_Transform.hxx"
+#include "robotmotion.h"
 
 
 class AIS_ViewCube;
@@ -39,11 +40,10 @@ class AIS_ViewCube;
 /*
     Виджет Viwrer
 */
-
-
 class OcctQtViewer : public QOpenGLWidget, public AIS_ViewController
 {
   Q_OBJECT
+
 public:
 
   OcctQtViewer (QWidget* theParent = nullptr);
@@ -68,33 +68,12 @@ public:
                                 const Handle(V3d_View)&,
                                 const Handle(V3d_View)& theNewView) override;
 
-  void SetRobotAngles(QList<float> angles);
+  //обновление углов осей работа
+  void SetRobotAngles(JTPoint point);
 
-protected:
-  virtual void initializeGL() override;
-  virtual void paintGL() override;
-
-protected: // user input events
-  virtual void closeEvent       (QCloseEvent*  theEvent) override;  
-  virtual void mousePressEvent  (QMouseEvent*  theEvent) override;
-  virtual void mouseReleaseEvent(QMouseEvent*  theEvent) override;
-  virtual void mouseMoveEvent   (QMouseEvent*  theEvent) override;
-  virtual void wheelEvent       (QWheelEvent*  theEvent) override;
 
 private:
 
-  Aspect_VKeyMouse qtMouseButtons2VKeys (Qt::MouseButtons theButtons);
-  Aspect_VKeyFlags qtMouseModifiers2VKeys (Qt::KeyboardModifiers theModifiers);
-
-  //выводоит информцию opengl
-  void dumpGlInfo (bool theIsBasic, bool theToPrint);
-  //иницирует перерисовку виджета PaitGl
-  void updateView();
-  //обработчки события перерисовки обтекта view
-  virtual void handleViewRedraw (const Handle(AIS_InteractiveContext)& theCtx,
-                                 const Handle(V3d_View)& theView) override;
-
-private:
   Handle(V3d_Viewer)             myViewer;
   Handle(V3d_View)               myView;
   Handle(AIS_InteractiveContext) myContext;
@@ -108,12 +87,28 @@ private:
   QString myGlInfo;
   bool myIsCoreProfile;
 
-
   //струкутра визулаиции робота
   ControlSystemModel *robotModel;
 
+  Aspect_VKeyMouse qtMouseButtons2VKeys (Qt::MouseButtons theButtons);
+  Aspect_VKeyFlags qtMouseModifiers2VKeys (Qt::KeyboardModifiers theModifiers);
 
+  //выводоит информцию opengl
+  void dumpGlInfo (bool theIsBasic, bool theToPrint);
+  //иницирует перерисовку виджета PaitGl
+  void updateView();
+  //обработчки события перерисовки обтекта view
+  virtual void handleViewRedraw (const Handle(AIS_InteractiveContext)& theCtx,
+                                 const Handle(V3d_View)& theView) override;
 
+protected:
+  virtual void initializeGL() override;
+  virtual void paintGL() override;
+  virtual void closeEvent       (QCloseEvent*  theEvent) override;
+  virtual void mousePressEvent  (QMouseEvent*  theEvent) override;
+  virtual void mouseReleaseEvent(QMouseEvent*  theEvent) override;
+  virtual void mouseMoveEvent   (QMouseEvent*  theEvent) override;
+  virtual void wheelEvent       (QWheelEvent*  theEvent) override;
 
 };
 

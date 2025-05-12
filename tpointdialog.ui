@@ -123,10 +123,10 @@
         </size>
        </property>
        <property name="minimum">
-        <number>-360</number>
+        <number>-3600000</number>
        </property>
        <property name="maximum">
-        <number>360</number>
+        <number>360000000</number>
        </property>
       </widget>
      </item>
@@ -193,10 +193,10 @@
         </size>
        </property>
        <property name="minimum">
-        <number>-1000</number>
+        <number>-10000000</number>
        </property>
        <property name="maximum">
-        <number>1000</number>
+        <number>10000000</number>
        </property>
       </widget>
      </item>
@@ -228,10 +228,10 @@
         </size>
        </property>
        <property name="minimum">
-        <number>-360</number>
+        <number>-360000</number>
        </property>
        <property name="maximum">
-        <number>360</number>
+        <number>300060</number>
        </property>
       </widget>
      </item>

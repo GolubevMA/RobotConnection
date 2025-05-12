@@ -1,308 +1,70 @@
-﻿#include "tmainwindow.h"
+﻿    #include "tmainwindow.h"
 #include "ui_tmainwindow.h"
-#include "trobotmotion.h"
+#include "trobotmotionthread.h"
 #include "qdebug.h"
-#include "tpointdialog.h"
 #include <QSettings>
 #include "stepfile.h"
+#include "formremote.h"
 #include <QMessageBox>
 //------------------------------------------------------------------------------
 TMainWindow::TMainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::TMainWindow)
 {   
-    step = 5;
 
-//    ExpressSchema *schema = new ExpressSchema("J://WorkProjects//RobotConnection//debug//ap203.exp");
-//    StepFile stepFile("J://WorkProjects//RobotConnection//debug//sample02.step", schema);
+    CSystemModel = NULL;
 
     //грузим модель
     CSystemModel = new ControlSystemModel();
     CSystemModel->LoadSystemModel("J:\\WorkProjects\\RobotConnection\\RS007N-BC01.stp");
+    //CSystemModel->LoadSystemModel("J:\\WorkProjects\\RoboScan\\RobotConnection\\RS007N-BC01_mod.STEP");
 
-    //создаем потк
-    RobotMotion = new TRobotMotion(this, "192.168.0.1");
-    RobotMotion->Terminate = false;
-    RobotMotion->start();
 
+//    //создаем потк
+//    RobotMotion = new TRobotMotionThread(this, "192.168.0.1");
+//    RobotMotion->Terminate = false;
+//    RobotMotion->start();
+
+    m_RobotMotion = new RobotMotion();
+    //отруваем соедининиеме
+    bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015);
 
     ui->setupUi(this);
 
-    //connect(RobotMotion, SIGNAL(updatePos(QString)), this, SLOT(updatePos(QString)));
-    connect(RobotMotion, SIGNAL(UpdateSystemState()), this ,SLOT(UpdateSystemState()));
-    connect(RobotMotion, SIGNAL(calcAngle()), this, SLOT(calcAngles()));
-
+    ui->widget_Remote->setObjMotion(m_RobotMotion);
+    ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
 
-    QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
-        ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7
-    };
-    for (int i = 6; i < MAX_AXIS_COUNT;  i++) {
-        axisis[i]->setVisible(false);
-    }
+    connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
 
-    test << 10 << 10 << 10 <<  10 << 10 << 10;
+    test = {0,0,0,0,0,0};
+
 }
 //------------------------------------------------------------------------------
 TMainWindow::~TMainWindow()
 {
-    RobotMotion->Terminate = true;
-    RobotMotion->terminate();
+//    RobotMotion->Terminate = true;
+//    RobotMotion->terminate();
 
-    delete RobotMotion;
-    delete CSystemModel;
+    if (CSystemModel != NULL )delete CSystemModel;
 
     delete ui;
 }
 //------------------------------------------------------------------------------
 void TMainWindow::showEvent(QShowEvent  *event)
 {
-    QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
-        ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7
-    };
-
-    //грузим значения праматров ui
-    QSettings sett(QApplication::organizationName(), QApplication::applicationName());
-
-    sett.beginGroup("MainForm");
-    int spin_count = sett.value("spin_box_cnt", MAX_AXIS_COUNT).toInt();
-    for (int i = 0; i < spin_count; i++) {
-        axisis[i]->setText(sett.value(QString("spin_box_%1").arg(i), 30).toString());
-    }
-    ui->spinBox_Step->setValue(sett.value("step",10).toFloat());
-    sett.endGroup();
-
 }
 //------------------------------------------------------------------------------
 void TMainWindow::closeEvent(QCloseEvent *event)
 {
-    QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
-        ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7
-    };
-
-    //грузим значения праматров ui
-    QSettings sett(QApplication::organizationName(), QApplication::applicationName());
-    sett.beginGroup("MainForm");
-    sett.setValue("spin_box_cnt",RobotMotion->AxisCount);
-    for (int i = 0; i < RobotMotion->AxisCount; i++) {
-        sett.setValue(QString("spin_box_%1").arg(i), axisis[i]->text().toFloat());
-    }
-    sett.setValue("step",ui->spinBox_Step->value());
-    sett.endGroup();
-}
-
-//------------------------------------------------------------------------------
-//обновляем состояние графичексого интерфейса в соотвевсие с состоянием робота
-//------------------------------------------------------------------------------
-void TMainWindow::UpdateSystemState()
-{
-    QLabel *axisis[MAX_AXIS_COUNT] = {ui->label_axis1, ui->label_axis2,
-        ui->label_axis3, ui->label_axis4, ui->label_axis5, ui->label_axis6, ui->label_axis7
-    };
-
-    UpdateVarsFlag = true;
-
-    ui->comboBox->setCurrentIndex(RobotMotion->MotionMode - 1);
-    if (RobotMotion->MotionMode == TRobotMotion::MotioType::JOIUNT)
-    {
-        for (int i = 0; i < RobotMotion->AxisCount; i++) {
-            axisis[i]->setText(QString::number(RobotMotion->coord_jt.at(i)));
-        }
-    }
-    else {
-        for (int i = 0; i < RobotMotion->AxisCount; i++) {
-            axisis[i]->setText(QString::number(RobotMotion->coord_xyz.at(i)));
-        }
-    }
-    ui->widget_Robot->SetRobotAngles(RobotMotion->coord_jt);
-
-
-    UpdateVarsFlag = false;
 }
 //------------------------------------------------------------------------------
-//определям углы на которые нужно повернуть детали робота
-//------------------------------------------------------------------------------
-void TMainWindow::calcAngles()
+void TMainWindow::on_pushButton_conn_clicked()
 {
-//    QList<float>axises;
-//    axises.append(RobotMotion->coord_jt);
-//    axises[2] += 90;
-    //отрисовыаем двидение робота
-    //ui->widget_Robot->SetRobotRotation(axises);
-
-
-//    int sep_ind = angle.indexOf(";");
-//    QString jt_pos = angle.mid(0, sep_ind);
-
-//    float jt_coord[MAX_AXIS_COUNT];
-//    int cnt = 0;
-//    int seek_pos = 1;
-//    int ind = jt_pos.indexOf(",", seek_pos);
-//    while (ind > 0)
-//    {
-//        QString num = jt_pos.mid(seek_pos -1, ind - seek_pos);
-//        //добвлаем уго в массив координат
-//        jt_coord[cnt] = num.toFloat();
-//        seek_pos = ind + 2;
-//        ind = jt_pos.indexOf(",", seek_pos);
-//        cnt++;
+//    if (!m_RobotMotion->isConnected()) {
+        qDebug() << "recc";
+        m_RobotMotion->createConnection("192.168.0.1", 9015);
 //    }
-//    jt_coord[2] += 90;
-//    //отрисовыаем двидение робота
-//    ui->widget_Robot->SetRobotRotation(jt_coord, ++cnt);
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_comboBox_activated(int index)
-{
-    if (!UpdateVarsFlag)
-    {
-        RobotMotion->MotionMode =  index+1;
-        UpdateSystemState();
-    }
-}
-//------------------------------------------------------------------------------
-//проверяем ответ на команду
-//------------------------------------------------------------------------------
-void TMainWindow::cherResonse(int code)
-{
-    QString msg = "Motion Error : ";
-    if (code < 0)
-    {
-        switch (code) {
-        case  TRobotMotion::MotioCmdError::NotFound :
-            msg += "cmd not found";
-            break;
-        case  TRobotMotion::MotioCmdError::ConnetionError :
-            msg += " timeout error ";
-            break;
-        case  TRobotMotion::MotioCmdError::Range :
-            msg += " rnage error ";
-            break;
-        default:
-            break;
-        }
-        QMessageBox::warning(this, "MotionCmd", msg);
-    }
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_x_plus_clicked()
-{    
-    QString satte;
-    cherResonse(RobotMotion->StepMove(1, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_x_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(1, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_y_plus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(2, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_y_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(2, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_z_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(3, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_z_plus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(3, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_rx_plus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(4, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_rx_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(4, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_ry_plus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(5, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_ry_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(5, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_rz_plus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(6, step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_rz_minus_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->StepMove(6, -step, satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_spinBox_Step_valueChanged(int arg1)
-{
-    step = arg1;
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_Move_clicked()
-{
-    QList<float> pt;
-    if(RobotMotion->MotionMode  == TRobotMotion::MotioType::JOIUNT) {
-        pt.append( RobotMotion->coord_jt);
-    }
-    else {
-        pt.append( RobotMotion->coord_xyz);
-    }
-
-    TPointDialog dialog(this);
-    if (dialog.Run(&pt, MAX_AXIS_COUNT) == QDialog::Accepted)
-    {
-        QString state;
-        cherResonse(RobotMotion->MovePoint(pt, state));
-    }
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->DepartMove(ui->doubleSpinBox_Depart->value(), satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_ZERO_clicked()
-{
-    QString satte;
-    cherResonse(RobotMotion->SetZero(satte));
-}
-//------------------------------------------------------------------------------
-void TMainWindow::on_pushButton_CMD_clicked()
-{
-    //менем ск
-    RobotMotion->MotionMode = TRobotMotion::MotioType::BASE;
-    UpdateSystemState();
-
-    QString satte;
-    cherResonse(RobotMotion->StepMove(2, 150, satte)); //Y
-    cherResonse(RobotMotion->StepMove(3, 150, satte)); //Z
-//    cherResonse(RobotMotion->StepMove(2, -150, satte)); //-Y
-//    cherResonse(RobotMotion->StepMove(3, -150, satte)); // -Z
 
 }
 //------------------------------------------------------------------------------
@@ -341,4 +103,18 @@ void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
     test[5] = arg1;
     ui->widget_Robot->SetRobotAngles(test);
 }
-
+//-----------------------------------------------------------------------------
+//форма ручного упрвления
+//------------------------------------------------------------------------------
+void TMainWindow::on_pushButton_Remote_clicked(bool checked)
+{
+    ui->widget_Remote->setVisible(checked);
+}
+//------------------------------------------------------------------------------
+void TMainWindow::updateRobotCoord()
+{
+//    qDebug() << "update cd";
+    ui->widget_Robot->SetRobotAngles(m_RobotMotion->GetCurrentJT());
+//    qDebug() << "updated";
+}
+//------------------------------------------------------------------------------

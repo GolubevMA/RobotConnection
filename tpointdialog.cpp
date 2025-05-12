@@ -17,7 +17,6 @@ TPointDialog::~TPointDialog()
 int TPointDialog::Run(QList<float> *axises, const int MaxAxisCount)
 {
     AxisesValues = axises;
-
     QSpinBox *sp_axisis[MaxAxisCount] = {ui->spinBox_X, ui->spinBox_Y,
         ui->spinBox_Z, ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_rz, ui->spinBox_reserv
     };

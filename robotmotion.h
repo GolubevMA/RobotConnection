@@ -1,0 +1,210 @@
+#ifndef ROBOTMOTION_H
+#define ROBOTMOTION_H
+
+#include <QObject>
+#include <QMutex>
+#include <QThread>
+#include <QQueue>
+#include <QWaitCondition>
+#include <QtNetwork/QUdpSocket>
+#include "vars.h"
+#include <QVector3D>
+#include <QtNetwork/QTcpSocket>
+
+/*
+ * Класс управления движением робота
+    События обрабатываются в отельном потоке.
+    Для передаче управления потоку из отрытых метотдов (межпоотчный вызов) используется соьытие таймера
+
+    Следующую комадду в очередии можно выполнить тольо тогда, когда получим повержение выполнения предыдущей команлы
+    Выполенеой считаемся команда,
+
+    Команда счтиаеся потдеврженной
+
+
+
+    CALL get_coord
+    sedn coord
+
+    if (recv > 0) THEN
+        IF (WAIT_COMMAND && $cmd == "BREAK") THEN
+            WAIT_COMMD = fase;
+            send ("CMD FINISH")
+        ELSE THEN
+            switch &cmd
+                case 1
+                case 3
+                case unk
+            break;
+
+            execute comm()
+
+            "SEND CMD ACCEPT"
+        END
+    END
+
+    IF  (WAIT_COMMAND && SIG(2002)) THEN
+        send "CMD FINISH")
+    END
+
+*/
+
+typedef QVector3D EulerAngles;
+typedef QList<float> JTPoint;
+
+
+class RobotMotion : public QObject
+{
+    Q_OBJECT
+
+private:
+
+    //текущие углы эйлера (определяющие базис XYZ)
+    EulerAngles m_EulerAngles;
+    //текущая координта XYZ
+    QVector3D m_CoordXyz;
+    //текущаяя координата JT
+    JTPoint m_CoordJT;
+
+    //------------------------------------------------
+    //состояние запроса движения
+    //------------------------------------------------
+    //флаг ожидания ответа на комаду движения (отвеотм является первая посылка)
+    // которая содеиджит ожидаемый id
+    bool m_MotionWait;
+    //стасутс команды после получения ответа (true- выполнилаьс false - не выполнилась)
+    bool m_MotionAck;
+    //состояние полсденй исполненой команды
+    int m_MotionStateAck;
+    //флаг выполнения команды движуния
+    bool MotionProgramm;
+
+    //------------------------------------------------
+    //статус ожидания ответа от робоьа
+    //------------------------------------------------
+    const int  STATE_NO_WAIT_DATA  = 0;       // данных не ожидается
+    const int  STATE_WAIT_ANS  = 1;           // ожидаем ответ от робота
+    int m_waitStatus;
+
+    //поток в которм реализуются все обработчикии событый таймера
+    // обрабочтикми событий таймера являются слоты
+    // которые реализуют примем/отправку данных в сокет
+    QThread *mThread;
+
+    //мьтекс для синхронизации межпоточных вызовов
+    // (публичные функции находящиеся в основом потоке и
+    // методы класса используют общеие обьекты )
+    // для доступа к кторым надо накинуть этот мьютекс
+    QMutex m_mutexObj;
+
+    //очередь данных для записи в соект
+    const int MAX_SOCKET_QUEUE_SIZE =  8;       // максимальная очередь
+    QQueue<QString> m_queueWriteSocket;
+
+    //codition для сихронизации слоотов соектов
+    // (блокирует осоной поток, пока иницированные выховом отрытых функйи
+    // отриытие или зарытие сокета не будут заврешены)
+    QWaitCondition m_waitSockeSlot;
+    // мьютек для condition (см документацию)
+    QMutex m_conditionMutex;
+
+    //таймут отртия зарытия сокета
+    const int TIMEOUT_OPEN_CLOSE = 50;
+    //сокет для взаиомдейтвя с ptaxel
+    QTcpSocket *m_WorkSocket;
+
+    // таймаут ответа клента
+    const int  TIMEOUT_ANS_ROBOT  = 1000;
+    //таймер ожиадния отвеота от клента
+    QTimer *m_timerAnsTimeout;
+
+    //адресс клиента
+    QString m_HostIp;
+    int m_HostPort;
+    //QHostAddress m_HostSockAddr;
+
+    //идентификатор команды
+    const QString m_cmd_ident = " CMD";
+    const QString m_coord_ident = "COORD";
+    //команда, на которую ожиается ответ
+    QString m_wait_cmd;
+
+    //стаутс выпоелния команды
+    const QString m_cmd_state_ok = " OK";
+    const QString m_cmd_state_rgerr = " RG_ERR";
+    const QString m_cmd_state_nf = " NF";
+
+
+    // буффер в который считываем данные из фремйма
+    char RxBuffer[1024 * 14];
+    // здесь храним число данных в буфере
+    int RxBufferCount;
+
+    void parseResponse(QString &resp);
+
+public:
+
+    //число осей робота
+    static const int MaxAxisCount = 6;
+
+    RobotMotion(QObject *parent = 0);
+    ~RobotMotion();
+
+    JTPoint GetCurrentJT() {return m_CoordJT;}
+    QVector3D GetCurrentXYZ() {return m_CoordXyz;}
+    EulerAngles GetCurrentOAT() {return m_EulerAngles;}
+
+    //-------------------------------------
+    //команды упралвения
+    //-------------------------------------
+    //вкл/выкл мотора
+    //void MotorOnOF(bool on, QString &status);
+    //перемещение на шаг в углах осей
+    void StepMoveJT(int axis, int step);
+    //пермещение на шаг в базисе XYZ
+    void StepMoveXYZ(int axis, int step);
+    //пермещение в точку в угалх осей
+    void MovePointJT(JTPoint point);
+    //перемещение в точку (в базисе XYZ)
+    void MovePointXYZ(QVector3D xyz, EulerAngles oat);
+    void MovePointXYZ(QVector3D xyz);
+    //премещение на раастние от точик
+    void DepartMove(int step);
+    void SetZero();
+    //линиеное пермещением по указанным точкам
+    void LinearMove(QList<JTPoint> &points);
+    //линиеное пермещением по указанным точкам
+    void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat);
+    void LinearMove(QList<QVector3D> &points_xyz);
+    //прервать текущую исполнмю команду
+    void stopCommand();
+
+    //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
+    // функции отправки данных по udp
+    void sendCmdEvent(QString cmd);
+    //метод вызывают создаение сокетов в через межпоточный вызов
+    bool createConnection(QString ip, int port);
+    void closeConnection();
+    bool isConnected();
+
+
+//слоты выполняемые в отднльном потоке
+private slots :
+    //создаеие сокета (в случае tcp  - установление соедниение)
+    void slotSocketOpen();
+    //закрытие сокета
+    void slotSocketClose();
+    //отпрвка команды в сокет
+    void writeCommand();
+    void breakCommand();
+    void timerAnsTimeout();
+    void checkResponse();
+    void Disconnect();
+
+signals :
+    void coordChanged();
+    void transaction(bool);
+    void steerEvent();
+};
+
+#endif // ROBOTMOTION_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
+QT       += core gui opengl network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,9 +28,11 @@ CONFIG += resources_big
 SOURCES += \
     OcctGlTools.cpp \
     OcctQtViewer.cpp \
+    formremote.cpp \
         main.cpp \
+    robotmotion.cpp \
         tmainwindow.cpp \
-    trobotmotion.cpp \
+    trobotmotionthread.cpp \
     vars.cpp \
     expressschema.cpp \
     stepfile.cpp \
@@ -39,14 +41,17 @@ SOURCES += \
 HEADERS += \
     OcctGlTools.h \
     OcctQtViewer.h \
+    formremote.h \
+    robotmotion.h \
         tmainwindow.h \
-    trobotmotion.h \
+    trobotmotionthread.h \
     vars.h \
     expressschema.h \
     stepfile.h \
     tpointdialog.h
 
 FORMS += \
+    formremote.ui \
         tmainwindow.ui \
     tpointdialog.ui
 

@@ -21,6 +21,7 @@ StepFile::StepFile(QString fn, ExpressSchema *schema)
     this->filename = fn;
     this->AP203 = schema;
 
+
     EntityParse();
 
     qDebug() << "consrtr end";

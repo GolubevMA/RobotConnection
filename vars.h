@@ -62,7 +62,9 @@ struct ControlSystemModel
     QList<gp_Ax1> rotateDirections;         //список  векторв, относитедльно которых вращаются подвижные детали системы
                                             // (детали робота)
     QList<Handle(AIS_Shape)>  robotShape;   //списко shape ов подвижых деталей  модели (осей робота)
-    Handle(AIS_Shape)         staticShape;  //неподыижные детали  обьдиням в один shape
+    QList<Handle(AIS_Shape)>  staticShape;  //неподыижные детали  обьдиням в один shape
+
+    bool Created;
 
     ControlSystemModel();
 
