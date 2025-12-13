@@ -50,52 +50,58 @@ RobotMotion::~RobotMotion()
 //---------------------------------------------------------------------------
 //перемещение на шаг в углах осей
 //---------------------------------------------------------------------------
-void RobotMotion::StepMoveJT(int axis, int step)
+void RobotMotion::StepMoveJT(int axis, int step, int speed)
 {
-    QString cmd = "STEP 1," + QString::number(axis) + "," + QString::number(step) + ",";
+    qDebug() << "speed " << speed;
+    QString cmd = "STEP "+QString::number(speed)+",1," + QString::number(axis) + "," + QString::number(step) + "," + ";";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
 //пермещение на шаг в базисе XYZ
 //---------------------------------------------------------------------------
-void RobotMotion::StepMoveXYZ(int axis, int step)
+void RobotMotion::StepMoveXYZ(int axis, int step, int speed)
 {
-    QString cmd = "STEP 2," + QString::number(axis) + "," + QString::number(step) + ",";
+    QString cmd = "STEP "+QString::number(speed)+",2," + QString::number(axis) + "," + QString::number(step) + ",";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
 //пермещение в точку в угалх осей
 //---------------------------------------------------------------------------
-void RobotMotion::MovePointJT(JTPoint point)
+void RobotMotion::MovePointJT(JTPoint point, int speed)
 {
-    QString cmd = "MOVE 1,";
-    foreach (float axis, point) {
-        cmd += QString::number(axis) + ",";
+    QString cmd = "MOVE "+QString::number(speed)+",1,";
+    for (int i = 0; i < point.length(); i++) {
+        cmd += QString::number(point.at(i), 'f',1) + ",";
     }
+    cmd += ";";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
 //перемещение в точку (в базисе XYZ)
 //---------------------------------------------------------------------------
-void RobotMotion::MovePointXYZ(QVector3D xyz, EulerAngles oat)
+void RobotMotion::MovePointXYZ(QVector3D xyz, EulerAngles oat,  int speed)
 {
-    QString cmd = "MOVE 2,";
-    for (int i =0; i < 3; i++)
-    {
+    QString cmd = "MOVE "+QString::number(speed)+",2,";
+    for (int i =0; i < 3; i++) {
         cmd += QString::number(xyz[i], 'f',1) + ",";
+    }
+    for (int i =0; i < 3; i++) {
         cmd += QString::number(oat[i],'f',1) + ",";
     }
+    cmd += ";";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
-void RobotMotion::MovePointXYZ(QVector3D xyz)
+void RobotMotion::MovePointXYZ(QVector3D xyz, int speed)
 {
-    QString cmd = "MOVE 2,";
-    for (int i =0; i < 3; i++)
-    {
+    QString cmd = "MOVE "+QString::number(speed)+",2,";
+    for (int i =0; i < 3; i++) {
         cmd += QString::number(xyz[i], 'f',1) + ",";
+    }
+    for (int i =0; i < 3; i++) {
         cmd += QString::number(m_EulerAngles[i],'f',1) + ",";
     }
+    cmd += ";";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
@@ -106,57 +112,17 @@ void RobotMotion::DepartMove(int step)
 
 }
 //---------------------------------------------------------------------------
-void RobotMotion::SetZero()
+//движение по окружности
+//---------------------------------------------------------------------------
+void RobotMotion::ArcMove(QVector3D first_pt,  QVector3D dest_pt, int speed, int rad)
 {
-    sendCmdEvent("ZERO");
-}
-//---------------------------------------------------------------------------
-//линиеное пермещением по указанным точкам
-//---------------------------------------------------------------------------
-void RobotMotion::LinearMove(QList<JTPoint> &points)
-{
-    QString cmd = "LINEAR ";
-    foreach (JTPoint pt, points)
-    {
-        QString strpt = "(";
-        foreach (float axis, pt) {
-            strpt += QString::number(axis) + ",";
-        }
-        strpt += "),";
-        cmd += strpt;
-    }
-    qDebug() << cmd;
-    sendCmdEvent(cmd);
-}
-//---------------------------------------------------------------------------
-//линиеное пермещением по указанным точкам
-//---------------------------------------------------------------------------
-void RobotMotion::LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat)
-{
-    QString cmd = "LINEAR ";
-    for (int i=0; i < points_xyz.size(); i++)
-    {
-        //текущая точка
-        QVector3D &pt_xyz = points_xyz[i];
-        EulerAngles &pt_oat = points_oat[i];
-
-        QString cur_pt = "(";
-        for (int i = 0; i < 3; i++) {
-            cur_pt += QString::number(pt_xyz[i]) + ",";
-        }
-        for (int i = 0; i < 3; i++) {
-            cur_pt += QString::number(pt_oat[i]) + ",";
-        }
-        cur_pt += "),";
-        cmd += cur_pt;
-    }
-    qDebug() << cmd;
-    sendCmdEvent(cmd);
-}
-//---------------------------------------------------------------------------
-void RobotMotion::LinearMove(QList<QVector3D> &points_xyz)
-{
-    QString cmd = "LINEAR ";
+    first_pt = QVector3D(0, -20, 0);
+    QVector3D temp_pt = QVector3D(0, 30, 50);
+    first_pt = QVector3D(0, 80, 0);
+    //формиурем вектор из текущих точек
+    QList<QVector3D> points_xyz = {first_pt, temp_pt, dest_pt};
+    //форимруем команду
+    QString cmd = "ARC "+QString::number(speed)+",";
     for (int i=0; i < points_xyz.size(); i++)
     {
         //текущая точка
@@ -173,6 +139,77 @@ void RobotMotion::LinearMove(QList<QVector3D> &points_xyz)
         cur_pt += "),";
         cmd += cur_pt;
     }
+}
+//---------------------------------------------------------------------------
+void RobotMotion::SetZero()
+{
+    sendCmdEvent("ZERO ;");
+}
+//---------------------------------------------------------------------------
+//линиеное пермещением по указанным точкам
+//---------------------------------------------------------------------------
+void RobotMotion::LinearMove(QList<JTPoint> &points, int speed, int rad)
+{
+    QString cmd = "LINEAR "+QString::number(speed)+","+QString::number(rad)+",";
+    foreach (JTPoint pt, points)
+    {
+        QString strpt = "(";
+        foreach (float axis, pt) {
+            strpt += QString::number(axis) + ",";
+        }
+        strpt += "),";
+        cmd += strpt;
+    }
+    qDebug() << cmd;
+    sendCmdEvent(cmd);
+}
+//---------------------------------------------------------------------------
+//линиеное пермещением по указанным точкам
+//---------------------------------------------------------------------------
+void RobotMotion::LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat, int speed, int rad)
+{
+    QString cmd = "LINEAR "+QString::number(speed)+","+QString::number(rad)+",";
+    for (int i=0; i < points_xyz.size(); i++)
+    {
+        //текущая точка
+        QVector3D &pt_xyz = points_xyz[i];
+        EulerAngles &pt_oat = points_oat[i];
+
+        QString cur_pt = "(";
+        for (int i = 0; i < 3; i++) {
+            cur_pt += QString::number(pt_xyz[i]) + ",";
+        }
+        for (int i = 0; i < 3; i++) {
+            cur_pt += QString::number(pt_oat[i]) + ",";
+        }
+        cur_pt += "),";
+        cmd += cur_pt;
+    }
+    cmd += ";";
+    qDebug() << cmd;
+    sendCmdEvent(cmd);
+}
+//---------------------------------------------------------------------------
+void RobotMotion::LinearMove(QList<QVector3D> &points_xyz, int speed, int rad)
+{
+    QString cmd = "LINEAR "+QString::number(speed)+","+QString::number(rad)+",";
+    for (int i=0; i < points_xyz.size(); i++)
+    {
+        //текущая точка
+        QVector3D &pt_xyz = points_xyz[i];
+        EulerAngles &pt_oat = m_EulerAngles;
+
+        QString cur_pt = "(";
+        for (int i = 0; i < 3; i++) {
+            cur_pt += QString::number(pt_xyz[i]) + ",";
+        }
+        for (int i = 0; i < 3; i++) {
+            cur_pt += QString::number(pt_oat[i]) + ",";
+        }
+        cur_pt += "),";
+        cmd += cur_pt;
+    }
+    cmd += ";";
     qDebug() << cmd;
     sendCmdEvent(cmd);
 }
@@ -262,6 +299,8 @@ void RobotMotion::slotSocketOpen()
                 qDebug() << "connctede";
                 //активурем таймер отправки
                 m_timerCmdTimeout->start(TIMEOUT_COORD);
+                m_StopMotionProg = false;
+                MotionProgramm = false;
             }
             else {
                 qDebug() << "conn error" << m_WorkSocket->error();
@@ -317,7 +356,6 @@ void RobotMotion::writeCommand()
 //    }
 
     try {
-        //qDebug() << "wc";
 
         //если буффер команд пустой
         if (m_queueWriteSocket.isEmpty()) throw m_CmdCoord;
@@ -325,23 +363,35 @@ void RobotMotion::writeCommand()
         if (m_waitStatus == STATE_WAIT_ANS) throw m_CmdCoord;
         // если выполение команды двжиения еще не закночилось
         //можем отправить тоьлько команду прерываения дижения
-        if (MotionProgramm) throw m_CmdCoord;
+        if (MotionProgramm && m_StopMotionProg) throw m_CmdCoord;
+        //прервем выполняющуюся команду
+        else if (MotionProgramm && m_StopMotionProg)
+        {
+            m_mutexObj.lock();
+            QString cmd = "STOP";
+            m_WorkSocket->write(cmd.toUtf8(), cmd.size());
+            m_mutexObj.unlock();
+            //сбросим таймер оидания ответа
+            m_timerAnsTimeout->stop();
+            m_waitStatus = STATE_NO_WAIT_DATA;
+            m_StopMotionProg = false;
 
-        //qDebug() << "sendinf";
+        }
+        else {
+            //отправим команду
+            m_mutexObj.lock();
+            QString cmd = m_queueWriteSocket.dequeue();
+            m_WorkSocket->write(cmd.toUtf8(), cmd.size());
+            m_mutexObj.unlock();
 
-        //отправим команду
-        m_mutexObj.lock();
-        QString cmd = m_queueWriteSocket.dequeue();
-        m_WorkSocket->write(cmd.toUtf8(), cmd.size());
-        m_mutexObj.unlock();
+            //запомниаем на какую команул ждем ответ
+            m_wait_cmd = cmd;
+            qDebug() << "cmd " << cmd;
 
-        //запомниаем на какую команул ждем ответ
-        m_wait_cmd = cmd;
-        qDebug() << "cmd " << cmd;
-
-        //активерум таймер оканчания ожижаения ответа
-        m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
-        m_waitStatus = STATE_WAIT_ANS;
+            //активерум таймер оканчания ожижаения ответа
+            m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
+            m_waitStatus = STATE_WAIT_ANS;
+        }
     }
     catch (QString cmd)
     {
@@ -471,6 +521,8 @@ void RobotMotion::parseResponse(QString &resp)
     QString jt_pos = resp.mid(0, sep_ind);
     QString xyz_pos = resp.mid(sep_ind + 1, resp.length() - sep_ind);
 
+    //qDebug() << "numjt" << jt_pos;
+
     //парсим координаты
     int axis_cnt = 0;
     int seek_pos_jt = 1;
@@ -499,6 +551,8 @@ void RobotMotion::parseResponse(QString &resp)
         ind_xyz = xyz_pos.indexOf(",", seek_pos_xyz);
         axis_cnt++;
     }
+
+    //qDebug() << "jt " << m_CoordJT[0];
 
     //потаем чатоту получения координаты
     cmd_count++;

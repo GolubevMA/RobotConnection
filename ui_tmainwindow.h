@@ -12,7 +12,6 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFrame>
-#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
@@ -20,6 +19,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QSplitter>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
@@ -33,7 +33,9 @@ class Ui_TMainWindow
 {
 public:
     QWidget *centralWidget;
-    QHBoxLayout *horizontalLayout;
+    QVBoxLayout *verticalLayout_2;
+    QSplitter *splitter;
+    QWidget *layoutWidget;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_6;
     QSpinBox *spinBox_JT1;
@@ -54,7 +56,6 @@ public:
     QLabel *label_freq;
     QPushButton *pushButton_conn;
     QSpacerItem *horizontalSpacer_16;
-    QGridLayout *gridLayout;
     FormRemote *widget_Remote;
     QMenuBar *menuBar;
     QToolBar *mainToolBar;
@@ -64,23 +65,30 @@ public:
     {
         if (TMainWindow->objectName().isEmpty())
             TMainWindow->setObjectName(QString::fromUtf8("TMainWindow"));
-        TMainWindow->resize(1495, 958);
+        TMainWindow->resize(1472, 934);
         QFont font;
         font.setPointSize(12);
         TMainWindow->setFont(font);
         centralWidget = new QWidget(TMainWindow);
         centralWidget->setObjectName(QString::fromUtf8("centralWidget"));
-        horizontalLayout = new QHBoxLayout(centralWidget);
-        horizontalLayout->setSpacing(6);
-        horizontalLayout->setContentsMargins(11, 11, 11, 11);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        verticalLayout = new QVBoxLayout();
+        verticalLayout_2 = new QVBoxLayout(centralWidget);
+        verticalLayout_2->setSpacing(6);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        splitter = new QSplitter(centralWidget);
+        splitter->setObjectName(QString::fromUtf8("splitter"));
+        splitter->setOrientation(Qt::Horizontal);
+        layoutWidget = new QWidget(splitter);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        verticalLayout = new QVBoxLayout(layoutWidget);
         verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setSpacing(6);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
-        spinBox_JT1 = new QSpinBox(centralWidget);
+        spinBox_JT1 = new QSpinBox(layoutWidget);
         spinBox_JT1->setObjectName(QString::fromUtf8("spinBox_JT1"));
         spinBox_JT1->setMinimumSize(QSize(100, 0));
         spinBox_JT1->setMinimum(-180);
@@ -88,7 +96,7 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT1);
 
-        spinBox_JT2 = new QSpinBox(centralWidget);
+        spinBox_JT2 = new QSpinBox(layoutWidget);
         spinBox_JT2->setObjectName(QString::fromUtf8("spinBox_JT2"));
         spinBox_JT2->setMinimumSize(QSize(100, 0));
         spinBox_JT2->setMinimum(-180);
@@ -96,7 +104,7 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT2);
 
-        spinBox_JT3 = new QSpinBox(centralWidget);
+        spinBox_JT3 = new QSpinBox(layoutWidget);
         spinBox_JT3->setObjectName(QString::fromUtf8("spinBox_JT3"));
         spinBox_JT3->setMinimumSize(QSize(100, 0));
         spinBox_JT3->setMinimum(-180);
@@ -104,7 +112,7 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT3);
 
-        spinBox_JT4 = new QSpinBox(centralWidget);
+        spinBox_JT4 = new QSpinBox(layoutWidget);
         spinBox_JT4->setObjectName(QString::fromUtf8("spinBox_JT4"));
         spinBox_JT4->setMinimumSize(QSize(100, 0));
         spinBox_JT4->setMinimum(-180);
@@ -112,7 +120,7 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT4);
 
-        spinBox_JT5 = new QSpinBox(centralWidget);
+        spinBox_JT5 = new QSpinBox(layoutWidget);
         spinBox_JT5->setObjectName(QString::fromUtf8("spinBox_JT5"));
         spinBox_JT5->setMinimumSize(QSize(100, 0));
         spinBox_JT5->setMinimum(-180);
@@ -120,7 +128,7 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT5);
 
-        spinBox_JT6 = new QSpinBox(centralWidget);
+        spinBox_JT6 = new QSpinBox(layoutWidget);
         spinBox_JT6->setObjectName(QString::fromUtf8("spinBox_JT6"));
         spinBox_JT6->setMinimumSize(QSize(100, 0));
         spinBox_JT6->setMinimum(-180);
@@ -128,11 +136,11 @@ public:
 
         horizontalLayout_6->addWidget(spinBox_JT6);
 
-        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Fixed, QSizePolicy::Minimum);
 
         horizontalLayout_6->addItem(horizontalSpacer_5);
 
-        pushButton_Remote = new QPushButton(centralWidget);
+        pushButton_Remote = new QPushButton(layoutWidget);
         pushButton_Remote->setObjectName(QString::fromUtf8("pushButton_Remote"));
         pushButton_Remote->setMinimumSize(QSize(0, 40));
         pushButton_Remote->setCheckable(true);
@@ -142,17 +150,18 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_6);
 
-        widget_Robot = new OcctQtViewer(centralWidget);
+        widget_Robot = new OcctQtViewer(layoutWidget);
         widget_Robot->setObjectName(QString::fromUtf8("widget_Robot"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(widget_Robot->sizePolicy().hasHeightForWidth());
         widget_Robot->setSizePolicy(sizePolicy);
+        widget_Robot->setMinimumSize(QSize(0, 100));
 
         verticalLayout->addWidget(widget_Robot);
 
-        frame_Bottom = new QFrame(centralWidget);
+        frame_Bottom = new QFrame(layoutWidget);
         frame_Bottom->setObjectName(QString::fromUtf8("frame_Bottom"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Maximum);
         sizePolicy1.setHorizontalStretch(0);
@@ -262,26 +271,21 @@ public:
 
         verticalLayout->addWidget(frame_Bottom);
 
-        gridLayout = new QGridLayout();
-        gridLayout->setSpacing(6);
-        gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-
-        verticalLayout->addLayout(gridLayout);
-
-
-        horizontalLayout->addLayout(verticalLayout);
-
-        widget_Remote = new FormRemote(centralWidget);
+        splitter->addWidget(layoutWidget);
+        widget_Remote = new FormRemote(splitter);
         widget_Remote->setObjectName(QString::fromUtf8("widget_Remote"));
+        sizePolicy.setHeightForWidth(widget_Remote->sizePolicy().hasHeightForWidth());
+        widget_Remote->setSizePolicy(sizePolicy);
         widget_Remote->setMinimumSize(QSize(250, 0));
         widget_Remote->setMaximumSize(QSize(350, 16777215));
+        splitter->addWidget(widget_Remote);
 
-        horizontalLayout->addWidget(widget_Remote);
+        verticalLayout_2->addWidget(splitter);
 
         TMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(TMainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1495, 21));
+        menuBar->setGeometry(QRect(0, 0, 1472, 21));
         TMainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(TMainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));

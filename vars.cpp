@@ -44,7 +44,7 @@ void ControlSystemModel::LoadSystemModel(QString filename)
     TopoDS_Shape aShape = step_reader.OneShape();
 
     //точка куда смщается начало робота
-    gp_Pnt pt_offset = gp_Pnt(0,-400,-299);
+    gp_Pnt pt_offset = gp_Pnt(-500,0,-300);
     gp_Trsf offset;
     offset.SetTranslation(gp_Vec(gp_Pnt(0,0,0), pt_offset));
 

@@ -22,6 +22,7 @@
 #include <BRepPrimAPI_MakeBox.hxx>
 #include <BRepPrimAPI_MakeRevolution.hxx>
 #include <BRepPrimAPI_MakeCylinder.hxx>
+#include <BRepPrimAPI_MakeSphere.hxx>
 #include <TopoDSToStep.hxx>
 #include <TopoDS_Compound.hxx>
 #include <TopoDS_Iterator.hxx>
@@ -104,6 +105,9 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
 
     robotModel = NULL;
 
+    pointShape.clear();
+    //CurrentPoint = -1;
+
     //ининицилизируем лейблы на граянх
     myViewCube->SetBoxSideLabel(V3d_TypeOfOrientation::V3d_TypeOfOrientation_Zup_Front, TCollection_AsciiString((wchar_t*)tr("FFront").utf16()));
     myViewCube->SetBoxSideLabel(V3d_TypeOfOrientation::V3d_TypeOfOrientation_Zup_Left, TCollection_AsciiString((wchar_t*)tr("LLeft").utf16()));
@@ -145,20 +149,9 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
   }
   aGlFormat.setProfile (myIsCoreProfile ? QSurfaceFormat::CoreProfile : QSurfaceFormat::CompatibilityProfile);
 
-  // request sRGBColorSpace colorspace to meet OCCT expectations or use OcctQtFrameBuffer fallback.
-/*#if (QT_VERSION_MAJOR > 5) || (QT_VERSION_MAJOR == 5 && QT_VERSION_MINOR >= 10)
-  aGlFormat.setColorSpace (QSurfaceFormat::sRGBColorSpace);
-  setTextureFormat (GL_SRGB8_ALPHA8);
-#else
-  Message::SendWarning ("Warning! Qt 5.10+ is required for sRGB setup.\n"
-                        "Colors in 3D Viewer might look incorrect (Qt " QT_VERSION_STR " is used).\n");
-  aDriver->ChangeOptions().sRGBDisable = true;
-#endif*/
-
-    setFormat (aGlFormat);
-
-    // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
-    QCoreApplication::setAttribute (Qt::AA_UseDesktopOpenGL);
+   setFormat (aGlFormat);
+   // never use ANGLE on Windows, since OCCT 3D Viewer does not expect this
+   QCoreApplication::setAttribute (Qt::AA_UseDesktopOpenGL);
 
 }
 //------------------------------------------------------------------------------
@@ -222,8 +215,8 @@ void OcctQtViewer::initializeGL()
     return;
   }
 
-  //конуфигурием окно View
-  Handle(Aspect_NeutralWindow) aWindow = Handle(Aspect_NeutralWindow)::DownCast (myView->Window());
+    //конуфигурием окно View
+    Handle(Aspect_NeutralWindow) aWindow = Handle(Aspect_NeutralWindow)::DownCast (myView->Window());
     if (!aWindow.IsNull())
     {
         aWindow->SetSize (aViewSize.x(), aViewSize.y());
@@ -244,12 +237,11 @@ void OcctQtViewer::initializeGL()
       #endif
         aWindow->SetNativeHandle (aNativeWin);
         aWindow->SetSize (aViewSize.x(), aViewSize.y());
-        myView->SetWindow (aWindow, aGlCtx->RenderingContext());
+        myView->SetWindow(aWindow, aGlCtx->RenderingContext());
         dumpGlInfo (true, true);
 
         //оирисовываем куб смены вида
         myContext->Display (myViewCube, 0, 0, false);
-
     }
 
     //отрисовываем сисему контроляч
@@ -271,13 +263,13 @@ void OcctQtViewer::initializeGL()
         }
     }
 
-//    //тествоые фигуры
-//    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(80, 200).Shape();
-//    gp_Trsf trf;
-//    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,300,0)));
-//    aCylc.Move(trf);
-//    aShape = new AIS_Shape(aCylc);
-//    myContext->Display (aShape, AIS_Shaded, 0, false);
+    //тествоые фигуры
+    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(80, 200).Shape();
+    gp_Trsf trf;
+    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,0)));
+    aCylc.Move(trf);
+    aShape = new AIS_Shape(aCylc);
+    myContext->Display (aShape, AIS_Shaded, 0, false);
 }
 
 //------------------------------------------------------------------------------
@@ -317,10 +309,42 @@ void OcctQtViewer::SetRobotAngles(JTPoint angles)
             cur_trans *= trsf.at(dep_ax);
         }
         robotModel->robotShape[axis]->SetLocalTransformation(TopLoc_Location(cur_trans));
+        //обновленям ais shape в текщуем контексте
         myContext->Update(robotModel->robotShape[axis], true);
     }
 
     updateView();
+}
+//------------------------------------------------------------------------------
+//отррисовываем точки
+//------------------------------------------------------------------------------
+void OcctQtViewer::SetTargetPoints(QList<QVector3D> &points)
+{
+    for (int i = 0; i < points.size(); i++)
+    {
+        //доваим моель точки (сферы)
+        if (i >=  pointShape.size())
+        {
+            TopoDS_Shape aSphr = BRepPrimAPI_MakeSphere(8).Shape();
+            //создаем shape
+            Handle(AIS_Shape) aShape = new AIS_Shape(aSphr);
+            Quantity_Color col;
+            col.SetValues(Quantity_NOC_AZURE2);
+            aShape->SetColor(col);
+            //доаблем в конкетст
+            myContext->Display (aShape, AIS_Shaded, 0, false);
+            //добавлеям в список
+            pointShape.append(aShape);
+        }
+
+        qDebug() << " x " << points[i].x() << " y " << points[i].y() << " z " << points[i].z();
+
+        //трансофрмация в СК
+        gp_Trsf trf;
+        trf.SetTranslation(gp_Pnt(0,0,0), gp_Pnt(points[i].x(),points[i].y(),points[i].z()));
+        pointShape[i]->SetLocalTransformation(trf);
+        myContext->Update(pointShape[i], true);
+    }
 }
 //------------------------------------------------------------------------------
 //конверитрувем коды кнопок qt мыши в коды кнопок смыцши opecaccade
@@ -404,7 +428,11 @@ void OcctQtViewer::mouseMoveEvent (QMouseEvent* theEvent)
                             qtMouseModifiers2VKeys (theEvent->modifiers()),
                             false))
   {
-    updateView();
+     updateView();
+//     myContext->InitDetected();
+//     if (myContext->HasDetected())
+//     {
+//     }
   }
 }
 //------------------------------------------------------------------------------
@@ -427,7 +455,7 @@ void OcctQtViewer::wheelEvent (QWheelEvent* theEvent)
     if (!aPickedView.IsNull()
       && aPickedView != myFocusView)
     {
-      // switch input focus to another subview
+      //передам фокус другом subview
       OnSubviewChanged (myContext, myFocusView, aPickedView);
       updateView();
       return;
@@ -439,9 +467,6 @@ void OcctQtViewer::wheelEvent (QWheelEvent* theEvent)
     updateView();
   }
 }
-
-//------------------------------------------------------------------------------
-// function : updateView
 //------------------------------------------------------------------------------
 void OcctQtViewer::updateView()
 {
@@ -460,7 +485,6 @@ void OcctQtViewer::paintGL()
   //получаем FBO из opengl контектса виджета
   //Handle(OpenGl_GraphicDriver) aDriver = Handle(OpenGl_GraphicDriver)::DownCast (myContext->CurrentViewer()->Driver());
   //Handle(OpenGl_Context) aGlCtx = aDriver->GetSharedContext();
-
   Handle(OpenGl_Context) aGlCtx = OcctGlTools::GetGlContext(myView);
   Handle(OpenGl_FrameBuffer) aDefaultFbo = aGlCtx->DefaultFrameBuffer();
   if (aDefaultFbo.IsNull())
@@ -477,6 +501,7 @@ void OcctQtViewer::paintGL()
     return;
   }
 
+  //обрабатываем изменение размера виджета
   Graphic3d_Vec2i aViewSizeOld;
   //const QRect aRect = rect(); Graphic3d_Vec2i aViewSizeNew(aRect.right() - aRect.left(), aRect.bottom() - aRect.top());
   Graphic3d_Vec2i aViewSizeNew = aDefaultFbo->GetVPSize();
@@ -513,7 +538,6 @@ void OcctQtViewer::handleViewRedraw (const Handle(AIS_InteractiveContext)& theCt
   AIS_ViewController::handleViewRedraw (theCtx, theView);
   if (myToAskNextFrame)
   {
-    // ask more frames for animation
     updateView();
   }
 }

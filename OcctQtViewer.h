@@ -72,6 +72,7 @@ public:
   void SetRobotAngles(JTPoint point);
 
 
+
 private:
 
   Handle(V3d_Viewer)             myViewer;
@@ -90,6 +91,9 @@ private:
   //струкутра визулаиции робота
   ControlSystemModel *robotModel;
 
+  //шейпы точек
+  QList<Handle(AIS_Shape)>   pointShape;
+
   Aspect_VKeyMouse qtMouseButtons2VKeys (Qt::MouseButtons theButtons);
   Aspect_VKeyFlags qtMouseModifiers2VKeys (Qt::KeyboardModifiers theModifiers);
 
@@ -100,6 +104,12 @@ private:
   //обработчки события перерисовки обтекта view
   virtual void handleViewRedraw (const Handle(AIS_InteractiveContext)& theCtx,
                                  const Handle(V3d_View)& theView) override;
+
+
+public slots :
+  //отрисовыем точки
+  void SetTargetPoints(QList<QVector3D> &points);
+
 
 protected:
   virtual void initializeGL() override;

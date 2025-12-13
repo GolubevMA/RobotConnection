@@ -2,6 +2,7 @@
 #define TPOINTDIALOG_H
 
 #include <QDialog>
+#include "robotmotion.h"
 
 namespace Ui {
 class TPointDialog;
@@ -13,19 +14,29 @@ class TPointDialog : public QDialog
 
 public:
 
-    QList<float> *AxisesValues;
-
     explicit TPointDialog(QWidget *parent = 0);
     ~TPointDialog();
 
-    int Run(QList<float> *axises, const int maxax);
+    int Run(JTPoint *point);
+    int Run(QVector3D *xyz, EulerAngles *oat);
+    int Run(QVector3D *xyz);
 
 private slots:
     void on_pushButton_clicked();
-
     void on_pushButton_2_clicked();
 
 private:
+
+    enum CoordType {JT, XYZOAT, XYZ};
+
+    //тип координаты
+    int mCoordType = CoordType::JT;
+
+    //текущеие коорлинаты
+    JTPoint *mCurrentJt;
+    QVector3D *mCurrentXYZ;
+    QVector3D *mCurrentOAT;
+
     Ui::TPointDialog *ui;
 };
 

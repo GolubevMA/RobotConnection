@@ -12,35 +12,36 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
-#include <QtWidgets/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
 
 class Ui_TPointDialog
 {
 public:
-    QVBoxLayout *verticalLayout;
     QGridLayout *gridLayout;
-    QLabel *label_6;
-    QSpinBox *spinBox_rz;
-    QSpinBox *spinBox_ry;
-    QLabel *label_15;
-    QLabel *label_3;
-    QSpinBox *spinBox_reserv;
+    QFrame *frame_XYZ;
+    QGridLayout *gridLayout_3;
     QLabel *label_4;
-    QSpinBox *spinBox_Z;
-    QLabel *label_5;
-    QSpinBox *spinBox_rx;
+    QSpinBox *spinBox_Y;
     QLabel *label;
     QSpinBox *spinBox_X;
+    QSpinBox *spinBox_Z;
+    QLabel *label_3;
+    QFrame *frame_OAT;
+    QGridLayout *gridLayout_2;
     QLabel *label_2;
-    QSpinBox *spinBox_Y;
+    QSpinBox *spinBox_ry;
+    QLabel *label_5;
+    QSpinBox *spinBox_rz;
+    QSpinBox *spinBox_rx;
+    QLabel *label_6;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QPushButton *pushButton;
@@ -50,115 +51,118 @@ public:
     {
         if (TPointDialog->objectName().isEmpty())
             TPointDialog->setObjectName(QString::fromUtf8("TPointDialog"));
-        TPointDialog->resize(578, 173);
+        TPointDialog->resize(622, 201);
         QFont font;
         font.setPointSize(12);
         TPointDialog->setFont(font);
-        verticalLayout = new QVBoxLayout(TPointDialog);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        gridLayout = new QGridLayout();
+        gridLayout = new QGridLayout(TPointDialog);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
-        label_6 = new QLabel(TPointDialog);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setMinimumSize(QSize(150, 0));
-        label_6->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout->addWidget(label_6, 2, 2, 1, 2);
-
-        spinBox_rz = new QSpinBox(TPointDialog);
-        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
-        spinBox_rz->setMinimumSize(QSize(120, 0));
-        spinBox_rz->setMinimum(-360);
-        spinBox_rz->setMaximum(360);
-
-        gridLayout->addWidget(spinBox_rz, 2, 4, 1, 1);
-
-        spinBox_ry = new QSpinBox(TPointDialog);
-        spinBox_ry->setObjectName(QString::fromUtf8("spinBox_ry"));
-        spinBox_ry->setMinimumSize(QSize(120, 0));
-        spinBox_ry->setMinimum(-360);
-        spinBox_ry->setMaximum(360);
-
-        gridLayout->addWidget(spinBox_ry, 2, 1, 1, 1);
-
-        label_15 = new QLabel(TPointDialog);
-        label_15->setObjectName(QString::fromUtf8("label_15"));
-
-        gridLayout->addWidget(label_15, 3, 0, 1, 1);
-
-        label_3 = new QLabel(TPointDialog);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setMinimumSize(QSize(150, 0));
-        label_3->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout->addWidget(label_3, 2, 0, 1, 1);
-
-        spinBox_reserv = new QSpinBox(TPointDialog);
-        spinBox_reserv->setObjectName(QString::fromUtf8("spinBox_reserv"));
-
-        gridLayout->addWidget(spinBox_reserv, 3, 1, 1, 1);
-
-        label_4 = new QLabel(TPointDialog);
+        frame_XYZ = new QFrame(TPointDialog);
+        frame_XYZ->setObjectName(QString::fromUtf8("frame_XYZ"));
+        frame_XYZ->setFrameShape(QFrame::StyledPanel);
+        frame_XYZ->setFrameShadow(QFrame::Raised);
+        gridLayout_3 = new QGridLayout(frame_XYZ);
+        gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
+        label_4 = new QLabel(frame_XYZ);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setMinimumSize(QSize(150, 0));
 
-        gridLayout->addWidget(label_4, 1, 0, 1, 1);
+        gridLayout_3->addWidget(label_4, 2, 0, 1, 1);
 
-        spinBox_Z = new QSpinBox(TPointDialog);
-        spinBox_Z->setObjectName(QString::fromUtf8("spinBox_Z"));
-        spinBox_Z->setMinimumSize(QSize(120, 0));
-        spinBox_Z->setMinimum(-3600000);
-        spinBox_Z->setMaximum(360000000);
-
-        gridLayout->addWidget(spinBox_Z, 1, 1, 1, 1);
-
-        label_5 = new QLabel(TPointDialog);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setMinimumSize(QSize(150, 0));
-        label_5->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout->addWidget(label_5, 1, 2, 1, 2);
-
-        spinBox_rx = new QSpinBox(TPointDialog);
-        spinBox_rx->setObjectName(QString::fromUtf8("spinBox_rx"));
-        spinBox_rx->setMinimumSize(QSize(120, 0));
-        spinBox_rx->setMinimum(-360);
-        spinBox_rx->setMaximum(360);
-
-        gridLayout->addWidget(spinBox_rx, 1, 4, 1, 1);
-
-        label = new QLabel(TPointDialog);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setMinimumSize(QSize(150, 0));
-        label->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout->addWidget(label, 0, 0, 1, 1);
-
-        spinBox_X = new QSpinBox(TPointDialog);
-        spinBox_X->setObjectName(QString::fromUtf8("spinBox_X"));
-        spinBox_X->setMinimumSize(QSize(120, 0));
-        spinBox_X->setMinimum(-10000000);
-        spinBox_X->setMaximum(10000000);
-
-        gridLayout->addWidget(spinBox_X, 0, 1, 1, 1);
-
-        label_2 = new QLabel(TPointDialog);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setMinimumSize(QSize(150, 0));
-        label_2->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout->addWidget(label_2, 0, 2, 1, 2);
-
-        spinBox_Y = new QSpinBox(TPointDialog);
+        spinBox_Y = new QSpinBox(frame_XYZ);
         spinBox_Y->setObjectName(QString::fromUtf8("spinBox_Y"));
         spinBox_Y->setMinimumSize(QSize(100, 0));
         spinBox_Y->setMinimum(-360000);
         spinBox_Y->setMaximum(300060);
 
-        gridLayout->addWidget(spinBox_Y, 0, 4, 1, 1);
+        gridLayout_3->addWidget(spinBox_Y, 2, 2, 1, 2);
+
+        label = new QLabel(frame_XYZ);
+        label->setObjectName(QString::fromUtf8("label"));
+        label->setMinimumSize(QSize(150, 0));
+        label->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label, 0, 0, 1, 1);
+
+        spinBox_X = new QSpinBox(frame_XYZ);
+        spinBox_X->setObjectName(QString::fromUtf8("spinBox_X"));
+        spinBox_X->setMinimumSize(QSize(120, 0));
+        spinBox_X->setMinimum(-10000000);
+        spinBox_X->setMaximum(10000000);
+
+        gridLayout_3->addWidget(spinBox_X, 0, 2, 1, 2);
+
+        spinBox_Z = new QSpinBox(frame_XYZ);
+        spinBox_Z->setObjectName(QString::fromUtf8("spinBox_Z"));
+        spinBox_Z->setMinimumSize(QSize(120, 0));
+        spinBox_Z->setMinimum(-3600000);
+        spinBox_Z->setMaximum(360000000);
+
+        gridLayout_3->addWidget(spinBox_Z, 3, 2, 1, 1);
+
+        label_3 = new QLabel(frame_XYZ);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setMinimumSize(QSize(150, 0));
+        label_3->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label_3, 3, 0, 1, 1);
 
 
-        verticalLayout->addLayout(gridLayout);
+        gridLayout->addWidget(frame_XYZ, 0, 0, 1, 1);
+
+        frame_OAT = new QFrame(TPointDialog);
+        frame_OAT->setObjectName(QString::fromUtf8("frame_OAT"));
+        frame_OAT->setFrameShape(QFrame::StyledPanel);
+        frame_OAT->setFrameShadow(QFrame::Raised);
+        gridLayout_2 = new QGridLayout(frame_OAT);
+        gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
+        label_2 = new QLabel(frame_OAT);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setMinimumSize(QSize(150, 0));
+        label_2->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_2->addWidget(label_2, 0, 0, 1, 1);
+
+        spinBox_ry = new QSpinBox(frame_OAT);
+        spinBox_ry->setObjectName(QString::fromUtf8("spinBox_ry"));
+        spinBox_ry->setMinimumSize(QSize(120, 0));
+        spinBox_ry->setMinimum(-360);
+        spinBox_ry->setMaximum(360);
+
+        gridLayout_2->addWidget(spinBox_ry, 1, 1, 1, 1);
+
+        label_5 = new QLabel(frame_OAT);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setMinimumSize(QSize(150, 0));
+        label_5->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_2->addWidget(label_5, 1, 0, 1, 1);
+
+        spinBox_rz = new QSpinBox(frame_OAT);
+        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
+        spinBox_rz->setMinimumSize(QSize(120, 0));
+        spinBox_rz->setMinimum(-360);
+        spinBox_rz->setMaximum(360);
+
+        gridLayout_2->addWidget(spinBox_rz, 2, 1, 1, 1);
+
+        spinBox_rx = new QSpinBox(frame_OAT);
+        spinBox_rx->setObjectName(QString::fromUtf8("spinBox_rx"));
+        spinBox_rx->setMinimumSize(QSize(120, 0));
+        spinBox_rx->setMinimum(-360);
+        spinBox_rx->setMaximum(360);
+
+        gridLayout_2->addWidget(spinBox_rx, 0, 1, 1, 1);
+
+        label_6 = new QLabel(frame_OAT);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        label_6->setMinimumSize(QSize(150, 0));
+        label_6->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_2->addWidget(label_6, 2, 0, 1, 1);
+
+
+        gridLayout->addWidget(frame_OAT, 0, 1, 1, 1);
 
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
@@ -179,7 +183,7 @@ public:
         horizontalLayout->addWidget(pushButton_2);
 
 
-        verticalLayout->addLayout(horizontalLayout);
+        gridLayout->addLayout(horizontalLayout, 1, 0, 1, 2);
 
 
         retranslateUi(TPointDialog);
@@ -190,13 +194,12 @@ public:
     void retranslateUi(QDialog *TPointDialog)
     {
         TPointDialog->setWindowTitle(QCoreApplication::translate("TPointDialog", "Dialog", nullptr));
-        label_6->setText(QCoreApplication::translate("TPointDialog", "6/rz", nullptr));
-        label_15->setText(QCoreApplication::translate("TPointDialog", "reserv", nullptr));
-        label_3->setText(QCoreApplication::translate("TPointDialog", "5/ry", nullptr));
-        label_4->setText(QCoreApplication::translate("TPointDialog", "3/Z", nullptr));
-        label_5->setText(QCoreApplication::translate("TPointDialog", "4/rx", nullptr));
+        label_4->setText(QCoreApplication::translate("TPointDialog", "2/Y", nullptr));
         label->setText(QCoreApplication::translate("TPointDialog", "1/X", nullptr));
-        label_2->setText(QCoreApplication::translate("TPointDialog", "2/Y", nullptr));
+        label_3->setText(QCoreApplication::translate("TPointDialog", "3/Z", nullptr));
+        label_2->setText(QCoreApplication::translate("TPointDialog", "4/O", nullptr));
+        label_5->setText(QCoreApplication::translate("TPointDialog", "5/A", nullptr));
+        label_6->setText(QCoreApplication::translate("TPointDialog", "6/T", nullptr));
         pushButton->setText(QCoreApplication::translate("TPointDialog", "OK", nullptr));
         pushButton_2->setText(QCoreApplication::translate("TPointDialog", "Close", nullptr));
     } // retranslateUi

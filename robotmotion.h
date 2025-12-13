@@ -55,6 +55,8 @@ private:
     int m_MotionStateAck;
     //флаг выполнения команды движуния
     bool MotionProgramm;
+    //флаг остановки выполения текущей команды двжиения
+    bool m_StopMotionProg;
 
     int CoordFreq;
 
@@ -97,12 +99,12 @@ private:
     //таймер ожиадния отвеота от клента
     QTimer *m_timerAnsTimeout;
 
-    //тайм аут запроса отпраки команжды
-    const int TIMEOUT_COORD = 2;
+    //тайм аут запроса отпраки команжды мс
+    const int TIMEOUT_COORD = 4;
     //тайет отпрки команды
     QTimer *m_timerCmdTimeout;
     //команда запроса координиты
-    QString m_CmdCoord = "COORD ";
+    QString m_CmdCoord = "COORD ;";
 
     //адресс клиента
     QString m_HostIp;
@@ -148,22 +150,24 @@ public:
     //вкл/выкл мотора
     //void MotorOnOF(bool on, QString &status);
     //перемещение на шаг в углах осей
-    void StepMoveJT(int axis, int step);
+    void StepMoveJT(int axis, int step, int speed);
     //пермещение на шаг в базисе XYZ
-    void StepMoveXYZ(int axis, int step);
+    void StepMoveXYZ(int axis, int step, int speed);
     //пермещение в точку в угалх осей
-    void MovePointJT(JTPoint point);
+    void MovePointJT(JTPoint point, int speed);
     //перемещение в точку (в базисе XYZ)
-    void MovePointXYZ(QVector3D xyz, EulerAngles oat);
-    void MovePointXYZ(QVector3D xyz);
+    void MovePointXYZ(QVector3D xyz, EulerAngles oat, int speed);
+    void MovePointXYZ(QVector3D xyz, int speed);
     //премещение на раастние от точик
     void DepartMove(int step);
     void SetZero();
     //линиеное пермещением по указанным точкам
-    void LinearMove(QList<JTPoint> &points);
+    void LinearMove(QList<JTPoint> &points, int speed, int rad);
     //линиеное пермещением по указанным точкам
-    void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat);
-    void LinearMove(QList<QVector3D> &points_xyz);
+    void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat, int speed, int rad);
+    void LinearMove(QList<QVector3D> &points_xyz, int speed, int rad);
+    //перемещение по окружности
+    void ArcMove(QVector3D first_pt,  QVector3D dest_pt, int speed, int rad);
     //прервать текущую исполнмю команду
     void stopCommand();
 

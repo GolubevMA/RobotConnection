@@ -16,10 +16,12 @@
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
+#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
@@ -28,13 +30,26 @@ QT_BEGIN_NAMESPACE
 class Ui_FormRemote
 {
 public:
-    QVBoxLayout *verticalLayout;
+    QVBoxLayout *verticalLayout_2;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_14;
     QComboBox *comboBox;
     QSpacerItem *horizontalSpacer_2;
     QFrame *frame_2;
     QGridLayout *gridLayout_4;
+    QFrame *frame_Trac;
+    QVBoxLayout *verticalLayout;
+    QTableWidget *tableWidget_points;
+    QHBoxLayout *horizontalLayout;
+    QPushButton *pushButton_addPt;
+    QPushButton *pushButton_RemovePt;
+    QPushButton *pushButton_ChangePt;
+    QSpacerItem *verticalSpacer_4;
+    QPushButton *pushButton_LinearMove;
+    QSpacerItem *verticalSpacer_5;
+    QPushButton *pushButton_MoveArc;
+    QSpacerItem *verticalSpacer_3;
+    QSpacerItem *verticalSpacer;
     QGridLayout *gridLayout_2;
     QLabel *label_17;
     QPushButton *pushButton_rz_minus;
@@ -56,40 +71,43 @@ public:
     QPushButton *pushButton_x_minus;
     QLabel *label_10;
     QLabel *label_11;
-    QSpacerItem *verticalSpacer;
-    QDoubleSpinBox *doubleSpinBox_Depart;
-    QPushButton *pushButton_2;
-    QPushButton *pushButton_Move;
-    QPushButton *pushButton_ZERO;
-    QPushButton *pushButton;
     QPushButton *pushButton_linear;
+    QLabel *label_13;
+    QPushButton *pushButton_Move;
+    QSpacerItem *verticalSpacer_2;
+    QPushButton *pushButton_ZERO;
+    QSpinBox *spinBox_Speed;
+    QPushButton *pushButton;
+    QPushButton *pushButton_2;
+    QDoubleSpinBox *doubleSpinBox_Depart;
     QFrame *frame;
     QGridLayout *gridLayout_3;
-    QLabel *label_axis3;
-    QLabel *label_axis5;
     QLabel *label_axis7;
-    QLabel *label_axis2;
-    QLabel *label_axis4;
-    QLabel *label_axis6;
-    QLabel *label_3;
+    QLabel *label_axis1;
+    QLabel *label_axis3;
     QLabel *label;
     QLabel *label_15;
-    QLabel *label_axis1;
-    QLabel *label_6;
     QLabel *label_4;
     QLabel *label_2;
+    QLabel *label_axis2;
     QLabel *label_5;
+    QLabel *label_axis4;
+    QLabel *label_3;
+    QLabel *label_axis5;
+    QLabel *label_6;
+    QLabel *label_axis6;
 
     void setupUi(QWidget *FormRemote)
     {
         if (FormRemote->objectName().isEmpty())
             FormRemote->setObjectName(QString::fromUtf8("FormRemote"));
-        FormRemote->resize(476, 745);
+        FormRemote->resize(541, 816);
+        FormRemote->setMinimumSize(QSize(500, 0));
         QFont font;
         font.setPointSize(12);
         FormRemote->setFont(font);
-        verticalLayout = new QVBoxLayout(FormRemote);
-        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout_2 = new QVBoxLayout(FormRemote);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         horizontalLayout_5 = new QHBoxLayout();
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         label_14 = new QLabel(FormRemote);
@@ -110,7 +128,7 @@ public:
         horizontalLayout_5->addItem(horizontalSpacer_2);
 
 
-        verticalLayout->addLayout(horizontalLayout_5);
+        verticalLayout_2->addLayout(horizontalLayout_5);
 
         frame_2 = new QFrame(FormRemote);
         frame_2->setObjectName(QString::fromUtf8("frame_2"));
@@ -118,6 +136,88 @@ public:
         frame_2->setFrameShadow(QFrame::Raised);
         gridLayout_4 = new QGridLayout(frame_2);
         gridLayout_4->setObjectName(QString::fromUtf8("gridLayout_4"));
+        frame_Trac = new QFrame(frame_2);
+        frame_Trac->setObjectName(QString::fromUtf8("frame_Trac"));
+        frame_Trac->setFrameShape(QFrame::StyledPanel);
+        frame_Trac->setFrameShadow(QFrame::Raised);
+        verticalLayout = new QVBoxLayout(frame_Trac);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        tableWidget_points = new QTableWidget(frame_Trac);
+        if (tableWidget_points->columnCount() < 3)
+            tableWidget_points->setColumnCount(3);
+        QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
+        tableWidget_points->setHorizontalHeaderItem(0, __qtablewidgetitem);
+        QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
+        tableWidget_points->setHorizontalHeaderItem(1, __qtablewidgetitem1);
+        QTableWidgetItem *__qtablewidgetitem2 = new QTableWidgetItem();
+        tableWidget_points->setHorizontalHeaderItem(2, __qtablewidgetitem2);
+        if (tableWidget_points->rowCount() < 3)
+            tableWidget_points->setRowCount(3);
+        QTableWidgetItem *__qtablewidgetitem3 = new QTableWidgetItem();
+        tableWidget_points->setVerticalHeaderItem(0, __qtablewidgetitem3);
+        QTableWidgetItem *__qtablewidgetitem4 = new QTableWidgetItem();
+        tableWidget_points->setVerticalHeaderItem(1, __qtablewidgetitem4);
+        QTableWidgetItem *__qtablewidgetitem5 = new QTableWidgetItem();
+        tableWidget_points->setVerticalHeaderItem(2, __qtablewidgetitem5);
+        tableWidget_points->setObjectName(QString::fromUtf8("tableWidget_points"));
+        tableWidget_points->setMinimumSize(QSize(350, 0));
+
+        verticalLayout->addWidget(tableWidget_points);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        pushButton_addPt = new QPushButton(frame_Trac);
+        pushButton_addPt->setObjectName(QString::fromUtf8("pushButton_addPt"));
+        pushButton_addPt->setMinimumSize(QSize(80, 28));
+
+        horizontalLayout->addWidget(pushButton_addPt);
+
+        pushButton_RemovePt = new QPushButton(frame_Trac);
+        pushButton_RemovePt->setObjectName(QString::fromUtf8("pushButton_RemovePt"));
+        pushButton_RemovePt->setMinimumSize(QSize(80, 28));
+
+        horizontalLayout->addWidget(pushButton_RemovePt);
+
+        pushButton_ChangePt = new QPushButton(frame_Trac);
+        pushButton_ChangePt->setObjectName(QString::fromUtf8("pushButton_ChangePt"));
+        pushButton_ChangePt->setMinimumSize(QSize(80, 0));
+        pushButton_ChangePt->setMaximumSize(QSize(180, 16777215));
+
+        horizontalLayout->addWidget(pushButton_ChangePt);
+
+
+        verticalLayout->addLayout(horizontalLayout);
+
+        verticalSpacer_4 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer_4);
+
+        pushButton_LinearMove = new QPushButton(frame_Trac);
+        pushButton_LinearMove->setObjectName(QString::fromUtf8("pushButton_LinearMove"));
+        pushButton_LinearMove->setMinimumSize(QSize(0, 30));
+
+        verticalLayout->addWidget(pushButton_LinearMove);
+
+        verticalSpacer_5 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer_5);
+
+        pushButton_MoveArc = new QPushButton(frame_Trac);
+        pushButton_MoveArc->setObjectName(QString::fromUtf8("pushButton_MoveArc"));
+
+        verticalLayout->addWidget(pushButton_MoveArc);
+
+
+        gridLayout_4->addWidget(frame_Trac, 7, 1, 1, 2);
+
+        verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout_4->addItem(verticalSpacer_3, 5, 1, 1, 1);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout_4->addItem(verticalSpacer, 8, 2, 1, 1);
+
         gridLayout_2 = new QGridLayout();
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         label_17 = new QLabel(frame_2);
@@ -135,8 +235,8 @@ public:
         spinBox_Step = new QSpinBox(frame_2);
         spinBox_Step->setObjectName(QString::fromUtf8("spinBox_Step"));
         spinBox_Step->setMinimumSize(QSize(0, 28));
-        spinBox_Step->setMinimum(-180);
-        spinBox_Step->setMaximum(180);
+        spinBox_Step->setMinimum(-500);
+        spinBox_Step->setMaximum(500);
 
         gridLayout_2->addWidget(spinBox_Step, 6, 1, 1, 2);
 
@@ -267,50 +367,64 @@ public:
         gridLayout_2->addWidget(label_11, 4, 1, 1, 1);
 
 
-        gridLayout_4->addLayout(gridLayout_2, 0, 2, 7, 1);
+        gridLayout_4->addLayout(gridLayout_2, 0, 3, 11, 1);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+        pushButton_linear = new QPushButton(frame_2);
+        pushButton_linear->setObjectName(QString::fromUtf8("pushButton_linear"));
+        pushButton_linear->setMinimumSize(QSize(0, 30));
+        pushButton_linear->setFont(font);
+        pushButton_linear->setCheckable(true);
 
-        gridLayout_4->addItem(verticalSpacer, 4, 1, 1, 1);
+        gridLayout_4->addWidget(pushButton_linear, 6, 1, 1, 2);
 
-        doubleSpinBox_Depart = new QDoubleSpinBox(frame_2);
-        doubleSpinBox_Depart->setObjectName(QString::fromUtf8("doubleSpinBox_Depart"));
-        doubleSpinBox_Depart->setMinimumSize(QSize(100, 28));
+        label_13 = new QLabel(frame_2);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
 
-        gridLayout_4->addWidget(doubleSpinBox_Depart, 1, 1, 1, 1);
-
-        pushButton_2 = new QPushButton(frame_2);
-        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
-        pushButton_2->setMinimumSize(QSize(100, 60));
-
-        gridLayout_4->addWidget(pushButton_2, 5, 0, 2, 2);
+        gridLayout_4->addWidget(label_13, 1, 1, 1, 1);
 
         pushButton_Move = new QPushButton(frame_2);
         pushButton_Move->setObjectName(QString::fromUtf8("pushButton_Move"));
         pushButton_Move->setMinimumSize(QSize(0, 40));
 
-        gridLayout_4->addWidget(pushButton_Move, 0, 0, 1, 2);
+        gridLayout_4->addWidget(pushButton_Move, 0, 1, 1, 2);
+
+        verticalSpacer_2 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        gridLayout_4->addItem(verticalSpacer_2, 2, 2, 1, 1);
 
         pushButton_ZERO = new QPushButton(frame_2);
         pushButton_ZERO->setObjectName(QString::fromUtf8("pushButton_ZERO"));
         pushButton_ZERO->setMinimumSize(QSize(0, 40));
 
-        gridLayout_4->addWidget(pushButton_ZERO, 2, 0, 1, 2);
+        gridLayout_4->addWidget(pushButton_ZERO, 4, 1, 1, 2);
+
+        spinBox_Speed = new QSpinBox(frame_2);
+        spinBox_Speed->setObjectName(QString::fromUtf8("spinBox_Speed"));
+        spinBox_Speed->setMinimum(1);
+        spinBox_Speed->setValue(10);
+
+        gridLayout_4->addWidget(spinBox_Speed, 1, 2, 1, 1);
 
         pushButton = new QPushButton(frame_2);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
         pushButton->setMinimumSize(QSize(0, 30));
 
-        gridLayout_4->addWidget(pushButton, 1, 0, 1, 1);
+        gridLayout_4->addWidget(pushButton, 3, 1, 1, 1);
 
-        pushButton_linear = new QPushButton(frame_2);
-        pushButton_linear->setObjectName(QString::fromUtf8("pushButton_linear"));
-        pushButton_linear->setMinimumSize(QSize(0, 40));
+        pushButton_2 = new QPushButton(frame_2);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setMinimumSize(QSize(100, 60));
 
-        gridLayout_4->addWidget(pushButton_linear, 3, 0, 1, 2);
+        gridLayout_4->addWidget(pushButton_2, 9, 1, 2, 2);
+
+        doubleSpinBox_Depart = new QDoubleSpinBox(frame_2);
+        doubleSpinBox_Depart->setObjectName(QString::fromUtf8("doubleSpinBox_Depart"));
+        doubleSpinBox_Depart->setMinimumSize(QSize(100, 28));
+
+        gridLayout_4->addWidget(doubleSpinBox_Depart, 3, 2, 1, 1);
 
 
-        verticalLayout->addWidget(frame_2);
+        verticalLayout_2->addWidget(frame_2);
 
         frame = new QFrame(FormRemote);
         frame->setObjectName(QString::fromUtf8("frame"));
@@ -318,53 +432,25 @@ public:
         frame->setFrameShadow(QFrame::Raised);
         gridLayout_3 = new QGridLayout(frame);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
-        label_axis3 = new QLabel(frame);
-        label_axis3->setObjectName(QString::fromUtf8("label_axis3"));
-        label_axis3->setStyleSheet(QString::fromUtf8("background-color:white"));
-
-        gridLayout_3->addWidget(label_axis3, 1, 1, 1, 1);
-
-        label_axis5 = new QLabel(frame);
-        label_axis5->setObjectName(QString::fromUtf8("label_axis5"));
-        label_axis5->setMinimumSize(QSize(100, 28));
-        label_axis5->setStyleSheet(QString::fromUtf8("background-color:white"));
-
-        gridLayout_3->addWidget(label_axis5, 4, 1, 1, 1);
-
         label_axis7 = new QLabel(frame);
         label_axis7->setObjectName(QString::fromUtf8("label_axis7"));
         label_axis7->setMinimumSize(QSize(100, 28));
         label_axis7->setStyleSheet(QString::fromUtf8("background-color:white"));
 
-        gridLayout_3->addWidget(label_axis7, 6, 1, 1, 1);
+        gridLayout_3->addWidget(label_axis7, 7, 1, 1, 1);
 
-        label_axis2 = new QLabel(frame);
-        label_axis2->setObjectName(QString::fromUtf8("label_axis2"));
-        label_axis2->setMinimumSize(QSize(100, 0));
-        label_axis2->setStyleSheet(QString::fromUtf8("background-color:white"));
+        label_axis1 = new QLabel(frame);
+        label_axis1->setObjectName(QString::fromUtf8("label_axis1"));
+        label_axis1->setMinimumSize(QSize(100, 28));
+        label_axis1->setStyleSheet(QString::fromUtf8("background-color:white"));
 
-        gridLayout_3->addWidget(label_axis2, 0, 3, 1, 1);
+        gridLayout_3->addWidget(label_axis1, 0, 1, 1, 1);
 
-        label_axis4 = new QLabel(frame);
-        label_axis4->setObjectName(QString::fromUtf8("label_axis4"));
-        label_axis4->setMinimumSize(QSize(100, 28));
-        label_axis4->setStyleSheet(QString::fromUtf8("background-color:white"));
+        label_axis3 = new QLabel(frame);
+        label_axis3->setObjectName(QString::fromUtf8("label_axis3"));
+        label_axis3->setStyleSheet(QString::fromUtf8("background-color:white"));
 
-        gridLayout_3->addWidget(label_axis4, 1, 3, 1, 1);
-
-        label_axis6 = new QLabel(frame);
-        label_axis6->setObjectName(QString::fromUtf8("label_axis6"));
-        label_axis6->setMinimumSize(QSize(100, 0));
-        label_axis6->setStyleSheet(QString::fromUtf8("background-color:white"));
-
-        gridLayout_3->addWidget(label_axis6, 4, 3, 1, 1);
-
-        label_3 = new QLabel(frame);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setMinimumSize(QSize(120, 0));
-        label_3->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout_3->addWidget(label_3, 4, 0, 1, 1);
+        gridLayout_3->addWidget(label_axis3, 2, 1, 1, 1);
 
         label = new QLabel(frame);
         label->setObjectName(QString::fromUtf8("label"));
@@ -376,44 +462,72 @@ public:
         label_15 = new QLabel(frame);
         label_15->setObjectName(QString::fromUtf8("label_15"));
 
-        gridLayout_3->addWidget(label_15, 6, 0, 1, 1);
-
-        label_axis1 = new QLabel(frame);
-        label_axis1->setObjectName(QString::fromUtf8("label_axis1"));
-        label_axis1->setMinimumSize(QSize(100, 28));
-        label_axis1->setStyleSheet(QString::fromUtf8("background-color:white"));
-
-        gridLayout_3->addWidget(label_axis1, 0, 1, 1, 1);
-
-        label_6 = new QLabel(frame);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setMinimumSize(QSize(100, 0));
-        label_6->setMaximumSize(QSize(150, 16777215));
-
-        gridLayout_3->addWidget(label_6, 4, 2, 1, 1);
+        gridLayout_3->addWidget(label_15, 7, 0, 1, 1);
 
         label_4 = new QLabel(frame);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setMinimumSize(QSize(120, 0));
 
-        gridLayout_3->addWidget(label_4, 1, 0, 1, 1);
+        gridLayout_3->addWidget(label_4, 2, 0, 1, 1);
 
         label_2 = new QLabel(frame);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setMinimumSize(QSize(100, 0));
         label_2->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_3->addWidget(label_2, 0, 2, 1, 1);
+        gridLayout_3->addWidget(label_2, 1, 0, 1, 1);
+
+        label_axis2 = new QLabel(frame);
+        label_axis2->setObjectName(QString::fromUtf8("label_axis2"));
+        label_axis2->setMinimumSize(QSize(100, 0));
+        label_axis2->setStyleSheet(QString::fromUtf8("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis2, 1, 1, 1, 1);
 
         label_5 = new QLabel(frame);
         label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setMinimumSize(QSize(100, 0));
         label_5->setMaximumSize(QSize(150, 16777215));
 
-        gridLayout_3->addWidget(label_5, 1, 2, 1, 1);
+        gridLayout_3->addWidget(label_5, 0, 2, 1, 1);
+
+        label_axis4 = new QLabel(frame);
+        label_axis4->setObjectName(QString::fromUtf8("label_axis4"));
+        label_axis4->setMinimumSize(QSize(100, 28));
+        label_axis4->setStyleSheet(QString::fromUtf8("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis4, 0, 3, 1, 1);
+
+        label_3 = new QLabel(frame);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setMinimumSize(QSize(120, 0));
+        label_3->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label_3, 1, 2, 1, 1);
+
+        label_axis5 = new QLabel(frame);
+        label_axis5->setObjectName(QString::fromUtf8("label_axis5"));
+        label_axis5->setMinimumSize(QSize(100, 28));
+        label_axis5->setStyleSheet(QString::fromUtf8("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis5, 1, 3, 1, 1);
+
+        label_6 = new QLabel(frame);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        label_6->setMinimumSize(QSize(100, 0));
+        label_6->setMaximumSize(QSize(150, 16777215));
+
+        gridLayout_3->addWidget(label_6, 2, 2, 1, 1);
+
+        label_axis6 = new QLabel(frame);
+        label_axis6->setObjectName(QString::fromUtf8("label_axis6"));
+        label_axis6->setMinimumSize(QSize(100, 0));
+        label_axis6->setStyleSheet(QString::fromUtf8("background-color:white"));
+
+        gridLayout_3->addWidget(label_axis6, 2, 3, 1, 1);
 
 
-        verticalLayout->addWidget(frame);
+        verticalLayout_2->addWidget(frame);
 
 
         retranslateUi(FormRemote);
@@ -429,6 +543,17 @@ public:
         comboBox->setItemText(1, QCoreApplication::translate("FormRemote", "BASE", nullptr));
         comboBox->setItemText(2, QCoreApplication::translate("FormRemote", "TOOl", nullptr));
 
+        QTableWidgetItem *___qtablewidgetitem = tableWidget_points->horizontalHeaderItem(0);
+        ___qtablewidgetitem->setText(QCoreApplication::translate("FormRemote", "X", nullptr));
+        QTableWidgetItem *___qtablewidgetitem1 = tableWidget_points->horizontalHeaderItem(1);
+        ___qtablewidgetitem1->setText(QCoreApplication::translate("FormRemote", "Y", nullptr));
+        QTableWidgetItem *___qtablewidgetitem2 = tableWidget_points->horizontalHeaderItem(2);
+        ___qtablewidgetitem2->setText(QCoreApplication::translate("FormRemote", "Z", nullptr));
+        pushButton_addPt->setText(QCoreApplication::translate("FormRemote", "add", nullptr));
+        pushButton_RemovePt->setText(QCoreApplication::translate("FormRemote", "remove", nullptr));
+        pushButton_ChangePt->setText(QCoreApplication::translate("FormRemote", "change", nullptr));
+        pushButton_LinearMove->setText(QCoreApplication::translate("FormRemote", "start", nullptr));
+        pushButton_MoveArc->setText(QCoreApplication::translate("FormRemote", "arc", nullptr));
         label_17->setText(QCoreApplication::translate("FormRemote", "Setp", nullptr));
         pushButton_rz_minus->setText(QCoreApplication::translate("FormRemote", "-", nullptr));
         pushButton_y_minus->setText(QCoreApplication::translate("FormRemote", "-", nullptr));
@@ -448,25 +573,26 @@ public:
         pushButton_x_minus->setText(QCoreApplication::translate("FormRemote", "-", nullptr));
         label_10->setText(QCoreApplication::translate("FormRemote", "4/rx", nullptr));
         label_11->setText(QCoreApplication::translate("FormRemote", "5/ry", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("FormRemote", "Stop", nullptr));
+        pushButton_linear->setText(QCoreApplication::translate("FormRemote", "LINEAR", nullptr));
+        label_13->setText(QCoreApplication::translate("FormRemote", "Speed", nullptr));
         pushButton_Move->setText(QCoreApplication::translate("FormRemote", "Move", nullptr));
         pushButton_ZERO->setText(QCoreApplication::translate("FormRemote", "SET ZERO", nullptr));
         pushButton->setText(QCoreApplication::translate("FormRemote", "Depart", nullptr));
-        pushButton_linear->setText(QCoreApplication::translate("FormRemote", "LINEAR", nullptr));
-        label_axis3->setText(QString());
-        label_axis5->setText(QString());
+        pushButton_2->setText(QCoreApplication::translate("FormRemote", "Stop", nullptr));
         label_axis7->setText(QString());
-        label_axis2->setText(QString());
-        label_axis4->setText(QString());
-        label_axis6->setText(QString());
-        label_3->setText(QCoreApplication::translate("FormRemote", "5/ry", nullptr));
+        label_axis1->setText(QString());
+        label_axis3->setText(QString());
         label->setText(QCoreApplication::translate("FormRemote", "1/X", nullptr));
         label_15->setText(QCoreApplication::translate("FormRemote", "reserv", nullptr));
-        label_axis1->setText(QString());
-        label_6->setText(QCoreApplication::translate("FormRemote", "6/rz", nullptr));
         label_4->setText(QCoreApplication::translate("FormRemote", "3/Z", nullptr));
         label_2->setText(QCoreApplication::translate("FormRemote", "2/Y", nullptr));
-        label_5->setText(QCoreApplication::translate("FormRemote", "4/rx", nullptr));
+        label_axis2->setText(QString());
+        label_5->setText(QCoreApplication::translate("FormRemote", "4/O", nullptr));
+        label_axis4->setText(QString());
+        label_3->setText(QCoreApplication::translate("FormRemote", "5/A", nullptr));
+        label_axis5->setText(QString());
+        label_6->setText(QCoreApplication::translate("FormRemote", "6/T", nullptr));
+        label_axis6->setText(QString());
     } // retranslateUi
 
 };

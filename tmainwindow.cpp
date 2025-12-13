@@ -34,8 +34,9 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
 
-    connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
+    //connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
+    connect(ui->widget_Remote, SIGNAL(UpdateTargetPoints(QList<QVector3D>&)), ui->widget_Robot, SLOT( SetTargetPoints(QList<QVector3D>&)));
 
 }
 //------------------------------------------------------------------------------

@@ -58,8 +58,7 @@ FORMS += \
 LIBS += -lOpengl32
 LIBS += -lws2_32
 
-RESOURCES += \
-    res.qrc
+RESOURCES +=
 
 INCLUDEPATH += j:\OCCT_7.8.0\dev\build\inc
 
