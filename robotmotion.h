@@ -26,8 +26,6 @@
 
 */
 
-typedef QVector3D EulerAngles;
-typedef QList<float> JTPoint;
 
 
 class RobotMotion : public QObject
@@ -54,9 +52,11 @@ private:
     //состояние полсденй исполненой команды
     int m_MotionStateAck;
     //флаг выполнения команды движуния
-    bool MotionProgramm;
+    bool m_MotionProgramm;
     //флаг остановки выполения текущей команды двжиения
     bool m_StopMotionProg;
+    //режми формирования таректории - отправка команд без подтвержения
+    bool m_TrackBuildMode;
 
     int CoordFreq;
 
@@ -79,7 +79,7 @@ private:
     QMutex m_mutexObj;
 
     //очередь данных для записи в соект
-    const int MAX_SOCKET_QUEUE_SIZE =  8;       // максимальная очередь
+    const int MAX_SOCKET_QUEUE_SIZE =  10;       // максимальная очередь
     QQueue<QString> m_queueWriteSocket;
 
     //codition для сихронизации слоотов соектов
@@ -90,46 +90,39 @@ private:
     QMutex m_conditionMutex;
 
     //таймут отртия зарытия сокета
+
     const int TIMEOUT_OPEN_CLOSE = 50;
     //сокет для взаиомдейтвя с ptaxel
     QTcpSocket *m_WorkSocket;
 
     // таймаут ответа клента
-    const int  TIMEOUT_ANS_ROBOT  = 1000;
+    const int  TIMEOUT_ANS_ROBOT  = 2000;
     //таймер ожиадния отвеота от клента
     QTimer *m_timerAnsTimeout;
 
     //тайм аут запроса отпраки команжды мс
-    const int TIMEOUT_COORD = 4;
+    const int TIMEOUT_COORD = 10;
     //тайет отпрки команды
     QTimer *m_timerCmdTimeout;
     //команда запроса координиты
-    QString m_CmdCoord = "COORD ;";
+    QString m_CmdState = "STATE ;";
+    QString m_CmdStop = "STOP ;";
+    QString m_status_ident = " STATE";
 
     //адресс клиента
     QString m_HostIp;
     int m_HostPort;
-    //QHostAddress m_HostSockAddr;    
-
-
-    //идентификатор команды
-    const QString m_cmd_ident = " CMD";
-    const QString m_coord_ident = "COORD";
     //команда, на которую ожиается ответ
     QString m_wait_cmd;
-
-    //стаутс выпоелния команды
-    const QString m_cmd_state_ok = " OK";
-    const QString m_cmd_state_rgerr = " RG_ERR";
-    const QString m_cmd_state_nf = " NF";
-
+    //масимальный размер команды 255 символов - 1 (раздлетилеь) - 5 - ident
+    const int MAX_CMD_SIZE = 249;
 
     // буффер в который считываем данные из фремйма
     char RxBuffer[1024 * 14];
     // здесь храним число данных в буфере
     int RxBufferCount;
 
-    void parseResponse(QString &resp);
+    //void parseResponse(QString &resp);
 
 public:
 
@@ -139,7 +132,7 @@ public:
     RobotMotion(QObject *parent = 0);
     ~RobotMotion();
 
-    JTPoint GetCurrentJT() {return m_CoordJT;}
+    const JTPoint &GetCurrentJT() {return m_CoordJT;}
     QVector3D GetCurrentXYZ() {return m_CoordXyz;}
     EulerAngles GetCurrentOAT() {return m_EulerAngles;}
     int GetFreq() {return  CoordFreq;}
@@ -158,11 +151,13 @@ public:
     //перемещение в точку (в базисе XYZ)
     void MovePointXYZ(QVector3D xyz, EulerAngles oat, int speed);
     void MovePointXYZ(QVector3D xyz, int speed);
-    //премещение на раастние от точик
-    void DepartMove(int step);
     void SetZero();
-    //линиеное пермещением по указанным точкам
-    void LinearMove(QList<JTPoint> &points, int speed, int rad);
+
+    void StartBuild(int speed);
+    void StopBuild();
+    //отправлем массив точек в режиме потсроения траектории
+    void ParseTrack(QList<JTPoint> &points, int speed);
+
     //линиеное пермещением по указанным точкам
     void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat, int speed, int rad);
     void LinearMove(QList<QVector3D> &points_xyz, int speed, int rad);
@@ -179,6 +174,8 @@ public:
     void closeConnection();
     bool isConnected();
 
+    static void loadPoints(QString file, QList<JTPoint> &ptList);
+    static void savePoints(QString file, QList<JTPoint> &pt);
 
 //слоты выполняемые в отднльном потоке
 private slots :
@@ -196,7 +193,8 @@ private slots :
 signals :
     void coordChanged();
     void transaction(bool);
-    void steerEvent();
+    void buildStarted();
+
 };
 
 #endif // ROBOTMOTION_H

@@ -20,6 +20,7 @@ public:
     int Run(JTPoint *point);
     int Run(QVector3D *xyz, EulerAngles *oat);
     int Run(QVector3D *xyz);
+    int Run(QVector3D *xyz, float *angle);
 
 private slots:
     void on_pushButton_clicked();
@@ -27,7 +28,7 @@ private slots:
 
 private:
 
-    enum CoordType {JT, XYZOAT, XYZ};
+    enum CoordType {JT, XYZOAT, XYZ,XYZA};
 
     //тип координаты
     int mCoordType = CoordType::JT;
@@ -36,6 +37,7 @@ private:
     JTPoint *mCurrentJt;
     QVector3D *mCurrentXYZ;
     QVector3D *mCurrentOAT;
+    float *mCurrentAngle;
 
     Ui::TPointDialog *ui;
 };

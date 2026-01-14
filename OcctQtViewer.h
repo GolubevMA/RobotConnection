@@ -32,7 +32,6 @@
 #include <AIS_ViewController.hxx>
 #include <V3d_View.hxx>
 #include  "BRepBuilderAPI_Transform.hxx"
-#include "robotmotion.h"
 
 
 class AIS_ViewCube;
@@ -69,7 +68,7 @@ public:
                                 const Handle(V3d_View)& theNewView) override;
 
   //обновление углов осей работа
-  void SetRobotAngles(JTPoint point);
+  void SetRobotAngles(JTPoint angles);
 
 
 

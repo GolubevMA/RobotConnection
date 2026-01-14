@@ -5,7 +5,7 @@
 #include <OpenGl_Context.hxx>
 
 #include "OcctQtViewer.h"
-
+#include "QVector3D"
 #include "OcctGlTools.h"
 
 #include <Standard_WarningsDisable.hxx>
@@ -79,11 +79,9 @@ OcctQtViewer::OcctQtViewer (QWidget* theParent)
     Handle(Aspect_DisplayConnection) aDisp = new Aspect_DisplayConnection();
     Handle(OpenGl_GraphicDriver) aDriver = new OpenGl_GraphicDriver (aDisp, false);
 
-    // lets QOpenGLWidget to manage buffer swap
+    //настройка FBO
     aDriver->ChangeOptions().buffersNoSwap = true;
-    // don't write into alpha channel
     aDriver->ChangeOptions().buffersOpaqueAlpha = true;
-    // offscreen FBOs should be always used
     aDriver->ChangeOptions().useSystemBuffer = false;
 
     //создаем 3d Viewer
@@ -244,20 +242,17 @@ void OcctQtViewer::initializeGL()
         myContext->Display (myViewCube, 0, 0, false);
     }
 
-    //отрисовываем сисему контроляч
+    //отрисовываем сисему контроля
     if (robotModel != NULL)
     {
         //gp_Trsf offset;
         //offset.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,300,0)));
-
-        foreach (const Handle(AIS_Shape) &shape, robotModel->staticShape)
-        {
+        foreach (const Handle(AIS_Shape) &shape, robotModel->staticShape) {
             //shape->SetLocalTransformation(offset);
             myContext->Display(shape, AIS_Shaded, 0, true);
         }
 
-        foreach (const Handle(AIS_Shape) &shape, robotModel->robotShape)
-        {
+        foreach (const Handle(AIS_Shape) &shape, robotModel->robotShape) {
             //shape->SetLocalTransformation(offset);
             myContext->Display(shape, AIS_Shaded, 0, true);
         }
@@ -284,7 +279,7 @@ void OcctQtViewer::SetRobotAngles(JTPoint angles)
 {
     if (robotModel == NULL || !robotModel->Created) return;
 
-    int angl_count = angles.length();
+    int angl_count = angles.size();
     if (angl_count > robotModel->rotateDirections.length()) return;
 
     //корфигруции поворта осей
@@ -337,11 +332,11 @@ void OcctQtViewer::SetTargetPoints(QList<QVector3D> &points)
             pointShape.append(aShape);
         }
 
-        qDebug() << " x " << points[i].x() << " y " << points[i].y() << " z " << points[i].z();
+        //qDebug() << " x " << points[i].x() << " y " << points[i].y() << " z " << points[i].z();
 
         //трансофрмация в СК
         gp_Trsf trf;
-        trf.SetTranslation(gp_Pnt(0,0,0), gp_Pnt(points[i].x(),points[i].y(),points[i].z()));
+        trf.SetTranslation(gp_Pnt(0,0,0), gp_Pnt(points[i].x(), points[i].y(),points[i].z()));
         pointShape[i]->SetLocalTransformation(trf);
         myContext->Update(pointShape[i], true);
     }

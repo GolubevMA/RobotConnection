@@ -29,25 +29,23 @@ SOURCES += \
     OcctGlTools.cpp \
     OcctQtViewer.cpp \
     formremote.cpp \
+    jtpoint.cpp \
         main.cpp \
     robotmotion.cpp \
         tmainwindow.cpp \
     trobotmotionthread.cpp \
     vars.cpp \
-    expressschema.cpp \
-    stepfile.cpp \
     tpointdialog.cpp
 
 HEADERS += \
     OcctGlTools.h \
     OcctQtViewer.h \
     formremote.h \
+    jtpoint.h \
     robotmotion.h \
         tmainwindow.h \
     trobotmotionthread.h \
     vars.h \
-    expressschema.h \
-    stepfile.h \
     tpointdialog.h
 
 FORMS += \

@@ -7,6 +7,7 @@
 #include <QShowEvent>
 #include <QCloseEvent>
 #include "formremote.h"
+#include "trobotmotionthread.h"
 
 namespace Ui {
 class TMainWindow;
@@ -22,6 +23,8 @@ public:
     RobotMotion *m_RobotMotion;
     //обьект графического предсталения робота
     ControlSystemModel *CSystemModel;
+
+    //TRobotMotionThread *m_Mtread;
 
     QList<float> test;
 

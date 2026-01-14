@@ -296,6 +296,7 @@ void TRobotMotionThread::run()
 
     QString coord_com = " COORD";
 
+
     while (!Terminate)
     {
         //создаем и бнидм сокет прослушивания
@@ -303,7 +304,7 @@ void TRobotMotionThread::run()
         {
             Active = false;
             CreateSocket();
-            //qDebug() << "crettee";
+            qDebug() << "crettee";
         }
         //обраьотаем текущее активное соединение
         else if (Active)
@@ -329,65 +330,67 @@ void TRobotMotionThread::run()
 //                }
 //            }
 
-            //при нличии данных в буффере прочтем их
-            if (WaitData())
+            send(DevSock, "COORD ;",  sizeof("COORD ;"),1);
+
+            while(1)
+
             {
-                char buf[1000];
-                int rx_count = recv(DevSock, buf, 1000, 0);
-
-                int seek_pos = 0;
-                while (seek_pos < rx_count)
+                //при нличии данных в буффере прочтем их
+                if (WaitData())
                 {
-                    QString cmd = QString::fromLatin1(&buf[seek_pos], sizeof(char)*coord_com.length());
-                    if (cmd == coord_com)
+                    char buf[1000];
+                    int rx_count = recv(DevSock, buf, 100, 0);
+
+                    int seek_pos = 0;
+                    //while (seek_pos < rx_count)
+                    if (rx_count > 0)
                     {
-                       coord_cnt++;
-                       seek_pos += coord_com.length();
+                        coord_cnt++;
+                        break;
+                        QString cmd = QString::fromLatin1(&buf[seek_pos], sizeof(char)*coord_com.length());
+                        if (cmd == coord_com)
+                        {
+                           coord_cnt++;
+                           seek_pos += coord_com.length();
 
-                       QString resp =  QString::fromLatin1(&buf[seek_pos]-5, sizeof(char)*10);
-                       updatePos(resp);
+
+                           QString resp =  QString::fromLatin1(&buf[seek_pos]-5, sizeof(char)*10);
+                           //updatePos(resp);
+                        }
+                        else seek_pos++;
+    //                    //елси ждем команду и пришел ответ на лждаемую команду
+    //                    else if (MotionCommandWaitAnswer)
+    //                    {
+    //                       MotionCommand = false;
+    //                        MotionCommandWaitAnswer = false;
+
+    //                        //MotionCommandFree
+    //                        if (resp.endsWith(" OK")) {
+    //                            MotionCommandExitCode = MotioCmdError::NoError;
+    //                        }
+    //                        else if (resp.endsWith(" NF")) {
+    //                            MotionCommandExitCode = MotioCmdError::NotFound;
+    //                            qDebug() << "cmd not giund";
+    //                        }
+    //                        else if (resp.endsWith(" RG_ERR")) {
+    //                            MotionCommandExitCode = MotioCmdError::Range;
+    //                            qDebug() << "nfghgffbfbff";
+    //                        }
+    //                        else {
+    //                            MotionCommandExitCode = MotioCmdError::ConnetionError;
+    //                        }
+    //                        MotionCommandStatus = resp;
+    //                    }
+    //                    //ошибка
+    //                    else {
+    //                        qDebug() << "inlisd state ";
+    //                        closesocket(DevSock);
+    //                        DevSock = INVALID_SOCKET;
+    //                    }
                     }
-                    else seek_pos++;
-//                    //елси ждем команду и пришел ответ на лждаемую команду
-//                    else if (MotionCommandWaitAnswer)
-//                    {
-//                       MotionCommand = false;
-//                        MotionCommandWaitAnswer = false;
-
-//                        //MotionCommandFree
-//                        if (resp.endsWith(" OK")) {
-//                            MotionCommandExitCode = MotioCmdError::NoError;
-//                        }
-//                        else if (resp.endsWith(" NF")) {
-//                            MotionCommandExitCode = MotioCmdError::NotFound;
-//                            qDebug() << "cmd not giund";
-//                        }
-//                        else if (resp.endsWith(" RG_ERR")) {
-//                            MotionCommandExitCode = MotioCmdError::Range;
-//                            qDebug() << "nfghgffbfbff";
-//                        }
-//                        else {
-//                            MotionCommandExitCode = MotioCmdError::ConnetionError;
-//                        }
-//                        MotionCommandStatus = resp;
-//                    }
-//                    //ошибка
-//                    else {
-//                        qDebug() << "inlisd state ";
-//                        closesocket(DevSock);
-//                        DevSock = INVALID_SOCKET;
-//                    }
                 }
-//                //получили ответ неправльиной дины
-//                else{
-//                    closesocket(DevSock);
-//                    DevSock = INVALID_SOCKET;
-//                }
             }
-            else {
-                //запрос координаты
-                send(DevSock, "COORD ;",  sizeof("COORD ;"),1);
-            }
+
 
             //сброс соедеииня
             if (DevSock == INVALID_SOCKET)
@@ -418,11 +421,11 @@ void TRobotMotionThread::run()
         else if (WaitConnection())
         {   
             //сброси флаги
-//            Active = true;
-//            MotionCommand = false;
-//            MotionCommandFree = true;
-//            MotionCommandExitCode = MotioCmdError::ConnetionWait;
-//            MotionCommandWaitAnswer = false;
+            Active = true;
+            MotionCommand = false;
+            MotionCommandFree = true;
+            MotionCommandExitCode = MotioCmdError::ConnetionWait;
+            MotionCommandWaitAnswer = false;
             wait_data = false;
             coord_cnt = 0;
             qDebug() << "connnn";

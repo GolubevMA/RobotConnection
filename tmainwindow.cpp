@@ -1,11 +1,11 @@
-﻿    #include "tmainwindow.h"
+﻿#include "tmainwindow.h"
 #include "ui_tmainwindow.h"
 #include "trobotmotionthread.h"
 #include "qdebug.h"
 #include <QSettings>
-#include "stepfile.h"
 #include "formremote.h"
 #include <QMessageBox>
+#include <QSettings>
 //------------------------------------------------------------------------------
 TMainWindow::TMainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -34,7 +34,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
 
-    //connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
+    connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
     connect(ui->widget_Remote, SIGNAL(UpdateTargetPoints(QList<QVector3D>&)), ui->widget_Robot, SLOT( SetTargetPoints(QList<QVector3D>&)));
 
@@ -42,11 +42,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
 //------------------------------------------------------------------------------
 TMainWindow::~TMainWindow()
 {
-//    RobotMotion->Terminate = true;
-//    RobotMotion->terminate();
-
     if (CSystemModel != NULL )delete CSystemModel;
-
     updateTimer->stop();
     delete updateTimer;
     delete ui;
@@ -54,10 +50,21 @@ TMainWindow::~TMainWindow()
 //------------------------------------------------------------------------------
 void TMainWindow::showEvent(QShowEvent  *event)
 {
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    settings.beginGroup("MainForm");
+    setGeometry(settings.value("geometry", QRect(100, 100, 1200, 800)).toRect());
+    ui->splitter->restoreState(settings.value("splitter").toByteArray());
+    settings.endGroup();
 }
 //------------------------------------------------------------------------------
 void TMainWindow::closeEvent(QCloseEvent *event)
 {
+    QSettings settings(qApp->organizationName(), qApp->applicationName());
+    settings.beginGroup("MainForm");
+    settings.setValue("geometry", geometry());
+    settings.setValue("splitter", ui->splitter->saveState());
+    settings.endGroup();
+
 }
 //------------------------------------------------------------------------------
 //обновеям стостяние системы
@@ -65,52 +72,51 @@ void TMainWindow::closeEvent(QCloseEvent *event)
 void TMainWindow::UpdateSystemState()
 {
     ui->widget_Robot->SetRobotAngles(m_RobotMotion->GetCurrentJT());
-    ui->label_freq->setText(QString::number(m_RobotMotion->GetFreq()));
+    ui->label_freq->setText(QString::number(m_RobotMotion->GetFreq(), 'f', 1));
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_pushButton_conn_clicked()
 {
-//    if (!m_RobotMotion->isConnected()) {
+    //if (!m_RobotMotion->isConnected()) {
         qDebug() << "recc";
         m_RobotMotion->createConnection("192.168.0.1", 9015);
-//    }
-
+    //}
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT1_valueChanged(int arg1)
 {
-    test[0] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[0] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT2_valueChanged(int arg1)
 {
-    test[1] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[1] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT3_valueChanged(int arg1)
 {
-    test[2] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[2] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT4_valueChanged(int arg1)
 {
-    test[3] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[3] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT5_valueChanged(int arg1)
 {
-    test[4] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[4] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //------------------------------------------------------------------------------
 void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
 {
-    test[5] = arg1;
-    ui->widget_Robot->SetRobotAngles(test);
+    //test[5] = arg1;
+    //ui->widget_Robot->SetRobotAngles(test);
 }
 //-----------------------------------------------------------------------------
 //форма ручного упрвления

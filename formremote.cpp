@@ -2,6 +2,7 @@
 #include "tpointdialog.h"
 #include "ui_formremote.h"
 #include <QtWidgets>
+#include "vars.h"
 //------------------------------------------------------------------------------
 const int MAX_AXIS_COUNT = 7;
 //------------------------------------------------------------------------------
@@ -29,6 +30,10 @@ FormRemote::FormRemote(QWidget *parent) :
     updateTimer->start(16);
 
     m_TrackPoints.clear();
+    //m_TrackPlanes.clear();
+    m_TrackAngles.clear();
+    m_TrackJtPoints.clear();
+    RobotMotion::loadPoints("point.txt", m_TrackJtPoints);
 
     connect(ui->pushButton_x_plus, SIGNAL(clicked()), this, SLOT(step_plus_clicked()));
     connect(ui->pushButton_y_plus, SIGNAL(clicked()), this, SLOT(step_plus_clicked()));
@@ -48,18 +53,23 @@ FormRemote::FormRemote(QWidget *parent) :
 
 
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
+
+    ui->tableWidget_points->setColumnCount(6);
+    UpdateTable();
 }
 //------------------------------------------------------------------------------
 FormRemote::~FormRemote()
 {
+    RobotMotion::savePoints("point.txt", m_TrackJtPoints);
     updateTimer->stop();
     delete  updateTimer;
-    delete ui;
+    delete ui;  
 }
 //------------------------------------------------------------------------------
 void FormRemote::setObjMotion(RobotMotion *obj)
 {
     m_RobotMotion = obj;
+    connect(m_RobotMotion, SIGNAL(buildStarted()), this, SLOT(UpdateTrack()), Qt::QueuedConnection);
 }
 //------------------------------------------------------------------------------
 void FormRemote::showEvent(QShowEvent  *event)
@@ -98,6 +108,7 @@ void FormRemote::closeEvent(QCloseEvent *event)
     }
     sett.setValue("step",ui->spinBox_Step->value());
     sett.endGroup();
+
 }
 //------------------------------------------------------------------------------
 //обновляем состояние графичексого интерфейса в соотвевсие с состоянием робота
@@ -116,9 +127,8 @@ void FormRemote::UpdateSystemState()
     if (MotionMode == 1)
     {
         JTPoint jt_point = m_RobotMotion->GetCurrentJT();
-        for (int i = 0; i < m_RobotMotion->MaxAxisCount; i++) {
-            //qDebug() << " ax " << i << " v " << jt_point.at(i);
-            axisis[i]->setText(QString::number(jt_point.at(i), 'f', 2));
+        for (int i = 0; i < JTPoint::PointCount; i++) {
+            axisis[i]->setText(QString::number(jt_point[i], 'f', 2));
         }
     }
     else {
@@ -149,6 +159,7 @@ void FormRemote::on_comboBox_activated(int index)
     {
         MotionMode =  index+1;
         UpdateSystemState();
+        UpdateTable();
     }
 }
 //------------------------------------------------------------------------------
@@ -218,9 +229,7 @@ void FormRemote::on_pushButton_Move_clicked()
 {     
     if (MotionMode == 1)
     {
-        JTPoint pt = {0,0,0,0,0,0}; //m_RobotMotion->GetCurrentJT();
-
-
+        JTPoint pt;
         TPointDialog dialog(this);
         if (dialog.Run(&pt) == QDialog::Accepted)
             m_RobotMotion->MovePointJT(pt, ui->spinBox_Speed->value());
@@ -260,44 +269,105 @@ void FormRemote::UpdateTable()
     //очистим таблицу
     ui->tableWidget_points->clear();
 
+
     //формируем столбцы
-    ui->tableWidget_points->setHorizontalHeaderItem(0, new QTableWidgetItem("X"));
-    ui->tableWidget_points->setHorizontalHeaderItem(1, new QTableWidgetItem("Y"));
-    ui->tableWidget_points->setHorizontalHeaderItem(2, new QTableWidgetItem("Z"));
-
-    //установим чило строк в соответстиве с числом  точек
-    int pt_count = m_TrackPoints.size();
-    ui->tableWidget_points->setRowCount(pt_count );
-
-    for (int d = 0; d < pt_count ; d++)
+    if (MotionMode == 1)
     {
-        //номера точек
-        ui->tableWidget_points->setVerticalHeaderItem(d, new QTableWidgetItem(QString::number(d+1)));
-        ui->tableWidget_points->setItem(d, 0, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].x())));
-        ui->tableWidget_points->setItem(d, 1, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].y())));
-        ui->tableWidget_points->setItem(d, 2, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].z())));
+        ui->tableWidget_points->setColumnCount(6);
+        ui->tableWidget_points->setHorizontalHeaderItem(0, new QTableWidgetItem("1"));
+        ui->tableWidget_points->setHorizontalHeaderItem(1, new QTableWidgetItem("2"));
+        ui->tableWidget_points->setHorizontalHeaderItem(2, new QTableWidgetItem("3"));
+        ui->tableWidget_points->setHorizontalHeaderItem(3, new QTableWidgetItem("4"));
+        ui->tableWidget_points->setHorizontalHeaderItem(4, new QTableWidgetItem("5"));
+        ui->tableWidget_points->setHorizontalHeaderItem(5, new QTableWidgetItem("6"));
+
+        //установим чило строк в соответстиве с числом  точек
+        int pt_count = m_TrackJtPoints.size();
+        ui->tableWidget_points->setRowCount(pt_count );
+
+        for (int d = 0; d < pt_count ; d++)
+        {
+            //номера точек
+            ui->tableWidget_points->setVerticalHeaderItem(d, new QTableWidgetItem(QString::number(d+1)));
+            ui->tableWidget_points->setItem(d, 0, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][0])));
+            ui->tableWidget_points->setItem(d, 1, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][1])));
+            ui->tableWidget_points->setItem(d, 2, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][2])));
+            ui->tableWidget_points->setItem(d, 3, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][3])));
+            ui->tableWidget_points->setItem(d, 4, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][4])));
+            ui->tableWidget_points->setItem(d, 5, new QTableWidgetItem(QString(" %1").arg(m_TrackJtPoints[d][5])));
+        }
+    }
+    else {
+        ui->tableWidget_points->setColumnCount(4);
+        ui->tableWidget_points->setHorizontalHeaderItem(0, new QTableWidgetItem("X"));
+        ui->tableWidget_points->setHorizontalHeaderItem(1, new QTableWidgetItem("Y"));
+        ui->tableWidget_points->setHorizontalHeaderItem(2, new QTableWidgetItem("Z"));
+        ui->tableWidget_points->setHorizontalHeaderItem(3, new QTableWidgetItem("A"));
+        //ui->tableWidget_points->setHorizontalHeaderItem(4, new QTableWidgetItem("A"));
+        //ui->tableWidget_points->setHorizontalHeaderItem(5, new QTableWidgetItem("T"));
+
+        //установим чило строк в соответстиве с числом  точек
+        int pt_count = m_TrackPoints.size();
+        ui->tableWidget_points->setRowCount(pt_count );
+
+        qDebug() << "ptcount " << pt_count;
+
+        for (int d = 0; d < pt_count ; d++)
+        {
+            //номера точек
+            ui->tableWidget_points->setVerticalHeaderItem(d, new QTableWidgetItem(QString::number(d+1)));
+            //координаты точек
+            ui->tableWidget_points->setItem(d, 0, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].x())));
+            ui->tableWidget_points->setItem(d, 1, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].y())));
+            ui->tableWidget_points->setItem(d, 2, new QTableWidgetItem(QString(" %1").arg(m_TrackPoints[d].z())));
+            ui->tableWidget_points->setItem(d, 3, new QTableWidgetItem(QString(" %1").arg(m_TrackAngles[d])));
+            //ui->tableWidget_points->setItem(d, 4, new QTableWidgetItem(QString(" %1").arg(m_TrackPlanes[d][1])));
+            //ui->tableWidget_points->setItem(d, 5, new QTableWidgetItem(QString(" %1").arg(m_TrackPlanes[d][2])));
+        }
     }
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_addPt_clicked()
 {
-    QVector3D xyz;
-    TPointDialog dialog(this);
-    if (dialog.Run(&xyz) == QDialog::Accepted)
+    if (MotionMode == 1)
     {
-        m_TrackPoints.insert(ui->tableWidget_points->currentRow()+1,xyz);
-        //послыаем сиганл о перерикое
-        emit UpdateTargetPoints(m_TrackPoints);
-        //обновляем таблицу
-        UpdateTable();
+        JTPoint jt;
+
+        TPointDialog dialog(this);
+        if (dialog.Run(&jt) == QDialog::Accepted)
+        {
+            m_TrackJtPoints.insert(ui->tableWidget_points->currentRow()+1,jt);
+            //обновляем таблицу
+            UpdateTable();
+        }
+    }
+    else {
+        QVector3D xyz;
+        EulerAngles oat;
+        TPointDialog dialog(this);
+        if (dialog.Run(&xyz, &oat) == QDialog::Accepted)
+        {
+            m_TrackPoints.insert(ui->tableWidget_points->currentRow()+1,xyz);
+            //m_TrackPlanes.insert(ui->tableWidget_points->currentRow()+1,oat);
+            //послыаем сиганл о перерикое
+            emit UpdateTargetPoints(m_TrackPoints);
+            //обновляем таблицу
+            UpdateTable();
+        }
     }
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_RemovePt_clicked()
 {
-    m_TrackPoints.removeAt(ui->tableWidget_points->currentRow());
-    //послыаем сиганл о перерикое
-    emit UpdateTargetPoints(m_TrackPoints);
+    if (MotionMode == 1) {
+        m_TrackJtPoints.removeAt(ui->tableWidget_points->currentRow());
+    }
+    else  {
+        m_TrackPoints.removeAt(ui->tableWidget_points->currentRow());
+        //m_TrackPlanes.removeAt(ui->tableWidget_points->currentRow());
+        //послыаем сиганл о перерикое
+        emit UpdateTargetPoints(m_TrackPoints);
+    }
     //обновляем таблицу
     UpdateTable();
 }
@@ -305,15 +375,34 @@ void FormRemote::on_pushButton_RemovePt_clicked()
 void FormRemote::on_pushButton_ChangePt_clicked()
 {
     int ind = ui->tableWidget_points->currentRow();
-    QVector3D curr_pt = m_TrackPoints.at(ind);
-    TPointDialog dialog(this);
-    if (dialog.Run(&curr_pt) == QDialog::Accepted)
+    if (MotionMode == 1)
     {
-        m_TrackPoints.replace(ind, curr_pt);
-        //послыаем сиганл о перерикое
-        emit UpdateTargetPoints(m_TrackPoints);
-        //обновляем таблицу
-        UpdateTable();
+        JTPoint curr_pt = m_TrackJtPoints.at(ind);
+        TPointDialog dialog(this);
+        if (dialog.Run(&curr_pt) == QDialog::Accepted)
+        {
+            qDebug() << "replace " << ind;
+            m_TrackJtPoints.replace(ind, curr_pt);
+            //послыаем сиганл о перерикое
+            //emit UpdateTargetPoints(m_TrackPoints);
+            //обновляем таблицу
+            qDebug() << " updd ";
+            UpdateTable();
+        }
+    }
+    else {
+        QVector3D curr_pt = m_TrackPoints.at(ind);
+        float curr_angl = m_TrackAngles.at(ind);
+        //EulerAngles curr_oat = m_TrackPlanes.at(ind);
+        TPointDialog dialog(this);
+        if (dialog.Run(&curr_pt, &curr_angl) == QDialog::Accepted)
+        {
+            m_TrackPoints.replace(ind, curr_pt);
+            //послыаем сиганл о перерикое
+            emit UpdateTargetPoints(m_TrackPoints);
+            //обновляем таблицу
+            UpdateTable();
+        }
     }
 }
 //------------------------------------------------------------------------------
@@ -322,12 +411,22 @@ void FormRemote::on_pushButton_ChangePt_clicked()
 
 //}
 //------------------------------------------------------------------------------
-//запуск движения по траектории
+//запускаем программу посторения траектории
 //------------------------------------------------------------------------------
-void FormRemote::on_pushButton_LinearMove_clicked()
+void FormRemote::on_pushButton_BuildStart_clicked()
 {
-    //RobotMotion->MotionMode = TRobotMotionThread::MotioType::BASE;
-    m_RobotMotion->LinearMove(m_TrackPoints, ui->spinBox_Speed->value(),0);
+    m_RobotMotion->StartBuild(ui->spinBox_Speed->value());
+}
+//------------------------------------------------------------------------------
+void FormRemote::on_pushButton_BuildStop_clicked()
+{
+    m_RobotMotion->StopBuild();
+}
+//------------------------------------------------------------------------------
+void FormRemote::UpdateTrack()
+{
+    qDebug() << "parsee";
+    m_RobotMotion->ParseTrack(m_TrackJtPoints, ui->spinBox_Speed->value());
 }
 //------------------------------------------------------------------------------
 //движеие по окружности
@@ -335,7 +434,8 @@ void FormRemote::on_pushButton_LinearMove_clicked()
 void FormRemote::on_pushButton_MoveArc_clicked()
 {
     //форимруем токи окружности
-    QList<QVector3D> arcpts = {QVector3D(0,0,0), QVector3D(50,0,50), QVector3D(100, 0, 0)};
+    QList<QVector3D> arcpts = {QVector3D(0,0,-50), QVector3D(0,50,50), QVector3D(0, 50, -50)};
     m_RobotMotion->LinearMove(arcpts, ui->spinBox_Speed->value(), 100);
 }
 //------------------------------------------------------------------------------
+

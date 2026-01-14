@@ -26,6 +26,8 @@ public:
     ~FormRemote();
 
     void setObjMotion(RobotMotion * obj);
+    void showEvent(QShowEvent  *event) override;
+    void closeEvent(QCloseEvent *event) override;
 
 private:
 
@@ -33,8 +35,18 @@ private:
     RobotMotion *m_RobotMotion;    
     QTimer *updateTimer;
 
-    //спискок точек траектории
+    //список точек JT траеткории
+    QList<JTPoint> m_TrackJtPoints;
+
+    //спискок точек траектории в базисе XYZ
     QList<QVector3D> m_TrackPoints;
+    //угол между поверхностью и схватом
+    QList<float> m_TrackAngles;
+
+    //массим плосокостей точек траектории
+    //QList<EulerAngles> m_TrackPlanes;
+
+
     //текущая точка
     int CurrentPoint;
 
@@ -50,16 +62,14 @@ private slots :
     void on_pushButton_Move_clicked();
     void on_pushButton_clicked();
     void on_pushButton_ZERO_clicked();    
-    void showEvent(QShowEvent  *event);
-    void closeEvent(QCloseEvent *event);
-    void on_pushButton_LinearMove_clicked();
     void on_pushButton_linear_clicked(bool checked);
     void on_pushButton_addPt_clicked();
     void on_pushButton_RemovePt_clicked();
     void on_pushButton_ChangePt_clicked();
     //void on_tableWidget_points_cellClicked(int row, int column);
-
     void on_pushButton_MoveArc_clicked();
+    void on_pushButton_BuildStart_clicked();
+    void on_pushButton_BuildStop_clicked();
 
 public slots:
 
@@ -67,6 +77,7 @@ public slots:
     void UpdateSystemState();
     void step_plus_clicked();
     void step_minus_clicked();
+    void UpdateTrack();
 
 signals :
     void UpdateTargetPoints(QList<QVector3D> &lst);

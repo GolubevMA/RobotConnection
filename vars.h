@@ -52,6 +52,7 @@
 #include  "TopOpeBRep_ShapeIntersector.hxx"
 #include  "TopoDS.hxx"
 #include <V3d_View.hxx>
+#include "jtpoint.h"
 //------------------------------------------------------------------------------
 // Параметры взуалиции устанвки контроля
 //------------------------------------------------------------------------------
@@ -61,6 +62,7 @@ struct ControlSystemModel
 
     QList<gp_Ax1> rotateDirections;         //список  векторв, относитедльно которых вращаются подвижные детали системы
                                             // (детали робота)
+
     QList<Handle(AIS_Shape)>  robotShape;   //списко shape ов подвижых деталей  модели (осей робота)
     QList<Handle(AIS_Shape)>  staticShape;  //неподыижные детали  обьдиням в один shape
 
@@ -73,10 +75,70 @@ struct ControlSystemModel
 
 };
 //------------------------------------------------------------------------------
-// Структруа рассчитывающя  траектруию движения робота по заданному Shape (Shell)
+//class EulerAngles
+//{
+//    static const int PointCount = 3;
+
+//    EulerAngles() {
+//        memset(mPoints, 0, sizeof(PointCount));
+//    }
+
+//    //устновка углов суставов
+//    void setO(float a) {mPoints[0] = a;}
+//    void setA(float a) {mPoints[1] = a;}
+//    void setT(float a) {mPoints[2] = a;}
+
+//    //получение углов суставово
+//    float o() {return  mPoints[0];}
+//    float a() {return  mPoints[1];}
+//    float t() {return  mPoints[2];}
+
+//    //получение i-й точки сипска
+//    float& operator[](int index) {
+//        return mPoints[index];
+//    }
+
+//    float operator[](int i) const {
+//        return mPoints[i];
+//    }
+
+//    int size() {
+//        //return mPoints.size();
+//        return  PointCount;
+//    }
+
+//    //список точек
+//    float mPoints[PointCount];
+//};
+typedef  QVector3D EulerAngles;
 //------------------------------------------------------------------------------
-struct TraektoryBuilder
+//класс инкапуслирубщий решение задачи обратного позицицонирования
+// для робота с заднными харакетристиками
+//------------------------------------------------------------------------------
+class BackKinTask
 {
+public :
+
+    BackKinTask();
+
+    JTPoint calcXYZ_Vert(QVector3D &xyz, float amgle);
+    JTPoint calcXYZ_Hor(QVector3D &xyz, float angle);
+
+    void loadGeometry();
+
+private:
+
+    //длина плеча JT2
+    float shoulder_len;
+    //длина предплечья и локтя JT3 + JT4
+    float elbow_len;
+    //длина схвата JT5
+    float grap_len;
+
+    //смщения точки P2 ()
+    float offset_x;
+    float offset_y;
+    float offset_z;
 
 };
 

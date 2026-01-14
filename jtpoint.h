@@ -1,0 +1,61 @@
+#ifndef JTPOINT_H
+#define JTPOINT_H
+
+#include <QObject>
+
+class JTPoint : public QObject
+{
+    Q_OBJECT
+
+    public:
+        static constexpr int PointCount = 6;
+
+        // Конструкторы
+        explicit JTPoint(QObject *parent = nullptr);
+        explicit JTPoint(const std::array<float, PointCount>& points,
+                         QObject *parent = nullptr);
+
+        JTPoint(const JTPoint& other); // Конструктор копирования
+        JTPoint& operator=(const JTPoint& other); // Оператор присваивания
+        //JTPoint(JTPoint&& other) = delete; // QObject не поддерживает перемещение
+        JTPoint& operator=(JTPoint&& other) = delete;
+
+        // Методы установки значений с сигналами
+        void setA1(float a) {mPoints[0] = a;}
+        void setA2(float a) {mPoints[1] = a;}
+        void setA3(float a) {mPoints[2] = a;}
+        void setA4(float a) {mPoints[3] = a;}
+        void setA5(float a) {mPoints[4] = a;}
+        void setA6(float a) {mPoints[5] = a;}
+
+        void setPoint(int index, float value);
+
+        // Методы получения значений
+        float a1() const { return mPoints[0]; }
+        float a2() const { return mPoints[1]; }
+        float a3() const { return mPoints[2]; }
+        float a4() const { return mPoints[3]; }
+        float a5() const { return mPoints[4]; }
+        float a6() const { return mPoints[5]; }
+
+        // Безопасный доступ к элементам
+        float at(int index) const;
+        float& operator[](int index);
+        const float& operator[](int index) const;
+
+        // Утилиты
+        int size() const { return PointCount; }
+        bool isValidIndex(int index) const {
+            return index >= 0 && index < PointCount;
+        }
+
+        // Работа со всеми точками
+        std::array<float, PointCount> points() const { return mPoints; }
+        void setPoints(const std::array<float, PointCount>& points);
+
+private:
+    std::array<float, PointCount> mPoints{};
+
+};
+
+#endif // JTPOINT_H

@@ -277,7 +277,7 @@ public:
         sizePolicy.setHeightForWidth(widget_Remote->sizePolicy().hasHeightForWidth());
         widget_Remote->setSizePolicy(sizePolicy);
         widget_Remote->setMinimumSize(QSize(250, 0));
-        widget_Remote->setMaximumSize(QSize(350, 16777215));
+        widget_Remote->setMaximumSize(QSize(1000, 16777215));
         splitter->addWidget(widget_Remote);
 
         verticalLayout_2->addWidget(splitter);

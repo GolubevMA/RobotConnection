@@ -1,6 +1,8 @@
 ﻿#include "vars.h"
 #include "qdebug.h"
 #include <BRepPrimAPI_MakeCylinder.hxx>
+#include "math.h"
+#include <QVector3D>
 //------------------------------------------------------------------------------
 ControlSystemModel::ControlSystemModel()
 {
@@ -44,7 +46,7 @@ void ControlSystemModel::LoadSystemModel(QString filename)
     TopoDS_Shape aShape = step_reader.OneShape();
 
     //точка куда смщается начало робота
-    gp_Pnt pt_offset = gp_Pnt(-500,0,-300);
+    gp_Pnt pt_offset = gp_Pnt(0,-500,-300);
     gp_Trsf offset;
     offset.SetTranslation(gp_Vec(gp_Pnt(0,0,0), pt_offset));
 
@@ -177,6 +179,40 @@ void ControlSystemModel::LoadSystemModel(QString filename)
     }
 
     Created = true;
+}
+//------------------------------------------------------------------------------
+JTPoint BackKinTask::calcXYZ_Hor(QVector3D &xyz, float angle)
+{
+    JTPoint jpt;
+
+    //считаем координтаы инструмента на плоскости
+    double localX = sqrt(pow((offset_x - xyz.x()), 2) + pow((offset_y - xyz.y()), 2));
+    double localY = xyz.z() - offset_z;
+
+    jpt.setA1(atan2(xyz.y() - offset_y, xyz.x() - offset_x));
+    //расчет p4
+    double yP4 = sin(angle) *  grap_len + localY;
+    double xP4 = localX - std::cos(angle) * grap_len;
+    //дистания p4-p2
+    double distanceSmall = sqrt(pow((xP4), 2) + pow((yP4), 2));
+    //счтиаем углы
+    if (distanceSmall < shoulder_len + elbow_len)
+    {
+        float y3 = acos((pow(distanceSmall, 2) + pow(shoulder_len, 2) - pow(elbow_len, 2))
+                  / (2 * distanceSmall * shoulder_len));
+        //расчет JT2
+        jpt.setA2(M_PI_2 - y3 -  asin(yP4 / distanceSmall));
+        //расчет JT3
+//        jointGroupPositions[ikParams.joints[2]] = M_PI
+//            - std::acos((pow(ikParams.d1, 2) + pow(ikParams.d2, 2) - pow(distanceSmall, 2))
+//                        / (2 * ikParams.d1 * ikParams.d2));
+//        jointGroupPositions[ikParams.joints[5]] = ikParams.angleThreeDirection
+//            * (M_PI - (M_PI_2 - angle)
+//               - (jointGroupPositions[ikParams.joints[1]]
+//                  + jointGroupPositions[ikParams.joints[2]]));
+
+    }
+    return  jpt;
 }
 
 

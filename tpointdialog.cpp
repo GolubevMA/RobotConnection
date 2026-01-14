@@ -23,14 +23,14 @@ int TPointDialog::Run(JTPoint *point)
     ui->frame_XYZ->setVisible(true);
     ui->frame_OAT->setVisible(true);
 
-//    QSpinBox *axes[6] = {
-//        ui->spinBox_X, ui->spinBox_Y, ui->spinBox_Z,
-//        ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_ry
-//    };
+    QSpinBox *axes[6] = {
+        ui->spinBox_X, ui->spinBox_Y, ui->spinBox_Z,
+        ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_rz
+    };
 
-//    for (int i =0; i < 6; i++) {
-//        axes[i]->setValue(point->at(i));
-//    }
+    for (int i =0; i < 6; i++) {
+        axes[i]->setValue((*point)[i]);
+    }
 
     return exec();
 }
@@ -64,10 +64,30 @@ int TPointDialog::Run(QVector3D *xyz)
     //высчечиаем фрейм XYZ
     ui->frame_XYZ->setVisible(true);
     ui->frame_OAT->setVisible(false);
+    ui->frame_angle->setVisible(false);
 
     ui->spinBox_X->setValue(xyz->x());
     ui->spinBox_Y->setValue(xyz->y());
     ui->spinBox_Z->setValue(xyz->z());
+
+    return exec();
+}
+//------------------------------------------------------------------------------
+int TPointDialog::Run(QVector3D *xyz, float *angle)
+{
+    mCoordType = CoordType::XYZA;
+    mCurrentXYZ = xyz;
+    mCurrentAngle = angle;
+
+    //высчечиаем фрейм XYZ и фрейм угла
+    ui->frame_XYZ->setVisible(true);
+    ui->frame_OAT->setVisible(false);
+    ui->frame_angle->setVisible(true);
+
+    ui->spinBox_X->setValue(xyz->x());
+    ui->spinBox_Y->setValue(xyz->y());
+    ui->spinBox_Z->setValue(xyz->z());
+    ui->spinBox_Angle->setValue(*angle);
 
     return exec();
 }
@@ -82,9 +102,10 @@ void TPointDialog::on_pushButton_clicked()
     switch (mCoordType)
     {
         case CoordType::JT :
-            for (int i = 0; i < mCurrentJt->length(); i++) {
-                mCurrentJt->replace(i, sp_axisis[i]->value());
-                qDebug() << "i " << i << " " << mCurrentJt->at(i);
+            qDebug() << "ln  " << mCurrentJt->size();
+            for (int i = 0; i < mCurrentJt->size(); i++) {
+                mCurrentJt->setPoint(i, sp_axisis[i]->value());
+                //qDebug() << "i " << i << " " << mCurrentJt[i];
             }
             break;
         case CoordType::XYZOAT :
@@ -96,11 +117,16 @@ void TPointDialog::on_pushButton_clicked()
             mCurrentOAT->setY(sp_axisis[4]->value());
             mCurrentOAT->setZ(sp_axisis[5]->value());
             break;
-
         case CoordType::XYZ :
             mCurrentXYZ->setX(sp_axisis[0]->value());
             mCurrentXYZ->setY(sp_axisis[1]->value());
             mCurrentXYZ->setZ(sp_axisis[2]->value());
+            break;
+        case CoordType::XYZA :
+            mCurrentXYZ->setX(sp_axisis[0]->value());
+            mCurrentXYZ->setY(sp_axisis[1]->value());
+            mCurrentXYZ->setZ(sp_axisis[2]->value());
+            *mCurrentAngle = ui->spinBox_Angle->value();
             break;
     }
     accept();
