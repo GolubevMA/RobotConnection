@@ -53,6 +53,7 @@
 #include  "TopoDS.hxx"
 #include <V3d_View.hxx>
 #include "jtpoint.h"
+#include "math.h"
 //------------------------------------------------------------------------------
 // Параметры взуалиции устанвки контроля
 //------------------------------------------------------------------------------
@@ -112,28 +113,30 @@ struct ControlSystemModel
 //};
 typedef  QVector3D EulerAngles;
 //------------------------------------------------------------------------------
-//класс инкапуслирубщий решение задачи обратного позицицонирования
+//класс инкапуслирубщий решение задачи прямого / обратного позицицонирования
 // для робота с заднными харакетристиками
 //------------------------------------------------------------------------------
-class BackKinTask
+class KinTaskSolver
 {
 public :
+    KinTaskSolver();
+    KinTaskSolver(float jt2, float jt3, float jt5);
 
-    BackKinTask();
+    //обратное позиционироване
+    //JTPoint calcJT_Vert(QVector3D &xyz, float amgle);
+    JTPoint calcJT_Hor(QVector3D &xyz, float angle);
+    //прямое позиционирование
+    QMatrix4x4 solvePZK(JTPoint &pt);
 
-    JTPoint calcXYZ_Vert(QVector3D &xyz, float amgle);
-    JTPoint calcXYZ_Hor(QVector3D &xyz, float angle);
+    static QVector3D calcXyz(QMatrix4x4 &mat);
+    static EulerAngles calcOat(QMatrix4x4 &mat);
 
     void loadGeometry();
 
 private:
-
-    //длина плеча JT2
-    float shoulder_len;
-    //длина предплечья и локтя JT3 + JT4
-    float elbow_len;
-    //длина схвата JT5
-    float grap_len;
+    float jt2_len;
+    float jt3_len;
+    float jt5_len;
 
     //смщения точки P2 ()
     float offset_x;

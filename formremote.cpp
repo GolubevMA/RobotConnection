@@ -229,7 +229,7 @@ void FormRemote::on_pushButton_Move_clicked()
 {     
     if (MotionMode == 1)
     {
-        JTPoint pt;
+        JTPoint pt = m_RobotMotion->GetCurrentJT();
         TPointDialog dialog(this);
         if (dialog.Run(&pt) == QDialog::Accepted)
             m_RobotMotion->MovePointJT(pt, ui->spinBox_Speed->value());
@@ -415,7 +415,8 @@ void FormRemote::on_pushButton_ChangePt_clicked()
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_BuildStart_clicked()
 {
-    m_RobotMotion->StartBuild(ui->spinBox_Speed->value());
+    //m_RobotMotion->StartBuild(ui->spinBox_Speed->value());
+    m_RobotMotion->ParseTrack(m_TrackJtPoints, ui->spinBox_Speed->value());
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_BuildStop_clicked()
@@ -425,8 +426,8 @@ void FormRemote::on_pushButton_BuildStop_clicked()
 //------------------------------------------------------------------------------
 void FormRemote::UpdateTrack()
 {
-    qDebug() << "parsee";
-    m_RobotMotion->ParseTrack(m_TrackJtPoints, ui->spinBox_Speed->value());
+    //qDebug() << "parsee";
+    //m_RobotMotion->ParseTrack(m_TrackJtPoints, ui->spinBox_Speed->value());
 }
 //------------------------------------------------------------------------------
 //движеие по окружности

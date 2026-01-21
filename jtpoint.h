@@ -2,6 +2,7 @@
 #define JTPOINT_H
 
 #include <QObject>
+#include "math.h"
 
 class JTPoint : public QObject
 {
@@ -37,6 +38,13 @@ class JTPoint : public QObject
         float a4() const { return mPoints[3]; }
         float a5() const { return mPoints[4]; }
         float a6() const { return mPoints[5]; }
+
+        float a1rad() const { return mPoints[0] * static_cast<float>(M_PI) / 180.0f; }
+        float a2rad() const { return mPoints[1] * static_cast<float>(M_PI) / 180.0f; }
+        float a3rad() const { return mPoints[2] * static_cast<float>(M_PI) / 180.0f; }
+        float a4rad() const { return mPoints[3] * static_cast<float>(M_PI) / 180.0f; }
+        float a5rad() const { return mPoints[4] * static_cast<float>(M_PI) / 180.0f; }
+        float a6rad() const { return mPoints[5] * static_cast<float>(M_PI) / 180.0f; }
 
         // Безопасный доступ к элементам
         float at(int index) const;

@@ -9,6 +9,7 @@
 #include <QtNetwork/QUdpSocket>
 #include "vars.h"
 #include <QVector3D>
+#include <QMatrix4x4>
 #include <QtNetwork/QTcpSocket>
 
 /*
@@ -34,12 +35,17 @@ class RobotMotion : public QObject
 
 private:
 
-    //текущие углы эйлера (определяющие базис XYZ)
-    EulerAngles m_EulerAngles;
+    //матрица текущего полжения робота
+    QMatrix4x4 m_CoordXyzOat;
     //текущая координта XYZ
     QVector3D m_CoordXyz;
+    //текущие углы эйлера (определяющие базис XYZ)
+    EulerAngles m_EulerAngles;
+
     //текущаяя координата JT
     JTPoint m_CoordJT;
+    //обьект решения задачи обратного позиционирования
+    KinTaskSolver mKinTaskSolv;
 
     //------------------------------------------------
     //состояние запроса движения
@@ -157,6 +163,7 @@ public:
     void StopBuild();
     //отправлем массив точек в режиме потсроения траектории
     void ParseTrack(QList<JTPoint> &points, int speed);
+    void ParseTrack(QList<QVector3D> &points, QList<float> &angles, int speed);
 
     //линиеное пермещением по указанным точкам
     void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat, int speed, int rad);

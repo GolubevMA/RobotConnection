@@ -134,6 +134,7 @@ public:
         spinBox_Speed = new QSpinBox(frame_2);
         spinBox_Speed->setObjectName(QString::fromUtf8("spinBox_Speed"));
         spinBox_Speed->setMinimum(1);
+        spinBox_Speed->setMaximum(1000);
         spinBox_Speed->setValue(10);
 
         gridLayout_4->addWidget(spinBox_Speed, 1, 2, 1, 1);

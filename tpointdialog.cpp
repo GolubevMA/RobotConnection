@@ -1,4 +1,4 @@
-#include "tpointdialog.h"
+  #include "tpointdialog.h"
 #include "ui_tpointdialog.h"
 #include "qdebug.h"
 
@@ -29,7 +29,9 @@ int TPointDialog::Run(JTPoint *point)
     };
 
     for (int i =0; i < 6; i++) {
-        axes[i]->setValue((*point)[i]);
+        float v = (*point)[i];
+        qDebug() << "v " <<  v;
+        axes[i]->setValue(v);
     }
 
     return exec();
