@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui opengl network
+QT       += core gui opengl network multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,6 +28,8 @@ CONFIG += resources_big
 SOURCES += \
     OcctGlTools.cpp \
     OcctQtViewer.cpp \
+    autoscanerlform.cpp \
+    decartpoint.cpp \
     formremote.cpp \
     jtpoint.cpp \
         main.cpp \
@@ -35,33 +37,42 @@ SOURCES += \
         tmainwindow.cpp \
     trobotmotionthread.cpp \
     vars.cpp \
-    tpointdialog.cpp
+    tpointdialog.cpp \
+    voiceparseform.cpp \
+    voiceresponser.cpp
 
 HEADERS += \
     OcctGlTools.h \
     OcctQtViewer.h \
+    autoscanerlform.h \
+    decartpoint.h \
     formremote.h \
     jtpoint.h \
     robotmotion.h \
         tmainwindow.h \
     trobotmotionthread.h \
     vars.h \
-    tpointdialog.h
+    tpointdialog.h \
+    voiceparseform.h \
+    voiceresponser.h
 
 FORMS += \
+    autoscanerlform.ui \
     formremote.ui \
         tmainwindow.ui \
-    tpointdialog.ui
+    tpointdialog.ui \
+    voiceparseform.ui
 
 LIBS += -lOpengl32
 LIBS += -lws2_32
+LIBS += -L$$PWD -lvosk
 
-RESOURCES +=
+RESOURCES += \
+    res.qrc
 
 INCLUDEPATH += j:\OCCT_7.8.0\dev\build\inc
 
 #LIBS +=  j:\Qt\Qt5.13.0\5.13.0\mingw73_64\bin\libgcc_s_seh-1.dll
-
 LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKernel.dll
 LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKGeomAlgo.dll
 LIBS +=  j:\OCCT_7.8.0\dev\build\win64\gcc\bin\libTKGeomBase.dll

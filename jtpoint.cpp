@@ -1,7 +1,5 @@
 #include "jtpoint.h"
 #include "QDebug"
-
-
 //-----------------------------------------------------------------------------
 JTPoint::JTPoint(QObject *parent)
     : QObject(parent)

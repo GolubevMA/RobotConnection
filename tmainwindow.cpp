@@ -31,7 +31,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     ui->widget_Remote->setObjMotion(m_RobotMotion);
-    ui->widget_Remote->setVisible(false);
+    //ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
 
     connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
@@ -54,6 +54,7 @@ void TMainWindow::showEvent(QShowEvent  *event)
     settings.beginGroup("MainForm");
     setGeometry(settings.value("geometry", QRect(100, 100, 1200, 800)).toRect());
     ui->splitter->restoreState(settings.value("splitter").toByteArray());
+    ui->splitter_2->restoreState(settings.value("splitter_2").toByteArray());
     settings.endGroup();
 }
 //------------------------------------------------------------------------------
@@ -63,6 +64,7 @@ void TMainWindow::closeEvent(QCloseEvent *event)
     settings.beginGroup("MainForm");
     settings.setValue("geometry", geometry());
     settings.setValue("splitter", ui->splitter->saveState());
+    settings.setValue("splitter_2", ui->splitter_2->saveState());
     settings.endGroup();
 
 }
@@ -123,6 +125,6 @@ void TMainWindow::on_spinBox_JT6_valueChanged(int arg1)
 //------------------------------------------------------------------------------
 void TMainWindow::on_pushButton_Remote_clicked(bool checked)
 {
-    ui->widget_Remote->setVisible(checked);
+    //ui->widget_Remote->setVisible(checked);
 }
 //------------------------------------------------------------------------------

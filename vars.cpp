@@ -184,78 +184,61 @@ void ControlSystemModel::LoadSystemModel(QString filename)
 //------------------------------------------------------------------------------
 KinTaskSolver::KinTaskSolver()
 {
-    jt2_len = 355;
-    jt3_len = 375;
-    jt5_len = 78;
+    jt2_len = 355.0f;
+    jt3_len = 375.0f;
+    jt5_len = 78.0f;
 
     offset_x = 0;
     offset_y = 0;
     offset_z = 0;
+
+    j1_min = -180; j1_max = 180;
+    j2_min = -135; j2_max = 135;
+    j3_min = -155; j3_max = 155;
+    j4_min = -180; j4_max = 180;
+    j5_min = -125; j5_max = 125;
+    j6_min = -180; j6_max = 180;
 }
 //------------------------------------------------------------------------------
-KinTaskSolver::KinTaskSolver(float jt2, float jt3, float jt5)
-{
-    jt2_len = jt2;
-    jt3_len = jt3;
-    jt5_len = jt5;
+//KinTaskSolver::KinTaskSolver(float jt2, float jt3, float jt5)
+//{
+//    jt2_len = jt2;
+//    jt3_len = jt3;
+//    jt5_len = jt5;
 
-    offset_x = 0;
-    offset_y = 0;
-    offset_z = 0;
-}
+//    offset_x = 0;
+//    offset_y = 0;
+//    offset_z = 0;
+
+//    j1_min = -180; j1_max = 180;
+//    j2_min = -135; j2_max = 135;
+//    j3_min = -155; j3_max = 155;
+//    j4_min = -180; j4_max = 180;
+//    j5_min = -125; j5_max = 125;
+//    j6_min = -180; j6_max = 180;
+//}
 //------------------------------------------------------------------------------
 void KinTaskSolver::loadGeometry()
 {
-    jt3_len = 375.0f;
     jt2_len = 355.0f;
+    jt3_len = 375.0f;
     jt5_len = 78.0f;
-}
-//------------------------------------------------------------------------------
-JTPoint KinTaskSolver::calcJT_Hor(QVector3D &xyz, float angle)
-{
-    JTPoint jpt;
 
-    //считаем координтаы инструмента на плоскости
-    double localX = sqrt(pow((offset_x - xyz.x()), 2) + pow((offset_y - xyz.y()), 2));
-    double localY = xyz.z() - offset_z;
-
-    jpt.setA1(atan2(xyz.y() - offset_y, xyz.x() - offset_x));
-    //расчет p4
-    double yP4 = sin(angle) * jt5_len + localY;
-    double xP4 = localX - std::cos(angle) * jt5_len;
-    //дистания p4-p2
-    double distanceSmall = sqrt(pow((xP4), 2) + pow((yP4), 2));
-    //счтиаем углы
-    if (distanceSmall < jt2_len + jt3_len)
-    {
-        float y3 = acos((pow(distanceSmall, 2) + pow(jt2_len, 2) - pow(jt3_len, 2))
-                  / (2 * distanceSmall * jt2_len));
-        //расчет JT2
-        jpt.setA2(M_PI_2 - y3 -  asin(yP4 / distanceSmall));
-        //расчет JT3
-//        jointGroupPositions[ikParams.joints[2]] = M_PI
-//            - std::acos((pow(ikParams.d1, 2) + pow(ikParams.d2, 2) - pow(distanceSmall, 2))
-//                        / (2 * ikParams.d1 * ikParams.d2));
-        //JT 4 всегда 0
-        jpt.setA4(0);
-        //расчет JT5
-//        jointGroupPositions[ikParams.joints[5]] = ikParams.angleThreeDirection
-//            * (M_PI - (M_PI_2 - angle)
-//               - (jointGroupPositions[ikParams.joints[1]]
-//                  + jointGroupPositions[ikParams.joints[2]]));
-        //JT6 всегда ноль (для текущих инструментов)
-        jpt.setA6(0);
-    }
-    return  jpt;
+    j1_min = -180; j1_max = 180;
+    j2_min = -135; j2_max = 135;
+    j3_min = -155; j3_max = 155;
+    j4_min = -180; j4_max = 180;
+    j5_min = -125; j5_max = 125;
+    j6_min = -180; j6_max = 180;
 }
 //------------------------------------------------------------------------------
 //Решегие ПЗК
 //------------------------------------------------------------------------------
 QMatrix4x4 KinTaskSolver::solvePZK(JTPoint &pt)
 {
-    jt2_len = 355;
-    jt3_len = 375;
-    jt5_len = 78;
+    jt2_len = 355.f;
+//    jt3_len = 375.f;
+//    jt5_len = 78.f;
 
     //определение параметров Денавита-Хартенберга для каждого cустава
     QMatrix4x4 T1(
@@ -306,23 +289,201 @@ QMatrix4x4 KinTaskSolver::solvePZK(JTPoint &pt)
     return target;
 }
 //------------------------------------------------------------------------------
-QVector3D KinTaskSolver::calcXyz(QMatrix4x4 &mat)
+//вычислеям x,y,z,o,a,t координаты точки
+//------------------------------------------------------------------------------
+DecartPoint KinTaskSolver::calcDecart(QMatrix4x4 &mat, DecartPoint &curr_xyz)
 {
-    QVector3D curr_xyz;
+    //DecartPoint curr_xyz(nullptr, DecartPoint::EulerAngles);
     curr_xyz.setX(mat(0,3));
     curr_xyz.setY(mat(1,3));
     curr_xyz.setZ(mat(2,3));
+    curr_xyz.setO(atan2(mat(1,2), mat(0,2)) * 180 / M_PI);
+    curr_xyz.setA(atan2(pow(1 - pow(mat(2,2), 2), 0.5f), mat(2,2)) * 180 / M_PI);
+    curr_xyz.setT((atan2(mat(2,1), mat(2,0)) - M_PI / 2) * 180 / M_PI);
     return curr_xyz;
 }
 //------------------------------------------------------------------------------
-EulerAngles KinTaskSolver::calcOat(QMatrix4x4 &mat)
+//вспомогательная функция расчета поврота ск
+//------------------------------------------------------------------------------
+QMatrix4x4 KinTaskSolver::calcR(JTPoint &pt, int pt_amount)
 {
-    EulerAngles target_oat;
-    target_oat[1] = atan2(pow(1 - pow(mat(2,2), 2), 0.5f), mat(2,2)) * 180 / M_PI;
-    target_oat[0] = atan2(mat(1,2), mat(0,2)) * 180 / M_PI;
-    target_oat[2] = (atan2(mat(2,1), mat(2,0)) - M_PI / 2) * 180 / M_PI;
-    return  target_oat;
+    if (pt_amount > 3) return  QMatrix4x4();
+    QVector<QMatrix4x4> matrixes;
+
+    QMatrix4x4 R1;
+    R1.setToIdentity();
+    R1(0,0) = cos(-pt.a1rad()); R1(0,1) = 0; R1(0,2) = sin(-pt.a1rad());
+    R1(1,0) = sin(-pt.a1rad()); R1(1,1) = 0; R1(1,2) = -cos(-pt.a1rad());
+    R1(2,0) = 0;        R1(2,1) =1;  R1(2,2) = 0;
+    matrixes.append(R1);
+
+    //R2
+    QMatrix4x4 R2;
+    R2.setToIdentity();
+    R2(0,0) = cos(M_PI/2 - pt.a2rad()); R2(0,1) = -sin(M_PI/2 -pt.a2rad()); R2(0,2) = 0;
+    R2(1,0) = sin(M_PI/2 - pt.a2rad()); R2(1,1) = cos(M_PI/2 -pt.a2rad());  R2(1,2) = 0;
+    R2(2,0) = 0;                R2(2,1) =1;                 R2(2,2) = 1;
+    matrixes.append(R2);
+
+    //R3
+    QMatrix4x4 R3;
+    R3.setToIdentity();
+    R3(0,0) = cos(M_PI/2 + pt.a3rad()); R3(0,1) = 0; R3(0,2) = sin(M_PI/2 + pt.a3rad());
+    R3(1,0) = sin(M_PI/2 + pt.a3rad()); R3(1,1) = 0; R3(1,2) = -cos(M_PI/2 + pt.a3rad());
+    R3(2,0) = 0;        R3(2,1) =1;  R3(2,2) = 0;
+    matrixes.append(R3);
+
+    QMatrix4x4 res; res.setToIdentity();
+    for (int i = 0; i < pt_amount; i++) {
+        res *= matrixes[i];
+    }
+    return res;
 }
 //------------------------------------------------------------------------------
+//решение ОЗК
+//------------------------------------------------------------------------------
+int KinTaskSolver::solveOZK(DecartPoint &xyz, JTPoint &jpt)
+{
+    qDebug() << "x " << xyz.x() << " y " << xyz.y() << " z " << xyz.z() <<  "o " << xyz.o() << " a " << xyz.a() << " t " << xyz.t();
+    jt2_len = 355.f;
+    jt3_len = 375.f;
+    jt5_len = 78.f;
 
+    //матрица вращения инструмента
+    QMatrix4x4 R06;
+    R06.setToIdentity();
+    R06(0,0) = cos(xyz.oRad()) * cos(xyz.aRad()) * cos(xyz.tRad()) - sin(xyz.oRad())*sin(xyz.tRad()); R06(0,1) = -cos(xyz.oRad()) * cos(xyz.aRad()) * sin(xyz.tRad()) - sin(xyz.oRad())*sin(xyz.tRad()); R06(0,2) = cos(xyz.oRad())*sin(xyz.aRad());
+    R06(1,0) = sin(xyz.oRad()) * cos(xyz.aRad()) * cos(xyz.tRad()) + cos(xyz.oRad())*sin(xyz.tRad()); R06(1,1) = -sin(xyz.oRad()) * cos(xyz.aRad()) * cos(xyz.tRad()) - cos(xyz.oRad())*sin(xyz.tRad()); R06(1,2) = sin(xyz.oRad())*sin(xyz.aRad());
+    R06(2,0) = -sin(xyz.aRad()) * cos(xyz.tRad()); R06(2,1) = sin(xyz.aRad()) * cos(xyz.tRad()); R06(2,2) = cos(xyz.aRad());
+//    for (int r = 0; r < 3; r++) {
+//        for (int c = 0; c < 3; c++) {
+//            qDebug() << "r " << r << " c " << c << " " << R06(r,c);
+//        }
+//    }
+    //вектор положения инструмена
+    QVector3D Pt(xyz.x(), xyz.y(), xyz.z());
+    //рассчитаем коордианты сочленения Pt4 в базоваой СК
+    QVector3D R6vec=  R06.mapVector(QVector3D(0,0,1)) * jt5_len;
+    QVector3D P4 = Pt - R6vec;
+//    qDebug() << "P4 x" <<  P4.x() << " P4y " << P4.y() << " P4z " << P4.z();
+//    qDebug() << "R6 x" <<  R6vec.x() << " R6y " << R6vec.y() << " R6z " << R6vec.z();
 
+    //рассчитаем угол jt1 для положитльеной полуплосоксти (игнорируя угол atan(P4y,P4x) - pi)
+    QVector3D P1(offset_x, offset_y, offset_z);
+    float a1 = fabs(P4.x()) > 0.01f ?  atan2(P4.y() - P1.y(), P4.z() - P1.z()) : 0;
+    //qDebug() << "a1 " << a1 * 180 / M_PI;
+    jpt.setA1Rad(a1);
+
+    //расчет  вспомогательных линий
+    float la = powf(powf(P4.x(), 2) + powf(P4.y(), 2) + powf(P4.z(), 2), 0.5);
+    float lb = P4.z() - P1.z();
+    float lc = powf(powf(P4.x(), 2) + powf(P4.y(), 2), 0.5);
+    //проверка гометии достидимотси точки P4
+    if ((la > jt3_len + jt2_len) || (la < fabs(jt2_len - jt3_len))) {
+       // qDebug() << "la " << la;
+        return ReachError;
+    }
+    //расчет theta3
+    float cos3 = (powf(lb,2) +powf(lc,2) - powf(jt2_len,2) - powf(jt3_len, 2)) / (2 *jt2_len * jt3_len);
+    //qDebug() << "c3 " << cos3;
+
+    //расчет theta2 для каждого из theta3
+    if (lc > 0.01)
+    {
+        //раскрываем аркосинус с минусом и с плюсом
+        float a3p = acos(cos3);
+        float a3n = -acos(cos3);
+
+        float appha = lc > 0.01 ?  atan2(lb,lc) : 0;
+        float beta_p = atan2(jt3_len * sin(a3p), jt2_len + jt3_len * cos3);
+        float a2p = M_PI / 2 - (appha - beta_p);
+        float beta_n = atan2(jt3_len * sin(a3n), jt2_len + jt3_len * cos3);
+        float a2n = M_PI / 2 - (appha - beta_n);
+
+        QMatrix4x4 R2p;
+        R2p.setToIdentity();
+        R2p(0,0) = cos(M_PI/2 - a2p); R2p(0,1) = -sin(M_PI/2 -a2p); R2p(0,2) = 0;
+        R2p(1,0) = sin(M_PI/2 - a2p); R2p(1,1) = cos(M_PI/2 -a2p);  R2p(1,2) = 0;
+        R2p(2,0) = 0;                 R2p(2,1) =1;                  R2p(2,2) = 1;
+
+        QMatrix4x4 R2n;
+        R2n.setToIdentity();
+        R2n(0,0) = cos(M_PI/2 - a2n); R2n(0,1) = -sin(M_PI/2 -a2n); R2n(0,2) = 0;
+        R2n(1,0) = sin(M_PI/2 - a2n); R2n(1,1) = cos(M_PI/2 -a2n);  R2n(1,2) = 0;
+        R2n(2,0) = 0;                 R2n(2,1) =1;                  R2n(2,2) = 1;
+
+        QMatrix4x4 R02p = calcR(jpt,1) * R2p;
+        QMatrix4x4 R02n = calcR(jpt,1) * R2n;
+
+        //расчет точек P3
+        QVector3D P3p(R2p(0,0),R2p(1,0), R2p(2,0));
+        P3p *= jt2_len;
+
+        QVector3D P3n(R2n(0,0),R2n(1,0), R2n(2,0));
+        P3n *= jt2_len;
+
+        //выбираем знак по значению координаты z векторов P3p P3n
+        float a3 = P3p.z() > P3n.z() ? a3p : a3n;
+       // qDebug() << "a3 " << a3 * 180 / M_PI;
+        jpt.setA3Rad(a3);
+
+        //перерасчет theta2
+        float beta = atan2(jt3_len * sin(a3), jt2_len + jt3_len * cos3);
+        float a2 = M_PI / 2 - (appha - beta);
+       // qDebug() << "a2 " << a2 * 180 / M_PI;
+        jpt.setA2Rad(a2);
+    }
+    else {
+        //если С==0 - устивавлваем оси jt2 jt3 в ноль
+        jpt.setA2Rad(0);
+        jpt.setA3Rad(0);
+        qDebug() << "zerr";
+    }
+
+    //Расчет матрицы поворота системы координат третьей точки относительно базовой ситемы координат
+    QMatrix4x4 rt;
+    rt.setToIdentity();
+    rt(0,0) = 0.0f; rt(0,1) = -1.0f; rt(0,2) = 0.0f;
+    rt(1,0) = 1.0f; rt(1,1) = 0.0f;  rt(1,2) = 0.0f;
+    rt(2,0) = 0.0f; rt(2,1) = 0.0f;  rt(2,2) = 1.0f;
+    QMatrix4x4 R30 = rt * calcR(jpt, 3);
+    //расчет смщениея системы коодринат шестой точки относительно системы коордиант третьей
+    QMatrix4x4 R36 = R30.transposed() * R06;
+    //расчте угла jt5
+    float a5 = atan2(R36(0,2),R36(2,2));
+    //qDebug() << "a5 " << a5 * 180 / M_PI;
+    jpt.setA5Rad(a5);
+
+    //пока устанваливаем как нули
+    jpt.setA4(0);
+    jpt.setA6(0);
+    return  checkPointRange(jpt);
+}
+//------------------------------------------------------------------------------
+//проекрка угловых координат
+//------------------------------------------------------------------------------
+int KinTaskSolver::checkPointRange(JTPoint &pt)
+{
+//    //прверка диапазлна jt1
+//    if ((pt.a1() < j1_min) || (pt.a1() > j1_max)) {
+//        return JT1_Error;
+//    }
+//    //прверка диапазлна jt2
+//    else if ((pt.a2() < j2_min ) || (pt.a2() > j2_max)) {
+//        return JT2_Error;
+//    }
+//    //прверка диапазлна jt3
+//    else if ((pt.a3() < j3_min ) || (pt.a3() > j3_max)) {
+//        return JT3_Error;
+//    }
+//    //прверка диапазлна jt3
+//    else if ((pt.a4() < j4_min ) || (pt.a4() > j4_max)) {
+//        return JT4_Error;
+//    }
+    //прверка диапазлна jt5
+    if ((pt.a5() < j5_min ) || (pt.a5() > j5_max)) {
+        qDebug() << " a5 " << pt.a5() << " min " << j5_min << " max " << j5_max;
+        return JT5_Error;
+    }
+    return 1;
+}

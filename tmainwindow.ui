@@ -28,6 +28,9 @@
       <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
+         <widget class="QWidget" name="widget" native="true"/>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
            <widget class="QSpinBox" name="spinBox_JT1">
@@ -451,25 +454,38 @@
         </item>
        </layout>
       </widget>
-      <widget class="FormRemote" name="widget_Remote" native="true">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+      <widget class="QSplitter" name="splitter_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
-       <property name="minimumSize">
-        <size>
-         <width>250</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>1000</width>
-         <height>16777215</height>
-        </size>
-       </property>
+       <widget class="FormRemote" name="widget_Remote" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>250</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>1000</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="VoiceParseForm" name="widget_3" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+       </widget>
       </widget>
      </widget>
     </item>
@@ -484,6 +500,12 @@
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>Файл</string>
+    </property>
+   </widget>
+   <addaction name="menu"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -505,7 +527,13 @@
   <customwidget>
    <class>FormRemote</class>
    <extends>QWidget</extends>
-   <header location="global">formremote.h</header>
+   <header>formremote.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VoiceParseForm</class>
+   <extends>QWidget</extends>
+   <header location="global">voiceparseform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

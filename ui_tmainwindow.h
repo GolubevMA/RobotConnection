@@ -10,11 +10,13 @@
 #define UI_TMAINWINDOW_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
@@ -24,7 +26,8 @@
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include <formremote.h>
+#include <voiceparseform.h>
+#include "formremote.h"
 #include "occtqtviewer.h"
 
 QT_BEGIN_NAMESPACE
@@ -37,6 +40,7 @@ public:
     QSplitter *splitter;
     QWidget *layoutWidget;
     QVBoxLayout *verticalLayout;
+    QWidget *widget;
     QHBoxLayout *horizontalLayout_6;
     QSpinBox *spinBox_JT1;
     QSpinBox *spinBox_JT2;
@@ -56,8 +60,11 @@ public:
     QLabel *label_freq;
     QPushButton *pushButton_conn;
     QSpacerItem *horizontalSpacer_16;
+    QSplitter *splitter_2;
     FormRemote *widget_Remote;
+    VoiceParseForm *widget_3;
     QMenuBar *menuBar;
+    QMenu *menu;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -85,6 +92,11 @@ public:
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(0, 0, 0, 0);
+        widget = new QWidget(layoutWidget);
+        widget->setObjectName(QString::fromUtf8("widget"));
+
+        verticalLayout->addWidget(widget);
+
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setSpacing(6);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
@@ -272,13 +284,21 @@ public:
         verticalLayout->addWidget(frame_Bottom);
 
         splitter->addWidget(layoutWidget);
-        widget_Remote = new FormRemote(splitter);
+        splitter_2 = new QSplitter(splitter);
+        splitter_2->setObjectName(QString::fromUtf8("splitter_2"));
+        splitter_2->setOrientation(Qt::Vertical);
+        widget_Remote = new FormRemote(splitter_2);
         widget_Remote->setObjectName(QString::fromUtf8("widget_Remote"));
         sizePolicy.setHeightForWidth(widget_Remote->sizePolicy().hasHeightForWidth());
         widget_Remote->setSizePolicy(sizePolicy);
-        widget_Remote->setMinimumSize(QSize(250, 0));
+        widget_Remote->setMinimumSize(QSize(250, 100));
         widget_Remote->setMaximumSize(QSize(1000, 16777215));
-        splitter->addWidget(widget_Remote);
+        splitter_2->addWidget(widget_Remote);
+        widget_3 = new VoiceParseForm(splitter_2);
+        widget_3->setObjectName(QString::fromUtf8("widget_3"));
+        widget_3->setMinimumSize(QSize(0, 100));
+        splitter_2->addWidget(widget_3);
+        splitter->addWidget(splitter_2);
 
         verticalLayout_2->addWidget(splitter);
 
@@ -286,6 +306,8 @@ public:
         menuBar = new QMenuBar(TMainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1472, 21));
+        menu = new QMenu(menuBar);
+        menu->setObjectName(QString::fromUtf8("menu"));
         TMainWindow->setMenuBar(menuBar);
         mainToolBar = new QToolBar(TMainWindow);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
@@ -293,6 +315,8 @@ public:
         statusBar = new QStatusBar(TMainWindow);
         statusBar->setObjectName(QString::fromUtf8("statusBar"));
         TMainWindow->setStatusBar(statusBar);
+
+        menuBar->addAction(menu->menuAction());
 
         retranslateUi(TMainWindow);
 
@@ -308,6 +332,7 @@ public:
         label_13->setText(QCoreApplication::translate("TMainWindow", "\320\247\320\260\321\201\321\202\320\276\321\202\320\260 \320\236\320\237\320\240\320\236\320\241\320\220", nullptr));
         label_freq->setText(QCoreApplication::translate("TMainWindow", "----", nullptr));
         pushButton_conn->setText(QCoreApplication::translate("TMainWindow", "conn", nullptr));
+        menu->setTitle(QCoreApplication::translate("TMainWindow", "\320\244\320\260\320\271\320\273", nullptr));
     } // retranslateUi
 
 };

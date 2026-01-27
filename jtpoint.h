@@ -29,6 +29,13 @@ class JTPoint : public QObject
         void setA5(float a) {mPoints[4] = a;}
         void setA6(float a) {mPoints[5] = a;}
 
+        void setA1Rad(float a) {mPoints[0] = a * 180.f / M_PI;}
+        void setA2Rad(float a) {mPoints[1] = a * 180.f / M_PI;}
+        void setA3Rad(float a) {mPoints[2] = a * 180.f / M_PI;}
+        void setA4Rad(float a) {mPoints[3] = a * 180.f / M_PI;}
+        void setA5Rad(float a) {mPoints[4] = a * 180.f / M_PI;}
+        void setA6Rad(float a) {mPoints[5] = a * 180.f / M_PI;}
+
         void setPoint(int index, float value);
 
         // Методы получения значений

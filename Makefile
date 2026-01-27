@@ -252,6 +252,7 @@ Makefile: RobotConnection.pro ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/mkspecs/win
 		RobotConnection.pro \
 		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5OpenGL.prl \
 		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Widgets.prl \
+		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Multimedia.prl \
 		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Gui.prl \
 		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Network.prl \
 		../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Core.prl \
@@ -446,6 +447,7 @@ Makefile: RobotConnection.pro ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/mkspecs/win
 RobotConnection.pro:
 ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5OpenGL.prl:
 ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Widgets.prl:
+../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Multimedia.prl:
 ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Gui.prl:
 ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Network.prl:
 ../../../Qt/Qt5.13.0/5.13.0/mingw73_64/lib/Qt5Core.prl:

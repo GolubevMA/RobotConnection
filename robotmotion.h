@@ -28,7 +28,6 @@
 */
 
 
-
 class RobotMotion : public QObject
 {
     Q_OBJECT
@@ -36,16 +35,14 @@ class RobotMotion : public QObject
 private:
 
     //матрица текущего полжения робота
-    QMatrix4x4 m_CoordXyzOat;
-    //текущая координта XYZ
-    QVector3D m_CoordXyz;
-    //текущие углы эйлера (определяющие базис XYZ)
-    EulerAngles m_EulerAngles;
+    QMatrix4x4 m_CoordDecartMat;
+    //текущая координта в декартовой системе
+    DecartPoint m_CoordDecart;
 
     //текущаяя координата JT
     JTPoint m_CoordJT;
     //обьект решения задачи обратного позиционирования
-    KinTaskSolver mKinTaskSolv;
+    KinTaskSolver m_KinTaskSolv;
 
     //------------------------------------------------
     //состояние запроса движения
@@ -85,7 +82,7 @@ private:
     QMutex m_mutexObj;
 
     //очередь данных для записи в соект
-    const int MAX_SOCKET_QUEUE_SIZE =  10;       // максимальная очередь
+    const int MAX_SOCKET_QUEUE_SIZE =  30;       // максимальная очередь
     QQueue<QString> m_queueWriteSocket;
 
     //codition для сихронизации слоотов соектов
@@ -139,8 +136,7 @@ public:
     ~RobotMotion();
 
     const JTPoint &GetCurrentJT() {return m_CoordJT;}
-    QVector3D GetCurrentXYZ() {return m_CoordXyz;}
-    EulerAngles GetCurrentOAT() {return m_EulerAngles;}
+    const DecartPoint &GetCurrentXYZ() {return m_CoordDecart;}
     int GetFreq() {return  CoordFreq;}
 
     //-------------------------------------
@@ -149,27 +145,21 @@ public:
     //вкл/выкл мотора
     //void MotorOnOF(bool on, QString &status);
     //перемещение на шаг в углах осей
-    void StepMoveJT(int axis, int step, int speed);
-    //пермещение на шаг в базисе XYZ
-    void StepMoveXYZ(int axis, int step, int speed);
+//    void StepMoveJT(int axis, int step, int speed);
+//    //пермещение на шаг в базисе XYZ
+//    void StepMoveXYZ(int axis, int step, int speed);
+
     //пермещение в точку в угалх осей
     void MovePointJT(JTPoint point, int speed);
     //перемещение в точку (в базисе XYZ)
-    void MovePointXYZ(QVector3D xyz, EulerAngles oat, int speed);
-    void MovePointXYZ(QVector3D xyz, int speed);
+    int MovePointXYZ(DecartPoint point,  int speed);
     void SetZero();
 
     void StartBuild(int speed);
     void StopBuild();
     //отправлем массив точек в режиме потсроения траектории
-    void ParseTrack(QList<JTPoint> &points, int speed);
-    void ParseTrack(QList<QVector3D> &points, QList<float> &angles, int speed);
-
-    //линиеное пермещением по указанным точкам
-    void LinearMove(QList<QVector3D> &points_xyz, QList<EulerAngles>  &points_oat, int speed, int rad);
-    void LinearMove(QList<QVector3D> &points_xyz, int speed, int rad);
-    //перемещение по окружности
-    void ArcMove(QVector3D first_pt,  QVector3D dest_pt, int speed, int rad);
+    void ParseTrackJT(QList<JTPoint> &points, int speed);
+    void ParseTrackXyz(QList<DecartPoint>, int speed);
     //прервать текущую исполнмю команду
     void stopCommand();
 
@@ -180,9 +170,6 @@ public:
     bool createConnection(QString ip, int port);
     void closeConnection();
     bool isConnected();
-
-    static void loadPoints(QString file, QList<JTPoint> &ptList);
-    static void savePoints(QString file, QList<JTPoint> &pt);
 
 //слоты выполняемые в отднльном потоке
 private slots :

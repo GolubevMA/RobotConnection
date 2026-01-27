@@ -37,19 +37,14 @@ public:
     QSpinBox *spinBox_Z;
     QLabel *label_3;
     QVBoxLayout *verticalLayout;
-    QFrame *frame_angle;
-    QHBoxLayout *horizontalLayout_2;
-    QLabel *label_7;
-    QSpinBox *spinBox_Angle;
     QFrame *frame_OAT;
     QGridLayout *gridLayout_2;
-    QSpinBox *spinBox_rz;
     QLabel *label_5;
-    QSpinBox *spinBox_ry;
     QSpinBox *spinBox_rx;
+    QSpinBox *spinBox_rz;
     QLabel *label_2;
     QLabel *label_6;
-    QSpacerItem *verticalSpacer;
+    QSpinBox *spinBox_ry;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QPushButton *pushButton;
@@ -122,56 +117,18 @@ public:
 
         verticalLayout = new QVBoxLayout();
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        frame_angle = new QFrame(TPointDialog);
-        frame_angle->setObjectName(QString::fromUtf8("frame_angle"));
-        frame_angle->setFrameShape(QFrame::StyledPanel);
-        frame_angle->setFrameShadow(QFrame::Raised);
-        horizontalLayout_2 = new QHBoxLayout(frame_angle);
-        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
-        label_7 = new QLabel(frame_angle);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
-
-        horizontalLayout_2->addWidget(label_7);
-
-        spinBox_Angle = new QSpinBox(frame_angle);
-        spinBox_Angle->setObjectName(QString::fromUtf8("spinBox_Angle"));
-        spinBox_Angle->setMinimumSize(QSize(120, 0));
-        spinBox_Angle->setMinimum(-360);
-        spinBox_Angle->setMaximum(360);
-
-        horizontalLayout_2->addWidget(spinBox_Angle);
-
-
-        verticalLayout->addWidget(frame_angle);
-
         frame_OAT = new QFrame(TPointDialog);
         frame_OAT->setObjectName(QString::fromUtf8("frame_OAT"));
         frame_OAT->setFrameShape(QFrame::StyledPanel);
         frame_OAT->setFrameShadow(QFrame::Raised);
         gridLayout_2 = new QGridLayout(frame_OAT);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
-        spinBox_rz = new QSpinBox(frame_OAT);
-        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
-        spinBox_rz->setMinimumSize(QSize(120, 0));
-        spinBox_rz->setMinimum(-360);
-        spinBox_rz->setMaximum(360);
-
-        gridLayout_2->addWidget(spinBox_rz, 2, 1, 1, 1);
-
         label_5 = new QLabel(frame_OAT);
         label_5->setObjectName(QString::fromUtf8("label_5"));
         label_5->setMinimumSize(QSize(150, 0));
         label_5->setMaximumSize(QSize(150, 16777215));
 
         gridLayout_2->addWidget(label_5, 1, 0, 1, 1);
-
-        spinBox_ry = new QSpinBox(frame_OAT);
-        spinBox_ry->setObjectName(QString::fromUtf8("spinBox_ry"));
-        spinBox_ry->setMinimumSize(QSize(120, 0));
-        spinBox_ry->setMinimum(-360);
-        spinBox_ry->setMaximum(360);
-
-        gridLayout_2->addWidget(spinBox_ry, 1, 1, 1, 1);
 
         spinBox_rx = new QSpinBox(frame_OAT);
         spinBox_rx->setObjectName(QString::fromUtf8("spinBox_rx"));
@@ -180,6 +137,14 @@ public:
         spinBox_rx->setMaximum(360);
 
         gridLayout_2->addWidget(spinBox_rx, 0, 1, 1, 1);
+
+        spinBox_rz = new QSpinBox(frame_OAT);
+        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
+        spinBox_rz->setMinimumSize(QSize(120, 0));
+        spinBox_rz->setMinimum(-360);
+        spinBox_rz->setMaximum(360);
+
+        gridLayout_2->addWidget(spinBox_rz, 2, 1, 1, 1);
 
         label_2 = new QLabel(frame_OAT);
         label_2->setObjectName(QString::fromUtf8("label_2"));
@@ -195,9 +160,13 @@ public:
 
         gridLayout_2->addWidget(label_6, 2, 0, 1, 1);
 
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Preferred);
+        spinBox_ry = new QSpinBox(frame_OAT);
+        spinBox_ry->setObjectName(QString::fromUtf8("spinBox_ry"));
+        spinBox_ry->setMinimumSize(QSize(120, 0));
+        spinBox_ry->setMinimum(-360);
+        spinBox_ry->setMaximum(360);
 
-        gridLayout_2->addItem(verticalSpacer, 3, 0, 1, 1);
+        gridLayout_2->addWidget(spinBox_ry, 1, 1, 1, 1);
 
 
         verticalLayout->addWidget(frame_OAT);
@@ -241,7 +210,6 @@ public:
         label_4->setText(QCoreApplication::translate("TPointDialog", "2/Y", nullptr));
         label->setText(QCoreApplication::translate("TPointDialog", "1/X", nullptr));
         label_3->setText(QCoreApplication::translate("TPointDialog", "3/Z", nullptr));
-        label_7->setText(QCoreApplication::translate("TPointDialog", "A", nullptr));
         label_5->setText(QCoreApplication::translate("TPointDialog", "5/A", nullptr));
         label_2->setText(QCoreApplication::translate("TPointDialog", "4/O", nullptr));
         label_6->setText(QCoreApplication::translate("TPointDialog", "6/T", nullptr));

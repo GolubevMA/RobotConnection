@@ -53,6 +53,7 @@
 #include  "TopoDS.hxx"
 #include <V3d_View.hxx>
 #include "jtpoint.h"
+#include "decartpoint.h"
 #include "math.h"
 //------------------------------------------------------------------------------
 // Параметры взуалиции устанвки контроля
@@ -119,17 +120,18 @@ typedef  QVector3D EulerAngles;
 class KinTaskSolver
 {
 public :
-    KinTaskSolver();
-    KinTaskSolver(float jt2, float jt3, float jt5);
 
-    //обратное позиционироване
-    //JTPoint calcJT_Vert(QVector3D &xyz, float amgle);
-    JTPoint calcJT_Hor(QVector3D &xyz, float angle);
+    enum OZK_Errors {JT5_Error=-5,JT4_Error,JT3_Error,JT2_Error,JT1_Error,ReachError, NoError};
+
+    KinTaskSolver();
+    //KinTaskSolver(float jt2, float jt3, float jt5);
+
     //прямое позиционирование
     QMatrix4x4 solvePZK(JTPoint &pt);
-
-    static QVector3D calcXyz(QMatrix4x4 &mat);
-    static EulerAngles calcOat(QMatrix4x4 &mat);
+    static DecartPoint calcDecart(QMatrix4x4 &mat, DecartPoint &curr_xyz);
+    //обратное позиционироване
+    //JTPoint calcJT_Vert(QVector3D &xyz, float amgle);
+    int solveOZK(DecartPoint &xyz, JTPoint &jpt);
 
     void loadGeometry();
 
@@ -142,6 +144,17 @@ private:
     float offset_x;
     float offset_y;
     float offset_z;
+
+    //диапазоны углов
+    float j1_min, j1_max;
+    float j2_min, j2_max;
+    float j3_min, j3_max;
+    float j4_min, j4_max;
+    float j5_min, j5_max;
+    float j6_min, j6_max;
+
+    QMatrix4x4 calcR(JTPoint &pt, int pt_amount);
+    int checkPointRange(JTPoint &pt);
 
 };
 

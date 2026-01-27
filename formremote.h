@@ -37,11 +37,8 @@ private:
 
     //список точек JT траеткории
     QList<JTPoint> m_TrackJtPoints;
-
     //спискок точек траектории в базисе XYZ
-    QList<QVector3D> m_TrackPoints;
-    //угол между поверхностью и схватом
-    QList<float> m_TrackAngles;
+    QList<DecartPoint> m_TrackPoints;
 
     //массим плосокостей точек траектории
     //QList<EulerAngles> m_TrackPlanes;
@@ -53,6 +50,8 @@ private:
     Ui::FormRemote *ui;
 
     void UpdateTable();
+    void loadPoints();
+    void savePoints();
 
 private slots :
 
@@ -80,7 +79,7 @@ public slots:
     void UpdateTrack();
 
 signals :
-    void UpdateTargetPoints(QList<QVector3D> &lst);
+    void UpdateTargetPoints(QList<DecartPoint> &lst);
 };
 
 
