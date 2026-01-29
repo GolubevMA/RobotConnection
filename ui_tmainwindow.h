@@ -26,9 +26,10 @@
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include <voiceparseform.h>
+#include <autoscanerlform.h>
 #include "formremote.h"
 #include "occtqtviewer.h"
+#include "voiceparseform.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -37,6 +38,8 @@ class Ui_TMainWindow
 public:
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout_2;
+    QSplitter *splitter_3;
+    AutoScanerlForm *widget_AutoScan;
     QSplitter *splitter;
     QWidget *layoutWidget;
     QVBoxLayout *verticalLayout;
@@ -82,7 +85,14 @@ public:
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        splitter = new QSplitter(centralWidget);
+        splitter_3 = new QSplitter(centralWidget);
+        splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
+        splitter_3->setOrientation(Qt::Horizontal);
+        widget_AutoScan = new AutoScanerlForm(splitter_3);
+        widget_AutoScan->setObjectName(QString::fromUtf8("widget_AutoScan"));
+        widget_AutoScan->setMinimumSize(QSize(100, 0));
+        splitter_3->addWidget(widget_AutoScan);
+        splitter = new QSplitter(splitter_3);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
         layoutWidget = new QWidget(splitter);
@@ -299,8 +309,9 @@ public:
         widget_3->setMinimumSize(QSize(0, 100));
         splitter_2->addWidget(widget_3);
         splitter->addWidget(splitter_2);
+        splitter_3->addWidget(splitter);
 
-        verticalLayout_2->addWidget(splitter);
+        verticalLayout_2->addWidget(splitter_3);
 
         TMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(TMainWindow);

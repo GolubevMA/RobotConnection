@@ -1,5 +1,6 @@
 #include "decartpoint.h"
 #include "qdebug.h"
+#include <QVector3D>
 //-----------------------------------------------------------------------------
 DecartPoint::DecartPoint(QObject *parent, int coord_type) : QObject(parent), mCoordType(coord_type)
 {}
@@ -25,6 +26,18 @@ DecartPoint& DecartPoint::operator=(const DecartPoint& other)
         setPoints(other.mCoords);
     }
     return *this;
+}
+//-----------------------------------------------------------------------------
+void DecartPoint::setXyz(QVector3D &xyz)
+{
+    mCoords[0] = xyz.x();
+    mCoords[1] = xyz.y();
+    mCoords[1] = xyz.z();
+}
+//-----------------------------------------------------------------------------
+QVector3D DecartPoint::xyz()
+{
+    return  QVector3D(mCoords[0], mCoords[1], mCoords[2]);
 }
 //-----------------------------------------------------------------------------
 void DecartPoint::setPoint(int index, float value)

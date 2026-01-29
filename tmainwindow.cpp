@@ -33,6 +33,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->widget_Remote->setObjMotion(m_RobotMotion);
     //ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
+    ui->widget_AutoScan->setObjMotion(m_RobotMotion);
 
     connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
@@ -55,18 +56,46 @@ void TMainWindow::showEvent(QShowEvent  *event)
     setGeometry(settings.value("geometry", QRect(100, 100, 1200, 800)).toRect());
     ui->splitter->restoreState(settings.value("splitter").toByteArray());
     ui->splitter_2->restoreState(settings.value("splitter_2").toByteArray());
+    ui->splitter_3->restoreState(settings.value("splitter_3").toByteArray());
     settings.endGroup();
+    settings.beginGroup("AutoScanerForm");
+    float sx = settings.value("StartPointX",QVariant(0)).toFloat();
+    float sy = settings.value("StartPointY",QVariant(400)).toFloat();
+    float sz = settings.value("StartPointZ",QVariant(-340)).toFloat();
+    ui->widget_AutoScan->setStartPoint(QVector3D(sx,sy,sz));
+    sx = settings.value("mDirVectorX",QVariant(0)).toFloat();
+    sy = settings.value("mDirVectorY",QVariant(480)).toFloat();
+    sz = settings.value("mDirVectorZ",QVariant(-340)).toFloat();
+    ui->widget_AutoScan->setDirVec(QVector3D(sx,sy,sz));
+    ui->widget_AutoScan->setRad(settings.value("rad",QVariant(80)).toFloat());
+    ui->widget_AutoScan->setAngle(settings.value("angle",QVariant(80)).toFloat());
+    settings.endGroup();
+
+    ui->widget_AutoScan->UpdateState();
 }
 //------------------------------------------------------------------------------
 void TMainWindow::closeEvent(QCloseEvent *event)
 {
+    qDebug() << "cploding";
     QSettings settings(qApp->organizationName(), qApp->applicationName());
     settings.beginGroup("MainForm");
     settings.setValue("geometry", geometry());
     settings.setValue("splitter", ui->splitter->saveState());
     settings.setValue("splitter_2", ui->splitter_2->saveState());
+    settings.setValue("splitter_3", ui->splitter_3->saveState());
     settings.endGroup();
-
+    settings.beginGroup("AutoScanerForm");
+    QVector3D sp = ui->widget_AutoScan->startPoint();
+    settings.setValue("StartPointX",sp.x());
+    settings.setValue("StartPointY",sp.y());
+    settings.setValue("StartPointZ",sp.z());
+    QVector3D dp = ui->widget_AutoScan->dirVec();
+    settings.setValue("mDirVectorX",dp.x());
+    settings.setValue("mDirVectorY",dp.y());
+    settings.setValue("mDirVectorZ",dp.z());
+    settings.setValue("rad",ui->widget_AutoScan->rad());
+    settings.setValue("angle",ui->widget_AutoScan->angle());
+    settings.endGroup();
 }
 //------------------------------------------------------------------------------
 //обновеям стостяние системы

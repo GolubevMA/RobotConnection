@@ -12,13 +12,13 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QDialog>
+#include <QtWidgets/QDoubleSpinBox>
 #include <QtWidgets/QFrame>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
-#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QVBoxLayout>
 
 QT_BEGIN_NAMESPACE
@@ -31,20 +31,20 @@ public:
     QFrame *frame_XYZ;
     QGridLayout *gridLayout_3;
     QLabel *label_4;
-    QSpinBox *spinBox_Y;
     QLabel *label;
-    QSpinBox *spinBox_X;
-    QSpinBox *spinBox_Z;
     QLabel *label_3;
+    QDoubleSpinBox *spinBox_X;
+    QDoubleSpinBox *spinBox_Y;
+    QDoubleSpinBox *spinBox_Z;
     QVBoxLayout *verticalLayout;
     QFrame *frame_OAT;
     QGridLayout *gridLayout_2;
     QLabel *label_5;
-    QSpinBox *spinBox_rx;
-    QSpinBox *spinBox_rz;
     QLabel *label_2;
     QLabel *label_6;
-    QSpinBox *spinBox_ry;
+    QDoubleSpinBox *spinBox_rx;
+    QDoubleSpinBox *spinBox_ry;
+    QDoubleSpinBox *spinBox_rz;
     QHBoxLayout *horizontalLayout;
     QSpacerItem *horizontalSpacer;
     QPushButton *pushButton;
@@ -74,14 +74,6 @@ public:
 
         gridLayout_3->addWidget(label_4, 2, 0, 1, 1);
 
-        spinBox_Y = new QSpinBox(frame_XYZ);
-        spinBox_Y->setObjectName(QString::fromUtf8("spinBox_Y"));
-        spinBox_Y->setMinimumSize(QSize(100, 0));
-        spinBox_Y->setMinimum(-360000);
-        spinBox_Y->setMaximum(300060);
-
-        gridLayout_3->addWidget(spinBox_Y, 2, 2, 1, 2);
-
         label = new QLabel(frame_XYZ);
         label->setObjectName(QString::fromUtf8("label"));
         label->setMinimumSize(QSize(150, 0));
@@ -89,28 +81,37 @@ public:
 
         gridLayout_3->addWidget(label, 0, 0, 1, 1);
 
-        spinBox_X = new QSpinBox(frame_XYZ);
-        spinBox_X->setObjectName(QString::fromUtf8("spinBox_X"));
-        spinBox_X->setMinimumSize(QSize(120, 0));
-        spinBox_X->setMinimum(-10000000);
-        spinBox_X->setMaximum(10000000);
-
-        gridLayout_3->addWidget(spinBox_X, 0, 2, 1, 2);
-
-        spinBox_Z = new QSpinBox(frame_XYZ);
-        spinBox_Z->setObjectName(QString::fromUtf8("spinBox_Z"));
-        spinBox_Z->setMinimumSize(QSize(120, 0));
-        spinBox_Z->setMinimum(-3600000);
-        spinBox_Z->setMaximum(360000000);
-
-        gridLayout_3->addWidget(spinBox_Z, 3, 2, 1, 1);
-
         label_3 = new QLabel(frame_XYZ);
         label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setMinimumSize(QSize(150, 0));
         label_3->setMaximumSize(QSize(150, 16777215));
 
         gridLayout_3->addWidget(label_3, 3, 0, 1, 1);
+
+        spinBox_X = new QDoubleSpinBox(frame_XYZ);
+        spinBox_X->setObjectName(QString::fromUtf8("spinBox_X"));
+        spinBox_X->setMinimumSize(QSize(120, 0));
+        spinBox_X->setMinimum(-10000.000000000000000);
+        spinBox_X->setMaximum(10000.000000000000000);
+        spinBox_X->setValue(0.000000000000000);
+
+        gridLayout_3->addWidget(spinBox_X, 0, 2, 1, 2);
+
+        spinBox_Y = new QDoubleSpinBox(frame_XYZ);
+        spinBox_Y->setObjectName(QString::fromUtf8("spinBox_Y"));
+        spinBox_Y->setMinimumSize(QSize(100, 0));
+        spinBox_Y->setMinimum(-10000.000000000000000);
+        spinBox_Y->setMaximum(10000.000000000000000);
+
+        gridLayout_3->addWidget(spinBox_Y, 2, 2, 1, 2);
+
+        spinBox_Z = new QDoubleSpinBox(frame_XYZ);
+        spinBox_Z->setObjectName(QString::fromUtf8("spinBox_Z"));
+        spinBox_Z->setMinimumSize(QSize(120, 0));
+        spinBox_Z->setMinimum(-10000.000000000000000);
+        spinBox_Z->setMaximum(10000.000000000000000);
+
+        gridLayout_3->addWidget(spinBox_Z, 3, 2, 1, 1);
 
 
         horizontalLayout_3->addWidget(frame_XYZ);
@@ -130,22 +131,6 @@ public:
 
         gridLayout_2->addWidget(label_5, 1, 0, 1, 1);
 
-        spinBox_rx = new QSpinBox(frame_OAT);
-        spinBox_rx->setObjectName(QString::fromUtf8("spinBox_rx"));
-        spinBox_rx->setMinimumSize(QSize(120, 0));
-        spinBox_rx->setMinimum(-360);
-        spinBox_rx->setMaximum(360);
-
-        gridLayout_2->addWidget(spinBox_rx, 0, 1, 1, 1);
-
-        spinBox_rz = new QSpinBox(frame_OAT);
-        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
-        spinBox_rz->setMinimumSize(QSize(120, 0));
-        spinBox_rz->setMinimum(-360);
-        spinBox_rz->setMaximum(360);
-
-        gridLayout_2->addWidget(spinBox_rz, 2, 1, 1, 1);
-
         label_2 = new QLabel(frame_OAT);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setMinimumSize(QSize(150, 0));
@@ -160,13 +145,29 @@ public:
 
         gridLayout_2->addWidget(label_6, 2, 0, 1, 1);
 
-        spinBox_ry = new QSpinBox(frame_OAT);
+        spinBox_rx = new QDoubleSpinBox(frame_OAT);
+        spinBox_rx->setObjectName(QString::fromUtf8("spinBox_rx"));
+        spinBox_rx->setMinimumSize(QSize(120, 0));
+        spinBox_rx->setMinimum(-10000.000000000000000);
+        spinBox_rx->setMaximum(10000.000000000000000);
+
+        gridLayout_2->addWidget(spinBox_rx, 0, 1, 1, 1);
+
+        spinBox_ry = new QDoubleSpinBox(frame_OAT);
         spinBox_ry->setObjectName(QString::fromUtf8("spinBox_ry"));
         spinBox_ry->setMinimumSize(QSize(120, 0));
-        spinBox_ry->setMinimum(-360);
-        spinBox_ry->setMaximum(360);
+        spinBox_ry->setMinimum(-10000.000000000000000);
+        spinBox_ry->setMaximum(10000.000000000000000);
 
         gridLayout_2->addWidget(spinBox_ry, 1, 1, 1, 1);
+
+        spinBox_rz = new QDoubleSpinBox(frame_OAT);
+        spinBox_rz->setObjectName(QString::fromUtf8("spinBox_rz"));
+        spinBox_rz->setMinimumSize(QSize(120, 0));
+        spinBox_rz->setMinimum(-10000.000000000000000);
+        spinBox_rz->setMaximum(10000.000000000000000);
+
+        gridLayout_2->addWidget(spinBox_rz, 2, 1, 1, 1);
 
 
         verticalLayout->addWidget(frame_OAT);

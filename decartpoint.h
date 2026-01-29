@@ -36,6 +36,8 @@ public:
     void setA(float a) {mCoords[4] = a;}
     void setT(float t) {mCoords[5] = t;}
 
+    void setXyz(QVector3D &xyz);
+
     void setPoint(int index, float value);
     void setType(int type) {mCoordType = type;}
 
@@ -46,11 +48,13 @@ public:
 
     float o() const { return mCoords[3];}
     float a() const { return mCoords[4]; }
-    float t() const { return mCoords[5]; }
+    float t() const { return mCoords[5]; }     
 
     float oRad() const { return mCoords[3] * M_PI / 180;}
     float aRad() const { return mCoords[4] * M_PI / 180; }
     float tRad() const { return mCoords[5] * M_PI / 180; }
+
+    QVector3D xyz();
 
     int type() {return mCoordType;}
 

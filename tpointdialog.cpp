@@ -23,7 +23,7 @@ int TPointDialog::Run(JTPoint *point)
     ui->frame_XYZ->setVisible(true);
     ui->frame_OAT->setVisible(true);
 
-    QSpinBox *axes[6] = {
+    QDoubleSpinBox *axes[6] = {
         ui->spinBox_X, ui->spinBox_Y, ui->spinBox_Z,
         ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_rz
     };
@@ -45,7 +45,7 @@ int TPointDialog::Run(DecartPoint *point)
     ui->frame_XYZ->setVisible(true);
     ui->frame_OAT->setVisible(true);
 
-    QSpinBox *axes[DecartPoint::CoordCount] = {
+    QDoubleSpinBox *axes[DecartPoint::CoordCount] = {
         ui->spinBox_X, ui->spinBox_Y, ui->spinBox_Z,
         ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_rz
     };
@@ -60,7 +60,7 @@ int TPointDialog::Run(DecartPoint *point)
 //------------------------------------------------------------------------------
 void TPointDialog::on_pushButton_clicked()
 {
-    QSpinBox *sp_axisis[6] = {ui->spinBox_X, ui->spinBox_Y,
+    QDoubleSpinBox *sp_axisis[6] = {ui->spinBox_X, ui->spinBox_Y,
         ui->spinBox_Z, ui->spinBox_rx, ui->spinBox_ry, ui->spinBox_rz
     };
 

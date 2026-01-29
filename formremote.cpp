@@ -277,7 +277,8 @@ void FormRemote::on_pushButton_clicked()
 
     //прохдимся по х с шагом 1
     int x = x0 - rad;
-    while (x != x0 + rad) {
+    while (x <= x0 + rad)
+    {
         //счиаем у
         float y = y0 + powf(powf(rad, 2) - powf(x-x0,2),0.5);
         //счтаем theta
@@ -294,7 +295,9 @@ void FormRemote::on_pushButton_clicked()
         pts.append(pt);
         x++;
     }
-    m_RobotMotion->ParseTrackXyz(pts, ui->spinBox_Speed->value());
+    if (!m_RobotMotion->ParseTrackXyz(pts, ui->spinBox_Speed->value())) {
+         QMessageBox::critical(this, tr("Build track"), tr("Error to build track"));
+    }
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_ZERO_clicked()

@@ -28,7 +28,7 @@ RobotMotion::RobotMotion(QObject *parent)
     connect(m_WorkSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 
     m_waitStatus = STATE_NO_WAIT_DATA;
-    m_MotionWait = false; m_MotionAck = true;
+    m_AutoMode = false; m_AutoModeWait = false; m_AutoModeAck = true;
     m_MotionProgramm = false;
     m_queueWriteSocket.clear();
     m_wait_cmd = "";
@@ -46,6 +46,14 @@ RobotMotion::~RobotMotion()
     mThread->exit();
     mThread->wait();
     delete mThread;
+}
+//---------------------------------------------------------------------------
+//проверка ддостижимтоси точки
+//---------------------------------------------------------------------------
+int RobotMotion::checkPtIsValid(DecartPoint &pt)
+{
+    JTPoint jpt;
+    return m_KinTaskSolv.solveOZK(pt, jpt);
 }
 //---------------------------------------------------------------------------
 //перемещение на шаг в углах осей
@@ -97,7 +105,7 @@ void RobotMotion::SetZero()
 //---------------------------------------------------------------------------
 void RobotMotion::StartBuild(int speed)
 {
-    if (!m_TrackBuildMode)
+    if (!m_AutoMode)
     {
         QString cmd ="JTLINE "+QString::number(speed)+",;";
         sendCmdEvent(cmd);
@@ -106,7 +114,7 @@ void RobotMotion::StartBuild(int speed)
 //---------------------------------------------------------------------------
 void RobotMotion::StopBuild()
 {
-    if (m_TrackBuildMode)
+    if (m_AutoMode)
     {
         QString cmd ="JTEND ;";        
         sendCmdEvent(cmd);
@@ -148,17 +156,20 @@ void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
     sendCmdEvent("JTEND ;");
 }
 //---------------------------------------------------------------------------
-void RobotMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
+int RobotMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
 {
     //форимурем массив точек
     QList<JTPoint> jt_points;
     jt_points.clear();
+    int res = 1;
     foreach (DecartPoint pt, points) {
         JTPoint jpt;
-        m_KinTaskSolv.solveOZK(pt, jpt);
+        res = m_KinTaskSolv.solveOZK(pt, jpt);
+        if (!res) return  res;
         jt_points.append(jpt);
     }
     ParseTrackJT(jt_points, speed);
+    return res;
 }
 //---------------------------------------------------------------------------
 bool RobotMotion::isConnected()
@@ -252,7 +263,9 @@ void RobotMotion::slotSocketOpen()
                 m_timerCmdTimeout->start(TIMEOUT_COORD);
                 m_StopMotionProg = false;
                 m_MotionProgramm = false;
-                m_TrackBuildMode = false;
+                m_AutoMode= false;
+                m_AutoModeWait = false;
+                m_AutoModeAck = false;
             }
             else {
                 qDebug() << "conn error" << m_WorkSocket->error();
@@ -379,34 +392,23 @@ void RobotMotion::checkResponse()
                     qDebug() << "; count error";
                     return;
                 }
-
                 QString jt_pos = coords[0];
-                QString xyz_pos = coords[1];
-
+                //QString xyz_pos = coords[1];
                 //парсим координаты
                 QStringList jt_nums = jt_pos.split(",");
-                QStringList xyz_nums = xyz_pos.split(",");
-
-                if (jt_nums.size() != xyz_nums.size()) return;
+                //QStringList xyz_nums = xyz_pos.split(",");
+                //if (jt_nums.size() != ) return;
                 for (int i = 0; i < jt_nums.size(); i++) {
                     //кооринаты jt
                     m_CoordJT[i] = jt_nums[i].toFloat();
                 }
-
                 //парсим флаг выполения и статус выполняемой команды
-                bool motion_pg = coords[2].toInt();
-                bool motion_state = coords[3].toInt();
+                m_MotionProgramm = coords[1].toInt();
+                //парсим флаг автоматического движения по траектории
+                m_AutoMode = coords[3].toInt();
+                //читаем идентификаторо команды
                 int recv_ident = coords[4].toInt();
-                //потаем чатоту получения координаты
-                cmd_count++;
-                if (GetTickCount() - timer >= 1000) {
-                    //число кооритан в скеунду
-                    CoordFreq = cmd_count;
-                    cmd_count = 0;
-                    timer = GetTickCount();
-                }
-                m_MotionProgramm = motion_pg;
-                m_MotionStateAck =  motion_state;
+
                 //определим id текущей команды
                 int wait_id = -1;
                 int pos = m_wait_cmd.lastIndexOf(";") + 1;
@@ -418,16 +420,15 @@ void RobotMotion::checkResponse()
                 bool ack = (m_waitStatus == STATE_WAIT_ANS) && (wait_id == recv_ident);
                 if (ack)
                 {
-                    qDebug() << "accepted ";
-                    //если дождаличь отсвета обновим статус ожидания
-                    m_waitStatus = STATE_NO_WAIT_DATA;
-
-                    //если была запршена команды а вторежиме
-                    if(m_MotionWait) {
-                        m_MotionWait= false; m_MotionAck= true;
-                        //emit steerEvent();
+                    //в автоматическом режиме опускам флаг ожидания, чтобы можно было отпраить слеудущую команду
+                    if (m_AutoMode && m_AutoModeWait) {
+                        m_AutoModeWait = false;
+                        //команда выполнилась успешно, если отуствующт ошибки контрлолера
+                        m_AutoModeAck = true;
+                        //здесь мжно излучить сигнал
                     }
                     m_timerAnsTimeout->stop();
+                    //если дождаличь отсвета обновим статус ожидания
                     m_waitStatus = STATE_NO_WAIT_DATA;
                     //здесь можно испустить сигнал получения отвтоета
                     emit transaction(false);
@@ -436,6 +437,15 @@ void RobotMotion::checkResponse()
                 //считаетм текущую координату
                 m_CoordDecartMat = m_KinTaskSolv.solvePZK(m_CoordJT);
                 KinTaskSolver::calcDecart(m_CoordDecartMat, m_CoordDecart);
+
+                //потаем чатоту получения координаты
+                cmd_count++;
+                if (GetTickCount() - timer >= 1000) {
+                    //число кооритан в скеунду
+                    CoordFreq = cmd_count;
+                    cmd_count = 0;
+                    timer = GetTickCount();
+                }
             }
             rx_count = m_WorkSocket->readLine(RxBuffer, sizeof(RxBuffer));
         }
@@ -443,16 +453,25 @@ void RobotMotion::checkResponse()
     else
     {
         qDebug() << " read Error " << rx_count << " ee " << m_WorkSocket->errorString();
-        //если была запршена команды а вторежиме
-        if (m_MotionWait) {
-            m_MotionWait = false; m_MotionAck = false;
-        }
         //сьрасываем таймер ожидания ответа
         m_timerAnsTimeout->stop();
         emit transaction(false);
         //закроем сокет
         slotSocketClose();
     }
+}
+//---------------------------------------------------------------------------
+bool RobotMotion::autopilotCmdEnable()
+{
+    //есть запрос на отрпвку команлы в авторежме
+    if (m_AutoModeWait) {
+        return false;
+    }
+    //в очержи отсальись неотправленные команды
+    if(!m_queueWriteSocket.empty()) {
+        return false;
+    }
+    return true;
 }
 //---------------------------------------------------------------------------
 //таймер ожидаения ответа на команду
@@ -462,12 +481,10 @@ void RobotMotion::timerAnsTimeout()
     m_waitStatus = STATE_NO_WAIT_DATA;
     qDebug() << "timeout";
 
-    //если была запршена команды а вторежиме
-    if(m_MotionWait) {
-        m_MotionWait = false; m_MotionAck = false;
-        //emit steerEvent();
+    //если была запршена команды в авторежиме
+    if(m_AutoModeWait) {
+        m_AutoModeWait = false; m_AutoModeAck = false;
     }
-
     m_timerAnsTimeout->stop();
     //деблокируем осной поток (если по какой то причине был заблокирован)
     m_waitSockeSlot.wakeAll();

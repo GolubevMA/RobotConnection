@@ -47,19 +47,19 @@ private:
     //------------------------------------------------
     //состояние запроса движения
     //------------------------------------------------
-    //флаг ожидания ответа на комаду движения (отвеотм является первая посылка)
-    // которая содеиджит ожидаемый i
-    bool m_MotionWait;
-    //стасутс команды после получения ответа (true- выполнилаьс false - не выполнилась)
-    bool m_MotionAck;
-    //состояние полсденй исполненой команды
-    int m_MotionStateAck;
-    //флаг выполнения команды движуния
+    //флаг выполнения команды движения
     bool m_MotionProgramm;
     //флаг остановки выполения текущей команды двжиения
     bool m_StopMotionProg;
-    //режми формирования таректории - отправка команд без подтвержения
-    bool m_TrackBuildMode;
+
+    //------------------------------------------------
+    //парметры автоматическокго режима
+    //------------------------------------------------
+    //режми формирования таректории - на контролрее запущенна MC программа, ринимающая точки траектории
+    bool m_AutoMode;
+    //ожиданиие обработки команды устновки точки
+    int m_AutoModeWait;
+    int m_AutoModeAck;
 
     int CoordFreq;
 
@@ -139,6 +139,9 @@ public:
     const DecartPoint &GetCurrentXYZ() {return m_CoordDecart;}
     int GetFreq() {return  CoordFreq;}
 
+    //прверка достижимости точки
+    int checkPtIsValid(DecartPoint &pt);
+
     //-------------------------------------
     //команды упралвения
     //-------------------------------------
@@ -159,7 +162,7 @@ public:
     void StopBuild();
     //отправлем массив точек в режиме потсроения траектории
     void ParseTrackJT(QList<JTPoint> &points, int speed);
-    void ParseTrackXyz(QList<DecartPoint>, int speed);
+    int ParseTrackXyz(QList<DecartPoint>, int speed);
     //прервать текущую исполнмю команду
     void stopCommand();
 
@@ -170,6 +173,7 @@ public:
     bool createConnection(QString ip, int port);
     void closeConnection();
     bool isConnected();
+    bool autopilotCmdEnable();
 
 //слоты выполняемые в отднльном потоке
 private slots :

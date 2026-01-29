@@ -1,4 +1,5 @@
-﻿#include "vars.h"
+﻿
+#include "vars.h"
 #include "qdebug.h"
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <QVector3D>
@@ -237,8 +238,8 @@ void KinTaskSolver::loadGeometry()
 QMatrix4x4 KinTaskSolver::solvePZK(JTPoint &pt)
 {
     jt2_len = 355.f;
-//    jt3_len = 375.f;
-//    jt5_len = 78.f;
+    jt3_len = 375.f;
+    jt5_len = 78.f;
 
     //определение параметров Денавита-Хартенберга для каждого cустава
     QMatrix4x4 T1(
@@ -344,7 +345,7 @@ QMatrix4x4 KinTaskSolver::calcR(JTPoint &pt, int pt_amount)
 //------------------------------------------------------------------------------
 int KinTaskSolver::solveOZK(DecartPoint &xyz, JTPoint &jpt)
 {
-    qDebug() << "x " << xyz.x() << " y " << xyz.y() << " z " << xyz.z() <<  "o " << xyz.o() << " a " << xyz.a() << " t " << xyz.t();
+//    qDebug() << "x " << xyz.x() << " y " << xyz.y() << " z " << xyz.z() <<  "o " << xyz.o() << " a " << xyz.a() << " t " << xyz.t();
     jt2_len = 355.f;
     jt3_len = 375.f;
     jt5_len = 78.f;
