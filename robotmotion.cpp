@@ -103,7 +103,7 @@ void RobotMotion::SetZero()
 //---------------------------------------------------------------------------
 //запуск и остановка режима птосрения траектории
 //---------------------------------------------------------------------------
-void RobotMotion::StartBuild(int speed)
+void RobotMotion::StartAutoMode(int speed)
 {
     if (!m_AutoMode)
     {
@@ -112,11 +112,45 @@ void RobotMotion::StartBuild(int speed)
     }
 }
 //---------------------------------------------------------------------------
-void RobotMotion::StopBuild()
+void RobotMotion::StopAutoMdoe()
 {
     if (m_AutoMode)
     {
         QString cmd ="JTEND ;";        
+        sendCmdEvent(cmd);
+    }
+}
+//---------------------------------------------------------------------------
+//формуруем команду, вычитываея точки из списка
+//---------------------------------------------------------------------------
+void RobotMotion::UpdateTrackAutoMode(QQueue<DecartPoint> &points)
+{
+    if (points.isEmpty()) return;
+
+    QString cmd = "JCOORD ";
+
+    //проходмся по точкам треактории
+    while (!points.isEmpty())
+    {
+        DecartPoint pt = points.dequeue();
+        //текущая точка
+        QString cur_pt = "(";
+        for (int i =0; i < pt.size(); i++) {
+            cur_pt.append(QString::number(pt[i])+ ",");
+        }
+        cur_pt += "),";
+        //добалвяем точки до тех пор, пока размер команды не превысит максимальный
+        if (cur_pt.size() + cmd.size() >= MAX_CMD_SIZE-1)  {
+            cmd += ";";
+            qDebug() << "sending " << cmd;
+            sendCmdEvent(cmd);
+            return;
+        }
+        else cmd += cur_pt;
+    }
+    if (!cmd.isEmpty() && (cmd.compare("JCOORD ") != 0)) {
+        qDebug() << "sending " << cmd;
+        cmd += ";";
         sendCmdEvent(cmd);
     }
 }
@@ -135,7 +169,7 @@ void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
         //текущая точка
         QString cur_pt = "(";
         for (int i =0; i < pt.size(); i++) {
-            cur_pt.append(QString::number(pt[i])+ ",");            
+            cur_pt.append(QString::number(pt[i])+ ",");
         }
         cur_pt += "),";
         //отпрака по частям
@@ -426,6 +460,7 @@ void RobotMotion::checkResponse()
                         //команда выполнилась успешно, если отуствующт ошибки контрлолера
                         m_AutoModeAck = true;
                         //здесь мжно излучить сигнал
+                        emit autoModeEvent();
                     }
                     m_timerAnsTimeout->stop();
                     //если дождаличь отсвета обновим статус ожидания

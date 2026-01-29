@@ -158,13 +158,18 @@ public:
     int MovePointXYZ(DecartPoint point,  int speed);
     void SetZero();
 
-    void StartBuild(int speed);
-    void StopBuild();
+    void StartAutoMode(int speed);
+    void UpdateTrackAutoMode(QQueue<DecartPoint> &points);
+    void StopAutoMdoe();
+
     //отправлем массив точек в режиме потсроения траектории
     void ParseTrackJT(QList<JTPoint> &points, int speed);
     int ParseTrackXyz(QList<DecartPoint>, int speed);
     //прервать текущую исполнмю команду
     void stopCommand();
+
+    //проверка возможности оправки команды в авторежиме
+    bool autopilotCmdEnable();
 
     //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
     // функции отправки данных по udp
@@ -173,7 +178,7 @@ public:
     bool createConnection(QString ip, int port);
     void closeConnection();
     bool isConnected();
-    bool autopilotCmdEnable();
+
 
 //слоты выполняемые в отднльном потоке
 private slots :
@@ -192,6 +197,7 @@ signals :
     void coordChanged();
     void transaction(bool);
     void buildStarted();
+    void autoModeEvent();
 
 };
 

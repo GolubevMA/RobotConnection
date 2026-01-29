@@ -48,6 +48,8 @@ void AutoScanerlForm::setObjMotion(RobotMotion *obj)
     //connect(m_RobotMotion, SIGNAL(buildStarted()), this, SLOT(UpdateTrack()), Qt::QueuedConnection);
 }
 //------------------------------------------------------------------------------
+//слот контроля сканирования  : вызывается каждый раз при потвержиеннии
+//------------------------------------------------------------------------------
 void AutoScanerlForm::checkScanAction()
 {
 

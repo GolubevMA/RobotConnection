@@ -468,7 +468,7 @@ void FormRemote::on_pushButton_BuildStart_clicked()
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_BuildStop_clicked()
 {
-    m_RobotMotion->StopBuild();
+    m_RobotMotion->StopAutoMdoe();
 }
 //------------------------------------------------------------------------------
 void FormRemote::UpdateTrack()

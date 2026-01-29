@@ -28,6 +28,7 @@ CONFIG += resources_big
 SOURCES += \
     OcctGlTools.cpp \
     OcctQtViewer.cpp \
+    autoscancontroller.cpp \
     autoscanerlform.cpp \
     decartpoint.cpp \
     formremote.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
 HEADERS += \
     OcctGlTools.h \
     OcctQtViewer.h \
+    autoscancontroller.h \
     autoscanerlform.h \
     decartpoint.h \
     formremote.h \
