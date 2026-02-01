@@ -488,3 +488,60 @@ int KinTaskSolver::checkPointRange(JTPoint &pt)
     }
     return 1;
 }
+//------------------------------------------------------------------------------
+ScanModel::ScanModel(int surf_type, int sym_type, float m_square)
+{
+    m_SurfaceType = surf_type;
+    m_SymetryType = sym_type;
+    m_SurfaceSquare = m_square;
+    mTrackList.clear();
+}
+//------------------------------------------------------------------------------
+//фомриуем модель по указанным парматроам
+// (опка передаются парметры дуги в далнейшем будут передваться сплайны  )
+//-----------------------------------------------------------------------------
+void ScanModel::buildModel(float rad, float angle, QVector3D dir_vec)
+{
+    //шаг  сканирования
+    float step = 1.0f;
+    //угол ввода
+    float enter_angle = -angle * M_PI / 180;
+    //определяеем напрявление сканирования - прямое направление - скан от ближней точки к дальней
+    bool dir = dir_vec.x() > 0 || dir_vec.y() > 0;
+    qDebug() << " dir " << dir;
+
+    //расчет коордниат в локальной плоскости XY, где x - координата вдоль вектора dirVec. z -  коордиата по оси
+    float x_start = 0;
+    float x0 = rad * sin(enter_angle);
+    float y0 = rad * cos(enter_angle);
+    float track_length = 2 * x0;
+
+    qDebug() << " x0 " << x0 << "rad " << rad;
+
+    float x = x_start;
+    while (x < track_length)
+    {
+        //считаем у по уравнению дуги
+        float y = -rad * cos(enter_angle) + powf(powf(rad,2) - powf(x + rad * sin(enter_angle),2),0.5);
+        //счтаем theta
+        float theta = atan2(y-y0,x-x0)*180/M_PI;
+        //выбирвем угол в завимисти от коордитанты и напраления
+        if ((dir && x < x0) || (!dir && x > x0)) theta = 270.0f - theta;
+        else theta += 90.0f;
+
+        //формриуем точку
+        float dx = x * fabs(dir_vec.x()) / dir_vec.length();
+        float dy = x * fabs(dir_vec.y()) / dir_vec.length();
+
+        DecartPoint pt;
+        pt.setX(dir ? dx : - dx);
+        pt.setY(dir ? + dy :  - dy);
+        pt.setZ( y);
+        pt.setO((dir && x < x0) || (!dir && x > x0) ? 90 : -90);
+        pt.setA(theta);
+        pt.setT(0);
+        mTrackList.append(pt);
+        x++;
+    }
+    qDebug() << "build end";
+}

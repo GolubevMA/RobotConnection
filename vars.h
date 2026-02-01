@@ -163,7 +163,25 @@ private:
 class ScanModel
 {
 public :
-    int modelType;
+
+    enum SurfaceType {Symetry, Other};
+    enum SymetryType {Mirroed, Radial};
+
+    ScanModel(int surf_type = Symetry, int sym_type = Mirroed, float m_square = 100);
+
+    //функция потсрения модели
+    void buildModel(float rad, float angle, QVector3D dir_vec);
+
+private :
+
+    //тип поверхоности моедли (пока реащлизовыаем только симметрчуню)
+    int m_SurfaceType = Symetry;
+    //тип симметрии сканироуемой поерхности
+    int m_SymetryType = Mirroed;
+    //площадь сканировуемой поврехности
+    float m_SurfaceSquare;
+    //список точее траектории сегента
+    QList<DecartPoint> mTrackList;
 
 };
 

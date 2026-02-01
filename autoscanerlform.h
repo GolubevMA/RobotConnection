@@ -34,11 +34,6 @@ public:
     float rad() {return mRad;}
     float angle() {return  mStartAngle;}
 
-public slots :
-
-    //слот контролирущий процесс сканирвоания
-    void checkScanAction();
-
 private slots:
     void on_pushButton_clicked();
 

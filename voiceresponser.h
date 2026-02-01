@@ -20,6 +20,7 @@ public:
     void stopRecognize();
     void startRecognize();
     bool isActive();
+    double compareString(QString &s1, QString &s2);
 
 private slots :
     void handleStateChanged(QAudio::State newState);

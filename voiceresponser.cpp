@@ -25,6 +25,64 @@ VoiceResponser::~VoiceResponser()
     vosk_model_free(m_VoskModel);
 }
 //------------------------------------------------------------------------------
+//сарвние по алгоритму Джаро-Винклера
+//------------------------------------------------------------------------------
+double VoiceResponser::compareString(QString &s1, QString &s2)
+{
+    int len1 = s1.length();
+    int len2 = s2.length();
+    if (len1 == 0) return len2 == 0 ? 1 : 0;
+
+    // Расчет окна совпадения
+    int match_distance = std::max(len1, len2) / 2 - 1;
+    QVector<bool> s1_matches(len1, false);
+    QVector<bool> s2_matches(len2, false);
+
+    int matches = 0;
+    for (int i = 0; i < len1; i++)
+    {
+        int start = std::max(0, i - match_distance);
+        int end = std::min(i + match_distance + 1, len2);
+        for (int j = start; j < end; ++j)
+        {
+            if (!s2_matches[j] && s1[i] == s2[j])
+            {
+                s1_matches[i] = true;
+                s2_matches[j] = true;
+                matches++;
+                break;
+            }
+        }
+    }
+    //если совпадений не обнаружено - возвращем ноль
+    if (matches == 0) return 0;
+
+   // Считаем транспозиции
+   double transpositions = 0;
+   int k = 0;
+   for (int i = 0; i < len1; i++) {
+       if (s1_matches[i]) {
+           while (!s2_matches[k]) k++;
+           if (s1[i] != s2[k]) transpositions++;
+           k++;
+       }
+   }
+    double jaro = (matches / (double)len1 +
+                  matches / (double)len2 +
+                  (matches - transpositions / 2.0) / matches) / 3.0;
+
+    // Коэффициент Винклера
+   double p = 0.1;
+   // Длина общего префикса (max 4)
+   int l = 0;
+   int max_l = std::min({len1, len2, 4});
+   for (int i = 0; i < max_l; i++) {
+       if (s1[i] == s2[i]) l++;
+       else break;
+   }
+    return jaro + l * p * (1.0 - jaro);
+}
+//------------------------------------------------------------------------------
 //инициализация обработчика аудиопотока
 //------------------------------------------------------------------------------
 void VoiceResponser::initAudio()
@@ -93,7 +151,6 @@ void VoiceResponser::voiceRecognize()
             if (m.hasMatch()) {
                 QString value = m.captured(1);
                 emit total_result(value);
-                //разирам команду со словарем
             }
         }
         else {

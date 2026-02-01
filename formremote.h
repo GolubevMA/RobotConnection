@@ -70,6 +70,8 @@ private slots :
     void on_pushButton_BuildStart_clicked();
     void on_pushButton_BuildStop_clicked();
 
+    void on_pushButton_2_clicked();
+
 public slots:
 
     //void updatePos(QString pos);

@@ -19,22 +19,37 @@ public:
     ~VoiceParseForm();
 
     void setRobotObject(RobotMotion *obj);
+    void speak(QString text);
 
 public slots :
     void partialResult(QString res);
     void totalResult(QString res);
     void updateState(int st);
+    void UpdateSystemState();
 
 private slots :
     void on_pushButton_Recognize_clicked();
+
+    void on_pushButton_Recognize_2_clicked();
 
 private:
     //обьект управления роботом
     RobotMotion *m_RobotMotion;
     //обьект распознавания команд
     VoiceResponser *m_VoiceParser;
-    //флаг раснознания новго отрывка (если пришел пустной отрывок - флаг сбрасывается)
+
+    //флаг начала раснознания новго отрывка (если пришел пустной отрывок - флаг сбрасывается)
     bool m_NewPartRec;
+    //текщуий распознаыйт текст
+    QString  m_RespText;
+
+    //флаг режима голосового управления
+    bool m_VoiceManage;
+
+    //команды для распознавания в виде наборов сининимеичных слов
+    QSet<QString> m_VoiceManageStartCmd;
+    QSet<QString> m_GreetingsCmd;
+    QSet<QString> m_VoiceManageEndCmd;
 
     //иконки
     QIcon *m_OffIcon;
@@ -42,6 +57,8 @@ private:
     QIcon *m_SpeakIcon;
 
     Ui::VoiceParseForm *ui;
+
+    void initCmdDictionary();
 };
 
 #endif // VOICEPARSEFORM_H

@@ -53,13 +53,17 @@ private:
     bool m_StopMotionProg;
 
     //------------------------------------------------
-    //парметры автоматическокго режима
+    //парметры неперрвыного режима - в течение этого режима
+    //на контролллере все время запущена MC программа
     //------------------------------------------------
-    //режми формирования таректории - на контролрее запущенна MC программа, ринимающая точки траектории
-    bool m_AutoMode;
+    bool m_ContinousMode;
     //ожиданиие обработки команды устновки точки
-    int m_AutoModeWait;
-    int m_AutoModeAck;
+    int m_ContinousModeWait;
+    int m_ContinousModeAck;
+    //текущая команда, формиуремая при вызрве AddTrackPoint
+    //после того как команда превышает максимальный размер происходит ее отпрака
+    QString m_ContinousCommand;
+
 
     int CoordFreq;
 
@@ -109,7 +113,7 @@ private:
     QTimer *m_timerCmdTimeout;
     //команда запроса координиты
     QString m_CmdState = "STATE ;";
-    QString m_CmdStop = "STOP ;";
+    QString m_CmdStop = "BREAK ;";
     QString m_status_ident = " STATE";
 
     //адресс клиента
@@ -139,6 +143,8 @@ public:
     const DecartPoint &GetCurrentXYZ() {return m_CoordDecart;}
     int GetFreq() {return  CoordFreq;}
 
+    void breakCommand();
+
     //прверка достижимости точки
     int checkPtIsValid(DecartPoint &pt);
 
@@ -158,22 +164,31 @@ public:
     int MovePointXYZ(DecartPoint point,  int speed);
     void SetZero();
 
-    void StartAutoMode(int speed);
-    void UpdateTrackAutoMode(QQueue<DecartPoint> &points);
-    void StopAutoMdoe();
+    //команды неперрвыного режима
+    bool StartContinousMode(int speed);
+    bool HomeContinous();
+    int AppendTrackPoint(DecartPoint pt);
+    void StopContinousMdoe();
 
     //отправлем массив точек в режиме потсроения траектории
     void ParseTrackJT(QList<JTPoint> &points, int speed);
-    int ParseTrackXyz(QList<DecartPoint>, int speed);
+    int ParseTrackXyz(QList<DecartPoint> &points, int speed);
     //прервать текущую исполнмю команду
     void stopCommand();
 
+//    //проверка выполения контроллером команды движения
+//    bool motionRunning();
+//    //проверка возможности запуска авторежима
+//    bool AutoScanEnable();
     //проверка возможности оправки команды в авторежиме
-    bool autopilotCmdEnable();
+    bool AutoScanCmdEnable();
 
     //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
-    // функции отправки данных по udp
+    // функции отправки данных по tcp
     void sendCmdEvent(QString cmd);
+    //очистка очережи коман
+    void clearCmdQueue();
+
     //метод вызывают создаение сокетов в через межпоточный вызов
     bool createConnection(QString ip, int port);
     void closeConnection();
@@ -187,8 +202,7 @@ private slots :
     //закрытие сокета
     void slotSocketClose();
     //отпрвка команды в сокет
-    void writeCommand();
-    void breakCommand();
+    void writeCommand();   
     void timerAnsTimeout();
     void checkResponse();
     void Disconnect();

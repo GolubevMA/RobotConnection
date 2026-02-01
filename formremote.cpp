@@ -468,7 +468,7 @@ void FormRemote::on_pushButton_BuildStart_clicked()
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_BuildStop_clicked()
 {
-    m_RobotMotion->StopAutoMdoe();
+    m_RobotMotion->StopContinousMdoe();
 }
 //------------------------------------------------------------------------------
 void FormRemote::UpdateTrack()
@@ -561,4 +561,8 @@ void FormRemote::loadPoints()
     }
     fx.close();
 }
-
+//---------------------------------------------------------------------------
+void FormRemote::on_pushButton_2_clicked()
+{
+    m_RobotMotion->breakCommand();
+}

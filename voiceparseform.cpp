@@ -40,6 +40,69 @@ void VoiceParseForm::setRobotObject(RobotMotion *obj)
     m_RobotMotion = obj;
 }
 //------------------------------------------------------------------------------
+//инициализируем команды
+//------------------------------------------------------------------------------
+void VoiceParseForm::initCmdDictionary()
+{
+    //запкск распозанвания
+    m_VoiceManageStartCmd = {QString("джарвис")};
+    //остнвока распознавания
+    m_VoiceManageEndCmd = {QString("спасибо"), QString("счастливо"), QString("достаточно"), QString("стоп"), QString("пока")};
+    //приветвтсеие
+    m_GreetingsCmd = {QString("привет"), QString("поздоровайся"), QString("доброе утро"), QString("здарвствуй")};
+}
+//------------------------------------------------------------------------------
+//разбираем полученную команду
+//------------------------------------------------------------------------------
+void VoiceParseForm::totalResult(QString res)
+{
+
+    QSet<QString> inData = res.toLower().split(" ").toSet();
+    //проверяем наличие активаотора команды запуска распозанвания
+    if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd))
+    {
+        //запускаемм управление голосом
+        m_VoiceManage = true;
+        speak(QString("Я к вашим услугам"));
+        qDebug() << "startPArse!";
+    }
+    else {
+        //основкак управления голосом
+        if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd)) {
+            m_VoiceManage = false;
+            speak("Заканчиваю сеанс");
+        }
+        else if  (inData.intersects(m_GreetingsCmd)) {
+            //выполенм команду привтевия
+            QList<JTPoint> pts;
+            const std::array<float, 6> ptf1 = {0,0,-90,0,0,0};
+            JTPoint pt1(ptf1);
+            const std::array<float, 6> ptf2 = {0,0-60,-70,30,0,0};
+            JTPoint pt2(ptf2);
+            pts.append(pt1); pts.append(pt2);
+            m_RobotMotion->ParseTrackJT(pts, 30);
+            speak("Приветвтие");
+        }
+    }
+
+}
+//------------------------------------------------------------------------------
+void VoiceParseForm::UpdateSystemState()
+{
+    ui->label_Status->setText("Распознано" + m_RespText);
+    if (m_VoiceParser->isActive()) {
+        ui->pushButton_Recognize->setIcon(m_NewPartRec ?  *m_SpeakIcon :  *m_OnIcon);
+    }
+    else  ui->pushButton_Recognize->setIcon(*m_OffIcon);
+}
+//------------------------------------------------------------------------------
+//генериуем свук соотвветвутющий преданнму тексту
+//------------------------------------------------------------------------------
+void VoiceParseForm::speak(QString text)
+{
+    ui->label_ResponseInfo->setText("Выполняется Команда " + text);
+}
+//------------------------------------------------------------------------------
 //запускаем обпработку
 //------------------------------------------------------------------------------
 void VoiceParseForm::on_pushButton_Recognize_clicked()
@@ -58,22 +121,10 @@ void VoiceParseForm::partialResult(QString res)
 
     if (res.isEmpty()) {
         m_NewPartRec = false;
-        ui->pushButton_Recognize->setIcon(*m_OnIcon);
     }
     else if (!m_NewPartRec) {
-        m_NewPartRec = true;
-        ui->pushButton_Recognize->setIcon(*m_SpeakIcon);
+        m_NewPartRec = true;        
     }
-
-
-    ui->pushButton_Recognize->setIcon(*m_OnIcon);
-}
-//------------------------------------------------------------------------------
-void VoiceParseForm::totalResult(QString res)
-{
-    ui->label_ResponseInfo->setText("Распознано" + res);
-    m_NewPartRec = false;
-    ui->pushButton_Recognize->setIcon(*m_OnIcon);
 }
 //------------------------------------------------------------------------------
 void VoiceParseForm::updateState(int st)
@@ -88,3 +139,9 @@ void VoiceParseForm::updateState(int st)
     }
 }
 //------------------------------------------------------------------------------
+void VoiceParseForm::on_pushButton_Recognize_2_clicked()
+{
+    QString s1("Джарвис");
+    QString s2("Шарвис");
+    qDebug() <<  m_VoiceParser->compareString(s1, s2);
+}

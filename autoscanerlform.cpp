@@ -48,13 +48,6 @@ void AutoScanerlForm::setObjMotion(RobotMotion *obj)
     //connect(m_RobotMotion, SIGNAL(buildStarted()), this, SLOT(UpdateTrack()), Qt::QueuedConnection);
 }
 //------------------------------------------------------------------------------
-//слот контроля сканирования  : вызывается каждый раз при потвержиеннии
-//------------------------------------------------------------------------------
-void AutoScanerlForm::checkScanAction()
-{
-
-}
-//------------------------------------------------------------------------------
 //обновлем параметры дуги и проверям начальуню точку
 //------------------------------------------------------------------------------
 void AutoScanerlForm::checkConfiguration()
@@ -93,54 +86,6 @@ void AutoScanerlForm::startScan()
     {
         //фомриурем траекторрию
         QList<DecartPoint> pts;
-
-        //шаг  сканирования
-        float step = 1.0f;
-        //угол ввода
-        float enter_angle = -mStartAngle * M_PI / 180;
-        //определяеем напрявление сканирования - прямое направление - скан от ближней точки к дальней
-        bool dir = mDirVector.x() > 0 || mDirVector.y() > 0;
-        qDebug() << " dir " << dir;
-
-        //расчет коордниат в локальной плоскости XY, где x - координата вдоль вектора dirVec. z -  коордиата по оси
-        float x_start = 0;
-        float x0 = -mRad * sin(enter_angle);
-        float y0 = -mRad* cos(enter_angle);
-        float track_length = 2 * x0;
-
-        qDebug() << " x0 " << x0 << "rad " << mRad;
-
-        float x = x_start;
-        while (x < track_length)
-        {
-            //считаем у по уравнению дуги
-            float y = -mRad * cos(enter_angle) + powf(powf(mRad,2) - powf(x + mRad * sin(enter_angle),2),0.5);
-            //счтаем theta
-            float theta = atan2(y-y0,x-x0)*180/M_PI;
-            //выбирвем угол в завимисти от коордитанты и напраления
-            if ((dir && x < x0) || (!dir && x > x0)) theta = 270.0f - theta;
-            else theta += 90.0f;
-
-
-            //формриуем точку
-            float dx = x * fabs(mDirVector.x()) / mDirVector.length();
-            float dy = x * fabs(mDirVector.y()) / mDirVector.length();
-
-            DecartPoint pt;
-            pt.setX(dir ? mStartPoint.x() + dx : mStartPoint.x() - dx);
-            pt.setY(dir ? mStartPoint.y() + dy : mStartPoint.y() - dy);
-            pt.setZ(mStartPoint.z() + y);
-            pt.setO((dir && x < x0) || (!dir && x > x0) ? 90 : -90);
-            pt.setA(theta);
-            pt.setT(0);
-            pts.append(pt);
-
-            x++;
-        }
-        qDebug() << "build ned";
-        if (!m_RobotMotion->ParseTrackXyz(pts, 50)) {
-            QMessageBox::critical(this, "Scan Track", "Some Point out of range!");
-        }
     }
 }
 //------------------------------------------------------------------------------
