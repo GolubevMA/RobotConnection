@@ -24,6 +24,9 @@ TMainWindow::TMainWindow(QWidget *parent) :
     //отруваем соедининиеме
     bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015);
 
+    //фомриуем обьект сканирования
+    m_ScanController = new AutoScanController(m_RobotMotion, this);
+
     //таймер обнвления ui
     updateTimer = new QTimer();
     updateTimer->start(30);
@@ -33,7 +36,8 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui->widget_Remote->setObjMotion(m_RobotMotion);
     //ui->widget_Remote->setVisible(false);
     ui->widget_Robot->SetControlModel(CSystemModel);
-    ui->widget_AutoScan->setObjMotion(m_RobotMotion);
+    ui->widget_AutoScan->setControlller(m_ScanController);
+    ui->widget_Voice->setRobotObject(m_RobotMotion);
 
     connect(m_RobotMotion, SIGNAL(coordChanged()), this, SLOT(updateRobotCoord()));
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
@@ -47,6 +51,7 @@ TMainWindow::~TMainWindow()
     updateTimer->stop();
     delete updateTimer;
     delete ui;
+    delete m_RobotMotion;
 }
 //------------------------------------------------------------------------------
 void TMainWindow::showEvent(QShowEvent  *event)

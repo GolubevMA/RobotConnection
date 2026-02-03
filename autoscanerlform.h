@@ -6,6 +6,7 @@
 #include "robotmotion.h"
 #include <QCloseEvent>
 #include <QShowEvent>
+#include "autoscancontroller.h"
 
 //класс инкаписулируший автоматическое управление сканированием обьекта по модели обьекта
 
@@ -23,7 +24,7 @@ public:
 
     void UpdateState();
 
-    void setObjMotion(RobotMotion *obj);
+    void setControlller(AutoScanController *obj);
     void setStartPoint(QVector3D pt) {mStartPoint = pt;}
     void setDirVec(QVector3D pt) {mDirVector = pt;}
     void setRad(float rad) {mRad = rad;}
@@ -36,14 +37,19 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-
     void on_pushButton_Check_clicked();
+
+public slots :
+    void updateScanParams(bool scan_flag, int scan_state);
 
 private:
     Ui::AutoScanerlForm *ui;
 
-    //здеьс булет хранится модель сканирвоания
 
+    //обьект управления  сканирвоанием
+    AutoScanController *m_ScanController;
+
+    //здеьс булет хранится модель сканирвоания
     //начальная точка таректоррии
     QVector3D mStartPoint;
     //единичный веторо траектории сканирования
@@ -52,7 +58,6 @@ private:
     float mRad;
     //уголв ввода
     float mStartAngle;
-    RobotMotion *m_RobotMotion;
 
     //флаг проверки пармаетров сканирования
     bool mCorrectParams;
@@ -63,6 +68,7 @@ private:
     //void checkTargetPoints();
     void startScan();
     void checkConfiguration();
+
 };
 
 #endif // AUTOSCANERLFORM_H

@@ -1,3 +1,4 @@
+
 #ifndef ROBOTMOTION_H
 #define ROBOTMOTION_H
 
@@ -34,6 +35,8 @@ class RobotMotion : public QObject
 
 private:
 
+
+
     //матрица текущего полжения робота
     QMatrix4x4 m_CoordDecartMat;
     //текущая координта в декартовой системе
@@ -44,28 +47,25 @@ private:
     //обьект решения задачи обратного позиционирования
     KinTaskSolver m_KinTaskSolv;
 
-    //------------------------------------------------
-    //состояние запроса движения
-    //------------------------------------------------
-    //флаг выполнения команды движения
-    bool m_MotionProgramm;
-    //флаг остановки выполения текущей команды двжиения
-    bool m_StopMotionProg;
+    //текущая позицяия Home
+    JTPoint m_HomePos;
+
+
+    ////флаг установления соедениея с роботм
+    //bool m_Connected;
+    //флаг активности рботта - на контроллере запущенна MC программа непрерывного режима
+    bool m_Active;
 
     //------------------------------------------------
-    //парметры неперрвыного режима - в течение этого режима
-    //на контролллере все время запущена MC программа
+    //парметры атвоматичского режима (в автоматическом режиме очредь команд формируется на
+    // стороне обработчика сканирования)
     //------------------------------------------------
-    bool m_ContinousMode;
     //ожиданиие обработки команды устновки точки
     int m_ContinousModeWait;
     int m_ContinousModeAck;
     //текущая команда, формиуремая при вызрве AddTrackPoint
     //после того как команда превышает максимальный размер происходит ее отпрака
     QString m_ContinousCommand;
-
-
-    int CoordFreq;
 
     //------------------------------------------------
     //статус ожидания ответа от робоьа
@@ -86,7 +86,7 @@ private:
     QMutex m_mutexObj;
 
     //очередь данных для записи в соект
-    const int MAX_SOCKET_QUEUE_SIZE =  30;       // максимальная очередь
+    const int MAX_SOCKET_QUEUE_SIZE =  5;       // максимальная очередь
     QQueue<QString> m_queueWriteSocket;
 
     //codition для сихронизации слоотов соектов
@@ -97,7 +97,6 @@ private:
     QMutex m_conditionMutex;
 
     //таймут отртия зарытия сокета
-
     const int TIMEOUT_OPEN_CLOSE = 50;
     //сокет для взаиомдейтвя с ptaxel
     QTcpSocket *m_WorkSocket;
@@ -113,7 +112,6 @@ private:
     QTimer *m_timerCmdTimeout;
     //команда запроса координиты
     QString m_CmdState = "STATE ;";
-    QString m_CmdStop = "BREAK ;";
     QString m_status_ident = " STATE";
 
     //адресс клиента
@@ -128,8 +126,9 @@ private:
     char RxBuffer[1024 * 14];
     // здесь храним число данных в буфере
     int RxBufferCount;
+    //частота опроса
+    int CoordFreq;
 
-    //void parseResponse(QString &resp);
 
 public:
 
@@ -141,47 +140,47 @@ public:
 
     const JTPoint &GetCurrentJT() {return m_CoordJT;}
     const DecartPoint &GetCurrentXYZ() {return m_CoordDecart;}
-    int GetFreq() {return  CoordFreq;}
-
-    void breakCommand();
+    const JTPoint &GetCurrentHome() {return m_HomePos;}
+    int GetFreq() {return  CoordFreq;}    
 
     //прверка достижимости точки
     int checkPtIsValid(DecartPoint &pt);
+    //флаг готовности робота - устанваливается если есть рсдениение с роботм
+    //и если запущенна MC прогрмамма непервыног режима
+    bool isReady();
+    //проверка возможности оправки команды в авто режиме
+    bool autoScanCmdEnable();
 
     //-------------------------------------
     //команды упралвения
     //-------------------------------------
+    //ининициализация робота - отправка команды запуска непервыного режима
+    void initRobot();
+    //завршения MC прогрмамы непрерывного движеиня
+    void closeRobot();
+    //прервать текущую исполнмю команду
+    void stopCommand();
+    //добавление точки траектории
+    int appendTrackPoint(DecartPoint pt, int speed);
+
+    //выход в ноль
+    bool moveHome(int speed);
+    //пермещение в точку в угалх осей
+    void movePointJT(JTPoint point, int speed);
+    //перемещение в точку (в базисе XYZ)
+    int movePointXYZ(DecartPoint point,  int speed);
+    void ParseTrackJT(QList<JTPoint> &points, int speed);
+    int ParseTrackXyz(QList<DecartPoint> points, int speed);
+
     //вкл/выкл мотора
     //void MotorOnOF(bool on, QString &status);
     //перемещение на шаг в углах осей
 //    void StepMoveJT(int axis, int step, int speed);
 //    //пермещение на шаг в базисе XYZ
 //    void StepMoveXYZ(int axis, int step, int speed);
-
-    //пермещение в точку в угалх осей
-    void MovePointJT(JTPoint point, int speed);
-    //перемещение в точку (в базисе XYZ)
-    int MovePointXYZ(DecartPoint point,  int speed);
-    void SetZero();
-
-    //команды неперрвыного режима
-    bool StartContinousMode(int speed);
-    bool HomeContinous();
-    int AppendTrackPoint(DecartPoint pt);
-    void StopContinousMdoe();
-
-    //отправлем массив точек в режиме потсроения траектории
-    void ParseTrackJT(QList<JTPoint> &points, int speed);
-    int ParseTrackXyz(QList<DecartPoint> &points, int speed);
-    //прервать текущую исполнмю команду
-    void stopCommand();
-
-//    //проверка выполения контроллером команды движения
-//    bool motionRunning();
-//    //проверка возможности запуска авторежима
-//    bool AutoScanEnable();
-    //проверка возможности оправки команды в авторежиме
-    bool AutoScanCmdEnable();
+//    //отправлем массив точек в режиме потсроения траектории
+//    void ParseTrackJT(QList<JTPoint> &points, int speed);
+//    int ParseTrackXyz(QList<DecartPoint> &points, int speed);
 
     //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
     // функции отправки данных по tcp

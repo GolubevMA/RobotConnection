@@ -21,6 +21,10 @@ RobotMotion::RobotMotion(QObject *parent)
     //m_KinTaskSolv.loadGeometry();
     m_CoordDecart.setType(DecartPoint::EulerAngles);
 
+    m_CoordDecartMat.setToIdentity();
+    std::array<float, 6> hm =  {0,70,-50,0,20,0};
+    m_HomePos.setPoints(hm);
+
     //connect(m_WorkSocket, SIGNAL(aboutToClose()), this, SLOT(slotSocketClose()));
     connect(m_WorkSocket, SIGNAL(readyRead()), this, SLOT(checkResponse()));
     connect(m_timerAnsTimeout, SIGNAL(timeout()), this, SLOT(timerAnsTimeout()));
@@ -28,8 +32,10 @@ RobotMotion::RobotMotion(QObject *parent)
     connect(m_WorkSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 
     m_waitStatus = STATE_NO_WAIT_DATA;
-    m_ContinousMode = false; m_ContinousModeWait = false; m_ContinousModeAck = true;
-    m_MotionProgramm = false;
+    m_Active = false;
+    m_ContinousModeWait = false;
+    m_ContinousModeAck = false;
+
     m_queueWriteSocket.clear();
     m_wait_cmd = "";
 
@@ -75,64 +81,38 @@ int RobotMotion::checkPtIsValid(DecartPoint &pt)
 //---------------------------------------------------------------------------
 //пермещение в точку в угалх осей
 //---------------------------------------------------------------------------
-void RobotMotion::MovePointJT(JTPoint point, int speed)
+void RobotMotion::movePointJT(JTPoint point, int speed)
 {
-    QString cmd = "MOVE "+QString::number(speed)+",";
-    for (int i = 0; i < point.size(); i++) {
-        cmd += QString::number(point[i], 'f',1) + ",";
+    QString cmd = "JCOORD ";
+    QString cur_pt = "("+QString::number(speed)+",";
+    for (int i =0; i < point.size(); i++) {
+        cur_pt.append(QString::number(point[i])+ ",");
     }
-    cmd += ";";
+    cur_pt += "),";
+    cmd += cur_pt + ";";
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
 //перемещение в точку (в базисе XYZ)
 //---------------------------------------------------------------------------
-int RobotMotion::MovePointXYZ(DecartPoint point,  int speed)
+int RobotMotion::movePointXYZ(DecartPoint point,  int speed)
 {
     JTPoint jpt;
     int res = m_KinTaskSolv.solveOZK(point, jpt);
-    if (res > 0) MovePointJT(jpt, speed);
+    if (res > 0) movePointJT(jpt, speed);
     qDebug() << "res";
     return  res;
 }
 //---------------------------------------------------------------------------
-void RobotMotion::SetZero()
-{
-    sendCmdEvent("ZERO ;");
-}
-//---------------------------------------------------------------------------
-//запуск и остановка непрерываного режима
-//---------------------------------------------------------------------------
-bool RobotMotion::StartContinousMode(int speed)
-{
-    if (!m_ContinousMode && !m_MotionProgramm && m_waitStatus == STATE_NO_WAIT_DATA)
-    {
-        QString cmd ="JTLINE "+QString::number(speed)+",;";
-        sendCmdEvent(cmd);
-        return true;
-    }
-    else return false;
-}
-//---------------------------------------------------------------------------
-void RobotMotion::StopContinousMdoe()
-{
-    if (m_ContinousMode)
-    {
-        QString cmd ="JTEND ;";
-        sendCmdEvent(cmd);
-    }
-}
-//---------------------------------------------------------------------------
 //вжиение в позицию HOME в непрервыном режиме
 //---------------------------------------------------------------------------
-bool RobotMotion::HomeContinous()
+bool RobotMotion::moveHome(int speed)
 {
     //выход по Z
     std::array<float, 6> p1f = {0,90,0,0,0,0};
     JTPoint p1(p1f);
     //выход по X/Y
-    std::array<float, 6> p2f = {0,70,-50,0,20,0};
-    JTPoint p2(p2f);
+    JTPoint p2(m_HomePos);
 
     QList<JTPoint> pts;
     pts.append(p1); pts.append(p2);
@@ -140,7 +120,7 @@ bool RobotMotion::HomeContinous()
     QString cmd = "JCOORD ";
     foreach (JTPoint pt, pts)
     {
-        QString cur_pt = "(";
+        QString cur_pt = "("+QString::number(speed) + ",";
         for (int i =0; i < pt.size(); i++) {
             cur_pt.append(QString::number(pt[i])+ ",");
         }
@@ -152,52 +132,14 @@ bool RobotMotion::HomeContinous()
     return true;
 }
 //---------------------------------------------------------------------------
-//формуруем команду, вычитываея точки из списка
-//возращет true если может добавить точку в команду
-//если нет - возращет false и оптравлет команду
-//---------------------------------------------------------------------------
-int RobotMotion::AppendTrackPoint(DecartPoint pt)
-{
-    JTPoint jpt;
-    int res =  m_KinTaskSolv.solveOZK(pt,jpt);
-    if (!res) return -1;
-
-    //текущая точка
-    QString cur_pt = "(";
-    for (int i =0; i < pt.size(); i++) {
-        cur_pt.append(QString::number(pt[i])+ ",");
-    }
-    cur_pt += "),";
-    //если при добвланеии точки команда превывшает максимлаьнй размер
-    // отправим кмаонду и вернем false
-    if (cur_pt.size() + m_ContinousCommand.size() >= MAX_CMD_SIZE-1)
-    {
-        m_ContinousCommand += ";";
-        qDebug() << "sending " << m_ContinousCommand;
-        sendCmdEvent(m_ContinousCommand);
-        //сбросим команду
-        m_ContinousCommand = "JCOORD ";
-        return 0;
-    }
-    else {
-        m_ContinousCommand += cur_pt;
-        return 1;
-    }
-}
-//---------------------------------------------------------------------------
-//парсинг траектории
-//---------------------------------------------------------------------------
 void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
 {
-    QString cmd ="JTLINE "+QString::number(speed)+",;";
-    sendCmdEvent(cmd);
-
-    cmd ="JCOORD ";
+    QString cmd ="JCOORD ";
     foreach (JTPoint pt, points)
     {
         if (!pt.size()) qDebug() << "got empty string";
         //текущая точка
-        QString cur_pt = "(";
+        QString cur_pt = "("+QString::number(speed)+",";
         for (int i =0; i < pt.size(); i++) {
             cur_pt.append(QString::number(pt[i])+ ",");
         }
@@ -217,23 +159,56 @@ void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
         cmd += ";";
         sendCmdEvent(cmd);
     }
-    //sendCmdEvent("JTEND ;");
 }
 //---------------------------------------------------------------------------
-int RobotMotion::ParseTrackXyz(QList<DecartPoint> &points, int speed)
+int RobotMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
 {
     //форимурем массив точек
     QList<JTPoint> jt_points;
     jt_points.clear();
     int res = 1;
     foreach (DecartPoint pt, points) {
-      JTPoint jpt;
-      res = m_KinTaskSolv.solveOZK(pt, jpt);
-      if (!res) return  res;
-      jt_points.append(jpt);
+        JTPoint jpt;
+        res = m_KinTaskSolv.solveOZK(pt, jpt);
+        if (!res) return  res;
+        jt_points.append(jpt);
     }
     ParseTrackJT(jt_points, speed);
     return res;
+}
+//---------------------------------------------------------------------------
+//формуруем команду, вычитываея точки из списка
+//возращет true если может добавить точку в команду
+//если нет - возращет false и оптравлет команду
+//---------------------------------------------------------------------------
+int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
+{
+    JTPoint jpt;
+    int res =  m_KinTaskSolv.solveOZK(pt,jpt);
+    if (!res) return -1;
+
+    //текущая точка
+    QString cur_pt = "(";
+    cur_pt.append(QString::number(speed)+ ",");
+    for (int i =0; i < pt.size(); i++) {
+        cur_pt.append(QString::number(pt[i])+ ",");
+    }
+    cur_pt += "),";
+    //если при добвланеии точки команда превывшает максимлаьнй размер
+    // отправим кмаонду и вернем false
+    if (cur_pt.size() + m_ContinousCommand.size() >= MAX_CMD_SIZE-1)
+    {
+        m_ContinousCommand += ";";
+        qDebug() << "sending " << m_ContinousCommand;
+        sendCmdEvent(m_ContinousCommand);
+        //сбросим команду
+        m_ContinousCommand = "JCOORD ";
+        return 0;
+    }
+    else {
+        m_ContinousCommand += cur_pt;
+        return 1;
+    }
 }
 //---------------------------------------------------------------------------
 bool RobotMotion::isConnected()
@@ -275,7 +250,7 @@ void RobotMotion::closeConnection()
     QTimer::singleShot(0, this, SLOT(slotSocketСlose()));
 
     m_conditionMutex.lock();
-    //блокируем основой поток пока поток обработчик не откроет порт
+    //блокируем основой поток пока поток обработчик не закроет порт
     // или пока не срабоатет таймер
     m_waitSockeSlot.wait(&m_conditionMutex, TIMEOUT_OPEN_CLOSE);
     m_conditionMutex.unlock();
@@ -338,11 +313,8 @@ void RobotMotion::slotSocketOpen()
                 qDebug() << "connctede";
                 //активурем таймер отправки
                 m_timerCmdTimeout->start(TIMEOUT_COORD);
-                m_StopMotionProg = false;
-                m_MotionProgramm = false;
-                m_ContinousMode= false;
-                m_ContinousModeWait = false;
-                m_ContinousModeAck = false;
+                //отправляем команду инициализации
+                //initRobot();
             }
             else {
                 qDebug() << "conn error" << m_WorkSocket->error();
@@ -397,14 +369,8 @@ void RobotMotion::writeCommand()
 //        return;
 //    }
     try {
-        // если выполение команды двжиения еще не закночилось
-        //первем команду
-        if (/*m_MotionProgramm && */m_StopMotionProg) {
-            qDebug() << "stopping ";
-            m_StopMotionProg = false;
-            throw m_CmdStop;
-        }
-        else if (!m_queueWriteSocket.isEmpty() && m_waitStatus != STATE_WAIT_ANS)
+        //есил есть команжы для отправки - отправим
+        if (!m_queueWriteSocket.isEmpty() && m_waitStatus != STATE_WAIT_ANS)
         {
             //отправим команду
             m_mutexObj.lock();
@@ -434,12 +400,35 @@ void RobotMotion::writeCommand()
     }
 }
 //---------------------------------------------------------------------------
-// прерывание исполняемой команды
+//инициализация неперевыного режима
 //---------------------------------------------------------------------------
-void RobotMotion::breakCommand()
+void RobotMotion::initRobot()
 {
-    qDebug() << "try dtop" << m_MotionProgramm;
-    m_StopMotionProg = true;
+    if (!m_Active)
+    {
+        m_ContinousModeWait = false;
+        m_ContinousModeAck = false;
+        //отправка команды инициализации
+        sendCmdEvent("CONTIN_INIT ;");
+    }
+}
+//---------------------------------------------------------------------------
+void RobotMotion::closeRobot()
+{
+    if (m_Active) {
+        //отправка команды инициализации
+        //возжмно стоит сделать waitCondition
+        sendCmdEvent("CONTIN_CLOSE ;");
+    }
+}
+//---------------------------------------------------------------------------
+//остновка выполения команды двжиения
+//---------------------------------------------------------------------------
+void RobotMotion::stopCommand()
+{
+    if (m_Active) {
+        sendCmdEvent("CMD_STOP ;");
+    }
 }
 //---------------------------------------------------------------------------
 //проверка ответа отклиента
@@ -476,12 +465,10 @@ void RobotMotion::checkResponse()
                     //кооринаты jt
                     m_CoordJT[i] = jt_nums[i].toFloat();
                 }
-                //парсим флаг выполения и статус выполняемой команды
-                m_MotionProgramm = coords[1].toInt();
-                //парсим флаг автоматического движения по траектории
-                m_ContinousMode = coords[3].toInt();
+                //парсим флаг неперрывного режима
+                m_Active = coords[1].toInt();
                 //читаем идентификаторо команды
-                int recv_ident = coords[4].toInt();
+                int recv_ident = coords[3].toInt();
 
                 //определим id текущей команды
                 int wait_id = -1;
@@ -536,25 +523,17 @@ void RobotMotion::checkResponse()
         slotSocketClose();
     }
 }
-////---------------------------------------------------------------------------
-////провекрка возможности запуска авторежима
-////---------------------------------------------------------------------------
-//bool RobotMotion::AutoScanEnable()
-//{
-//    //если происходит выполения кмоанды джвения
-//    if (m_MotionProgramm) {
-//        return false;
-//    }
-//    //если отправлен запрос на выполения команды движения
-//    if (m_waitStatus == STATE_WAIT_ANS) {
-//        return false;
-//    }
-//    return true;
-//}
+//---------------------------------------------------------------------------
+//проверка активности сканера
+//---------------------------------------------------------------------------
+bool RobotMotion::isReady()
+{
+    return isConnected() && m_Active;
+}
 //---------------------------------------------------------------------------
 //проверка возмжоности отправки команды в автоержиме
 //---------------------------------------------------------------------------
-bool RobotMotion::AutoScanCmdEnable()
+bool RobotMotion::autoScanCmdEnable()
 {
     //есть запрос на отрпвку команлы в авторежме
     if (m_ContinousModeWait) {

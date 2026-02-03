@@ -65,7 +65,7 @@ public:
     QSpacerItem *horizontalSpacer_16;
     QSplitter *splitter_2;
     FormRemote *widget_Remote;
-    VoiceParseForm *widget_3;
+    VoiceParseForm *widget_Voice;
     QMenuBar *menuBar;
     QMenu *menu;
     QToolBar *mainToolBar;
@@ -304,10 +304,10 @@ public:
         widget_Remote->setMinimumSize(QSize(250, 100));
         widget_Remote->setMaximumSize(QSize(1000, 16777215));
         splitter_2->addWidget(widget_Remote);
-        widget_3 = new VoiceParseForm(splitter_2);
-        widget_3->setObjectName(QString::fromUtf8("widget_3"));
-        widget_3->setMinimumSize(QSize(0, 100));
-        splitter_2->addWidget(widget_3);
+        widget_Voice = new VoiceParseForm(splitter_2);
+        widget_Voice->setObjectName(QString::fromUtf8("widget_Voice"));
+        widget_Voice->setMinimumSize(QSize(0, 100));
+        splitter_2->addWidget(widget_Voice);
         splitter->addWidget(splitter_2);
         splitter_3->addWidget(splitter);
 

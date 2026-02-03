@@ -57,6 +57,9 @@ public:
     QLabel *label_10;
     QDoubleSpinBox *spinBoxAngle;
     QSpacerItem *verticalSpacer_2;
+    QSpacerItem *verticalSpacer_5;
+    QLabel *label_ScanInfo;
+    QSpacerItem *verticalSpacer_6;
     QPushButton *pushButton;
     QPushButton *pushButton_Check;
     QHBoxLayout *horizontalLayout_4;
@@ -287,6 +290,19 @@ public:
 
         verticalLayout->addItem(verticalSpacer_2);
 
+        verticalSpacer_5 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer_5);
+
+        label_ScanInfo = new QLabel(AutoScanerlForm);
+        label_ScanInfo->setObjectName(QString::fromUtf8("label_ScanInfo"));
+
+        verticalLayout->addWidget(label_ScanInfo);
+
+        verticalSpacer_6 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout->addItem(verticalSpacer_6);
+
         pushButton = new QPushButton(AutoScanerlForm);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
 
@@ -328,6 +344,7 @@ public:
         label_11->setText(QCoreApplication::translate("AutoScanerlForm", "\320\243\320\263\320\276\320\273 \320\262\320\262\320\276\320\264\320\260", nullptr));
         label_12->setText(QCoreApplication::translate("AutoScanerlForm", "\320\241\320\272\320\276\321\200\320\276\321\201\321\202\321\214", nullptr));
         label_10->setText(QCoreApplication::translate("AutoScanerlForm", "\320\240\320\260\320\264\320\270\321\203\321\201 \320\272\321\200\320\270\320\262\321\200\320\270\320\267\320\275\321\213", nullptr));
+        label_ScanInfo->setText(QString());
         pushButton->setText(QCoreApplication::translate("AutoScanerlForm", "\320\241\321\202\320\260\321\200\321\202", nullptr));
         pushButton_Check->setText(QCoreApplication::translate("AutoScanerlForm", "\320\237\321\200\320\276\320\262\320\265\321\200\320\272\320\260", nullptr));
         pushButton_2->setText(QCoreApplication::translate("AutoScanerlForm", "\320\241\321\202\320\276\320\277", nullptr));

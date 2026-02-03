@@ -8,6 +8,7 @@
 #include <QCloseEvent>
 #include "formremote.h"
 #include "trobotmotionthread.h"
+#include "autoscancontroller.h"
 
 namespace Ui {
 class TMainWindow;
@@ -23,6 +24,8 @@ public:
     RobotMotion *m_RobotMotion;
     //обьект графического предсталения робота
     ControlSystemModel *CSystemModel;
+    //обьект упралвения сканированием
+    AutoScanController *m_ScanController;
 
     //TRobotMotionThread *m_Mtread;
 

@@ -490,7 +490,7 @@
           </size>
          </property>
         </widget>
-        <widget class="VoiceParseForm" name="widget_3" native="true">
+        <widget class="VoiceParseForm" name="widget_Voice" native="true">
          <property name="minimumSize">
           <size>
            <width>0</width>

@@ -78,4 +78,18 @@ void JTPoint::setPoints(const std::array<float, PointCount>& points)
         }
     }
 }
-
+//-----------------------------------------------------------------------------
+bool JTPoint::equals(const JTPoint &pt1, const  JTPoint &pt2, float acc)
+{
+    bool equal = true;
+    if (pt1.size() == pt2.size()) {
+        for (int i = 0; i < pt1.size(); i++)
+        {
+            if ((pt1.points()[i] < pt2.points()[i] - acc) || (pt1.points()[i] > pt2.points()[i] + acc)) {
+                equal = false;
+                break;
+            }
+        }
+    }
+    return equal;
+}

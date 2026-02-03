@@ -224,7 +224,7 @@ void FormRemote::on_pushButton_Move_clicked()
         JTPoint pt = m_RobotMotion->GetCurrentJT();
         TPointDialog dialog(this);
         if (dialog.Run(&pt) == QDialog::Accepted)
-            m_RobotMotion->MovePointJT(pt, ui->spinBox_Speed->value());
+            m_RobotMotion->movePointJT(pt, ui->spinBox_Speed->value());
     }
     else
     {
@@ -232,7 +232,7 @@ void FormRemote::on_pushButton_Move_clicked()
         TPointDialog dialog(this);
         if (dialog.Run(&xyz) == QDialog::Accepted)
         {
-            int state = m_RobotMotion->MovePointXYZ(xyz, ui->spinBox_Speed->value());
+            int state = m_RobotMotion->movePointXYZ(xyz, ui->spinBox_Speed->value());
             //выведем соовщение об ошибке
             if (state <= 0)
             {
@@ -295,14 +295,14 @@ void FormRemote::on_pushButton_clicked()
         pts.append(pt);
         x++;
     }
-    if (!m_RobotMotion->ParseTrackXyz(pts, ui->spinBox_Speed->value())) {
-         QMessageBox::critical(this, tr("Build track"), tr("Error to build track"));
-    }
+//    if (!m_RobotMotion->ParseTrackXyz(pts, ui->spinBox_Speed->value())) {
+//         QMessageBox::critical(this, tr("Build track"), tr("Error to build track"));
+//    }
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_ZERO_clicked()
 {
-    m_RobotMotion->SetZero();
+    //m_RobotMotion->SetZero();
 }
 //------------------------------------------------------------------------------
 //активация/деактивация режима движения по траектории
@@ -463,12 +463,14 @@ void FormRemote::on_pushButton_ChangePt_clicked()
 void FormRemote::on_pushButton_BuildStart_clicked()
 {
     //m_RobotMotion->StartBuild(ui->spinBox_Speed->value());
-    m_RobotMotion->ParseTrackJT(m_TrackJtPoints, ui->spinBox_Speed->value());
+    //m_RobotMotion->ParseTrackJT(m_TrackJtPoints, ui->spinBox_Speed->value());
+    m_RobotMotion->initRobot();
 }
 //------------------------------------------------------------------------------
 void FormRemote::on_pushButton_BuildStop_clicked()
 {
-    m_RobotMotion->StopContinousMdoe();
+    //m_RobotMotion->StopContinousMdoe();
+    m_RobotMotion->closeRobot();
 }
 //------------------------------------------------------------------------------
 void FormRemote::UpdateTrack()
@@ -564,5 +566,5 @@ void FormRemote::loadPoints()
 //---------------------------------------------------------------------------
 void FormRemote::on_pushButton_2_clicked()
 {
-    m_RobotMotion->breakCommand();
+    m_RobotMotion->stopCommand();
 }

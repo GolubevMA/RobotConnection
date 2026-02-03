@@ -47,9 +47,9 @@ private:
     bool m_VoiceManage;
 
     //команды для распознавания в виде наборов сининимеичных слов
-    QSet<QString> m_VoiceManageStartCmd;
-    QSet<QString> m_GreetingsCmd;
-    QSet<QString> m_VoiceManageEndCmd;
+    QList<QString> m_VoiceManageStartCmd;
+    QList<QString> m_GreetingsCmd;
+    QList<QString> m_VoiceManageEndCmd;
 
     //иконки
     QIcon *m_OffIcon;
@@ -59,6 +59,7 @@ private:
     Ui::VoiceParseForm *ui;
 
     void initCmdDictionary();
+    bool intersectsJaro(QList<QString> &s1, QList<QString> &s2);
 };
 
 #endif // VOICEPARSEFORM_H

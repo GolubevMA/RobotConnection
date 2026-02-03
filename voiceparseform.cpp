@@ -10,10 +10,14 @@ VoiceParseForm::VoiceParseForm(QWidget *parent) :
     //инициазируем обьект расопзванчения
     m_VoiceParser = new VoiceResponser;
     m_NewPartRec = false;
+    m_VoiceManage = false;
 
     m_OffIcon  = new QIcon(":/img/micro_off.png");
     m_OnIcon = new QIcon(":/img/micro.png");
     m_SpeakIcon = new QIcon(":/img/micro_req.png");
+
+    //инициализируем словри команд
+    initCmdDictionary();
 
     connect(m_VoiceParser, SIGNAL(partial_result(QString)), this, SLOT(partialResult(QString)));
     connect(m_VoiceParser, SIGNAL(total_result(QString)), this, SLOT(totalResult(QString)));
@@ -52,14 +56,35 @@ void VoiceParseForm::initCmdDictionary()
     m_GreetingsCmd = {QString("привет"), QString("поздоровайся"), QString("доброе утро"), QString("здарвствуй")};
 }
 //------------------------------------------------------------------------------
+//проверяет налчиие схожих строк в набоах s1 s2 производя неточное сравнение строк
+//------------------------------------------------------------------------------
+bool VoiceParseForm::intersectsJaro(QList<QString> &s1, QList<QString> &s2)
+{
+    qDebug() << "ceckInterrSect ";
+    bool  interSetcion = false;
+    QVector<double> interSecVector;
+    foreach (QString str, s1) {
+        foreach (QString str_c, s2) {
+            double koff = VoiceResponser::compareString(str, str_c);
+            if (koff > 0.6) {
+                qDebug() << "interset " << str << " 2 " << str_c << " k " << koff;
+                interSecVector.append(koff);
+                if (!interSetcion) interSetcion = true;
+            }
+        }
+    }
+    return interSetcion;
+}
+//------------------------------------------------------------------------------
 //разбираем полученную команду
 //------------------------------------------------------------------------------
 void VoiceParseForm::totalResult(QString res)
 {
-
-    QSet<QString> inData = res.toLower().split(" ").toSet();
+    m_RespText = res;
+    QList<QString> inData = res.toLower().split(" ");
     //проверяем наличие активаотора команды запуска распозанвания
-    if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd))
+    //if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd))
+    if (!m_VoiceManage && intersectsJaro(inData, m_VoiceManageStartCmd))
     {
         //запускаемм управление голосом
         m_VoiceManage = true;
@@ -68,28 +93,31 @@ void VoiceParseForm::totalResult(QString res)
     }
     else {
         //основкак управления голосом
-        if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd)) {
+        //if (!m_VoiceManage && inData.intersects(m_VoiceManageStartCmd)) {
+        if (m_VoiceManage && intersectsJaro(inData, m_VoiceManageEndCmd)) {
             m_VoiceManage = false;
             speak("Заканчиваю сеанс");
         }
-        else if  (inData.intersects(m_GreetingsCmd)) {
+        else if  (intersectsJaro(inData, m_GreetingsCmd)) {
             //выполенм команду привтевия
             QList<JTPoint> pts;
             const std::array<float, 6> ptf1 = {0,0,-90,0,0,0};
             JTPoint pt1(ptf1);
-            const std::array<float, 6> ptf2 = {0,0-60,-70,30,0,0};
+            const std::array<float, 6> ptf2 = {0,0,-45,0,0,0};
             JTPoint pt2(ptf2);
-            pts.append(pt1); pts.append(pt2);
-            m_RobotMotion->ParseTrackJT(pts, 30);
+            const std::array<float, 6> ptf3 = {0,0,45,0,0,0};
+            JTPoint pt3(ptf3);
+            pts.append(pt1); pts.append(pt2); pts.append(pt3);
             speak("Приветвтие");
+            m_RobotMotion->ParseTrackJT(pts, 30);
         }
     }
-
+    UpdateSystemState();
 }
 //------------------------------------------------------------------------------
 void VoiceParseForm::UpdateSystemState()
 {
-    ui->label_Status->setText("Распознано" + m_RespText);
+    ui->label_Status->setText("Распознано " + m_RespText);
     if (m_VoiceParser->isActive()) {
         ui->pushButton_Recognize->setIcon(m_NewPartRec ?  *m_SpeakIcon :  *m_OnIcon);
     }
@@ -141,7 +169,4 @@ void VoiceParseForm::updateState(int st)
 //------------------------------------------------------------------------------
 void VoiceParseForm::on_pushButton_Recognize_2_clicked()
 {
-    QString s1("Джарвис");
-    QString s2("Шарвис");
-    qDebug() <<  m_VoiceParser->compareString(s1, s2);
 }

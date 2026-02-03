@@ -63,10 +63,12 @@ class JTPoint : public QObject
         bool isValidIndex(int index) const {
             return index >= 0 && index < PointCount;
         }
+        static bool equals(const JTPoint &pt1, const JTPoint &pt2, float acc);
 
         // Работа со всеми точками
         std::array<float, PointCount> points() const { return mPoints; }
         void setPoints(const std::array<float, PointCount>& points);
+
 
 private:
     std::array<float, PointCount> mPoints{};
