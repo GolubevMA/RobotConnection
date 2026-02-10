@@ -12,6 +12,8 @@ TMainWindow::TMainWindow(QWidget *parent) :
     ui(new Ui::TMainWindow)
 {   
 
+    SelectedModel = new ScanModel;
+
     CSystemModel = NULL;
 
     //грузим модель
@@ -22,7 +24,7 @@ TMainWindow::TMainWindow(QWidget *parent) :
 
     m_RobotMotion = new RobotMotion();
     //отруваем соедининиеме
-    bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015);
+    bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
 
     //фомриуем обьект сканирования
     m_ScanController = new AutoScanController(m_RobotMotion, this);
@@ -62,21 +64,22 @@ void TMainWindow::showEvent(QShowEvent  *event)
     ui->splitter->restoreState(settings.value("splitter").toByteArray());
     ui->splitter_2->restoreState(settings.value("splitter_2").toByteArray());
     ui->splitter_3->restoreState(settings.value("splitter_3").toByteArray());
+    ui->splitter_4->restoreState(settings.value("splitter_4").toByteArray());
     settings.endGroup();
     settings.beginGroup("AutoScanerForm");
     float sx = settings.value("StartPointX",QVariant(0)).toFloat();
     float sy = settings.value("StartPointY",QVariant(400)).toFloat();
     float sz = settings.value("StartPointZ",QVariant(-340)).toFloat();
-    ui->widget_AutoScan->setStartPoint(QVector3D(sx,sy,sz));
+    qDebug() << "sx " << sx << " sy " << sy << " sz " << sz;
+    SelectedModel->setStartPoint(QVector3D(sx,sy,sz));
     sx = settings.value("mDirVectorX",QVariant(0)).toFloat();
     sy = settings.value("mDirVectorY",QVariant(480)).toFloat();
     sz = settings.value("mDirVectorZ",QVariant(-340)).toFloat();
-    ui->widget_AutoScan->setDirVec(QVector3D(sx,sy,sz));
-    ui->widget_AutoScan->setRad(settings.value("rad",QVariant(80)).toFloat());
-    ui->widget_AutoScan->setAngle(settings.value("angle",QVariant(80)).toFloat());
+    SelectedModel->setDirVec(QVector3D(sx,sy,sz));
+    SelectedModel->setRad(settings.value("rad",QVariant(80)).toFloat());
+    SelectedModel->setAngle(settings.value("angle",QVariant(80)).toFloat());
     settings.endGroup();
-
-    ui->widget_AutoScan->UpdateState();
+    ui->widget_Model->updateState();
 }
 //------------------------------------------------------------------------------
 void TMainWindow::closeEvent(QCloseEvent *event)
@@ -88,18 +91,20 @@ void TMainWindow::closeEvent(QCloseEvent *event)
     settings.setValue("splitter", ui->splitter->saveState());
     settings.setValue("splitter_2", ui->splitter_2->saveState());
     settings.setValue("splitter_3", ui->splitter_3->saveState());
+    settings.setValue("splitter_4", ui->splitter_4->saveState());
     settings.endGroup();
     settings.beginGroup("AutoScanerForm");
-    QVector3D sp = ui->widget_AutoScan->startPoint();
+    QVector3D sp = SelectedModel->startPt();
     settings.setValue("StartPointX",sp.x());
     settings.setValue("StartPointY",sp.y());
     settings.setValue("StartPointZ",sp.z());
-    QVector3D dp = ui->widget_AutoScan->dirVec();
+    qDebug() << "sx " << sp.x() << " sy " << sp.y() << " sz " << sp.z();
+    QVector3D dp = SelectedModel->dirVec();
     settings.setValue("mDirVectorX",dp.x());
     settings.setValue("mDirVectorY",dp.y());
     settings.setValue("mDirVectorZ",dp.z());
-    settings.setValue("rad",ui->widget_AutoScan->rad());
-    settings.setValue("angle",ui->widget_AutoScan->angle());
+    settings.setValue("rad",SelectedModel->rad());
+    settings.setValue("angle",SelectedModel->angle());
     settings.endGroup();
 }
 //------------------------------------------------------------------------------
@@ -115,7 +120,7 @@ void TMainWindow::on_pushButton_conn_clicked()
 {
     //if (!m_RobotMotion->isConnected()) {
         qDebug() << "recc";
-        m_RobotMotion->createConnection("192.168.0.1", 9015);
+        m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
     //}
 }
 //------------------------------------------------------------------------------

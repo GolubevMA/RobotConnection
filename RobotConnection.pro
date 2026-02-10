@@ -34,6 +34,7 @@ SOURCES += \
     formremote.cpp \
     jtpoint.cpp \
         main.cpp \
+    modelform.cpp \
     robotmotion.cpp \
         tmainwindow.cpp \
     trobotmotionthread.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     decartpoint.h \
     formremote.h \
     jtpoint.h \
+    modelform.h \
     robotmotion.h \
         tmainwindow.h \
     trobotmotionthread.h \
@@ -61,6 +63,7 @@ HEADERS += \
 FORMS += \
     autoscanerlform.ui \
     formremote.ui \
+    modelform.ui \
         tmainwindow.ui \
     tpointdialog.ui \
     voiceparseform.ui

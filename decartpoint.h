@@ -68,7 +68,9 @@ public:
     bool isValidIndex(int index) const {
         return index >= 0 && index < CoordCount;
     }
-    //std::array<float, PointCount> points() const { return mPoints; }
+    static bool equals(const DecartPoint &pt1, const DecartPoint &pt2, float acc);
+
+    std::array<float, CoordCount> points() const { return mCoords; }
     void setPoints(const std::array<float, CoordCount>& points);
 
 private:

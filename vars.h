@@ -55,6 +55,7 @@
 #include "jtpoint.h"
 #include "decartpoint.h"
 #include "math.h"
+#include "QVector3D"
 //------------------------------------------------------------------------------
 // Параметры взуалиции устанвки контроля
 //------------------------------------------------------------------------------
@@ -76,43 +77,6 @@ struct ControlSystemModel
     void LoadSystemModel(QString filename);
 
 };
-//------------------------------------------------------------------------------
-//class EulerAngles
-//{
-//    static const int PointCount = 3;
-
-//    EulerAngles() {
-//        memset(mPoints, 0, sizeof(PointCount));
-//    }
-
-//    //устновка углов суставов
-//    void setO(float a) {mPoints[0] = a;}
-//    void setA(float a) {mPoints[1] = a;}
-//    void setT(float a) {mPoints[2] = a;}
-
-//    //получение углов суставово
-//    float o() {return  mPoints[0];}
-//    float a() {return  mPoints[1];}
-//    float t() {return  mPoints[2];}
-
-//    //получение i-й точки сипска
-//    float& operator[](int index) {
-//        return mPoints[index];
-//    }
-
-//    float operator[](int i) const {
-//        return mPoints[i];
-//    }
-
-//    int size() {
-//        //return mPoints.size();
-//        return  PointCount;
-//    }
-
-//    //список точек
-//    float mPoints[PointCount];
-//};
-typedef  QVector3D EulerAngles;
 //------------------------------------------------------------------------------
 //класс инкапуслирубщий решение задачи прямого / обратного позицицонирования
 // для робота с заднными харакетристиками
@@ -169,8 +133,22 @@ public :
 
     ScanModel(int surf_type = Symetry, int sym_type = Mirroed, float m_square = 100);
 
+    void setStartPoint(QVector3D pt) {mStartPoint = pt;}
+    void setDirVec(QVector3D vec) {mDirVector = vec;}
+    void setRad(float rad) {mRad = rad;}
+    void setAngle(float angle) {mAngle = angle;}
+    void setTarckList(QList<DecartPoint> trackList) {mTrackList = trackList;}
+
     //функция потсрения модели
     void buildModel(float rad, float angle, QVector3D dir_vec);
+
+    QList<DecartPoint> getTarckList() {return mTrackList;}
+    QVector3D getStartPoint() {return mStartPoint;}
+
+    QVector3D startPt() {return  mStartPoint;}
+    QVector3D dirVec() {return  mDirVector;}
+    float rad() {return mRad;}
+    float angle() {return mAngle;}
 
 private :
 
@@ -180,10 +158,19 @@ private :
     int m_SymetryType = Mirroed;
     //площадь сканировуемой поврехности
     float m_SurfaceSquare;
+
     //список точее траектории сегента
     QList<DecartPoint> mTrackList;
+    //точка начала сканирования
+    QVector3D mStartPoint;
+    //единичный веторо траектории сканирования
+    QVector3D mDirVector;
+
+    float mRad;
+    float mAngle;
 
 };
-
+//------------------------------------------------------------------------------
+extern ScanModel * SelectedModel;
 //------------------------------------------------------------------------------
 #endif // VARS_H

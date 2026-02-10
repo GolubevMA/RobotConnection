@@ -535,10 +535,8 @@ void FormRemote::loadPoints()
         QString pt = inj.readLine();
         pt.remove(pt.length()-1,1);
         QList<QString> axes = pt.split(" ");
-        qDebug() << "point " << pt;
         for (int i =0; i < axes.size(); i++) {
             jpt[i] = axes[i].toFloat();
-            qDebug() << "cd " << jpt[i];
         }
         m_TrackJtPoints.append(jpt);
     }
@@ -554,10 +552,8 @@ void FormRemote::loadPoints()
         QString pt = inx.readLine();
         pt.remove(pt.length()-1,1);
         QList<QString> axes = pt.split(" ");
-        qDebug() << "point " << pt;
         for (int i =0; i < axes.size(); i++) {
             pt_xyz[i] = axes[i].toFloat();
-            qDebug() << "cd " << jpt[i];
         }
         m_TrackPoints.append(pt_xyz);
     }

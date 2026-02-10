@@ -1,12 +1,14 @@
-#include "robotmotion.h"
+ #include "robotmotion.h"
 #include "QTimer"
 #include <QFile>
 //---------------------------------------------------------------------------
 RobotMotion::RobotMotion(QObject *parent)
     : QObject(parent)
 {
-    //создаем объект сокета
+    //создаем объекы сокетов
     m_WorkSocket = new QTcpSocket(this);
+    m_StateSocket = new QUdpSocket(this);
+
     //создаем таймер таймута ответа
     m_timerAnsTimeout = new QTimer(this);
     //создаем таймер таймута отправки
@@ -20,15 +22,15 @@ RobotMotion::RobotMotion(QObject *parent)
     m_KinTaskSolv = KinTaskSolver();
     //m_KinTaskSolv.loadGeometry();
     m_CoordDecart.setType(DecartPoint::EulerAngles);
-
     m_CoordDecartMat.setToIdentity();
-    std::array<float, 6> hm =  {0,70,-50,0,20,0};
-    m_HomePos.setPoints(hm);
+
+    HomeXYOffset = 150;
+    HomeZOffset = -100;
 
     //connect(m_WorkSocket, SIGNAL(aboutToClose()), this, SLOT(slotSocketClose()));
-    connect(m_WorkSocket, SIGNAL(readyRead()), this, SLOT(checkResponse()));
+    connect(m_StateSocket, SIGNAL(readyRead()), this, SLOT(checkResponse()));
     connect(m_timerAnsTimeout, SIGNAL(timeout()), this, SLOT(timerAnsTimeout()));
-    connect(m_timerCmdTimeout, SIGNAL(timeout()), this, SLOT(writeCommand()));
+    connect(m_timerCmdTimeout, SIGNAL(timeout()), this, SLOT(writeUdpReqest()));
     connect(m_WorkSocket, SIGNAL(disconnected()), this, SLOT(Disconnect()));
 
     m_waitStatus = STATE_NO_WAIT_DATA;
@@ -38,9 +40,10 @@ RobotMotion::RobotMotion(QObject *parent)
 
     m_queueWriteSocket.clear();
     m_wait_cmd = "";
+    m_ContinousCommand = "JCOORD ";
 
     //очищам буффер примеа
-    memset(RxBuffer, 0, sizeof(RxBuffer));
+    //memset(RxBuffer, 0, sizeof(RxBuffer));
 }
 //---------------------------------------------------------------------------
 RobotMotion::~RobotMotion()
@@ -62,6 +65,25 @@ int RobotMotion::checkPtIsValid(DecartPoint &pt)
     return m_KinTaskSolv.solveOZK(pt, jpt);
 }
 //---------------------------------------------------------------------------
+bool RobotMotion::calcStepMove(int axis, float step, DecartPoint &res_point)
+{
+//    JTPoint jpt;
+//    int err = m_KinTaskSolv.solveOZK(pt, jpt)
+    return  true;
+}
+//---------------------------------------------------------------------------
+//преобразование точки в строку
+//---------------------------------------------------------------------------
+QString RobotMotion::pointToString(JTPoint &pt, int speed)
+{
+    QString cur_pt = "("+QString::number(speed)+",";
+    for (int i =0; i < pt.size(); i++) {
+        cur_pt.append(QString::number(pt[i])+ ",");
+    }
+    cur_pt += "),";
+    return  cur_pt;
+}
+//---------------------------------------------------------------------------
 //перемещение на шаг в углах осей
 //---------------------------------------------------------------------------
 //void RobotMotion::StepMoveJT(int axis, int step, int speed)
@@ -73,11 +95,25 @@ int RobotMotion::checkPtIsValid(DecartPoint &pt)
 //---------------------------------------------------------------------------
 //пермещение на шаг в базисе XYZ
 //---------------------------------------------------------------------------
-//void RobotMotion::StepMoveXYZ(int axis, int step, int speed)
-//{
-    //QString cmd = "STEP "+QString::number(speed)+",2," + QString::number(axis) + "," + QString::number(step) + ",";
-    //sendCmdEvent(cmd);
-//}
+bool RobotMotion::stepMoveXYZ(int axis, float step, int speed)
+{
+    if (axis > 0 && axis < DecartPoint::CoordCount) return false;
+
+    //расчет целевой точки
+    std::array<float, DecartPoint::CoordCount> pt = m_CoordDecart.points();
+    pt[axis] += step;
+    DecartPoint target; target.setPoints(pt);
+
+    //решение ОЗК - проверка достжимаости точки
+    JTPoint jt_pt;
+    int res = m_KinTaskSolv.solveOZK(target, jt_pt);
+    if (!res) return  false;
+
+    QString cmd = "JCOORD ";
+    cmd += pointToString(jt_pt, speed) + ";";
+    sendCmdEvent(cmd);
+
+}
 //---------------------------------------------------------------------------
 //пермещение в точку в угалх осей
 //---------------------------------------------------------------------------
@@ -108,28 +144,28 @@ int RobotMotion::movePointXYZ(DecartPoint point,  int speed)
 //---------------------------------------------------------------------------
 bool RobotMotion::moveHome(int speed)
 {
-    //выход по Z
-    std::array<float, 6> p1f = {0,90,0,0,0,0};
-    JTPoint p1(p1f);
-    //выход по X/Y
-    JTPoint p2(m_HomePos);
+    //пермещение вдоль оси z
+    DecartPoint z_move = m_CoordDecart;
+    z_move.setZ(HomeZOffset);
+    //решение ОЗК - проверка достжимаости точки
+    JTPoint jt_pt;
+    int res = m_KinTaskSolv.solveOZK(z_move, jt_pt);
+    if (res < 1) return false;
+    QString cmd = "JCOORD "+pointToString(jt_pt, speed);
 
-    QList<JTPoint> pts;
-    pts.append(p1); pts.append(p2);
-
-    QString cmd = "JCOORD ";
-    foreach (JTPoint pt, pts)
-    {
-        QString cur_pt = "("+QString::number(speed) + ",";
-        for (int i =0; i < pt.size(); i++) {
-            cur_pt.append(QString::number(pt[i])+ ",");
-        }
-        cur_pt += "),";
-        cmd += cur_pt;
+    //перемещение вдоль осей x y
+    DecartPoint xy_move = z_move;
+    xy_move.setY(HomeXYOffset);
+    //решение ОЗК - проверка достжимаости точки
+    res = m_KinTaskSolv.solveOZK(xy_move, jt_pt);
+    if (res < 1)  {
+        qDebug() << "res " << res;
+        return false;
     }
-    cmd += ";";
+
+    cmd += pointToString(jt_pt, speed) + ";";
+    qDebug() << "cmd " << cmd;
     sendCmdEvent(cmd);
-    return true;
 }
 //---------------------------------------------------------------------------
 void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
@@ -190,8 +226,8 @@ int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
     //текущая точка
     QString cur_pt = "(";
     cur_pt.append(QString::number(speed)+ ",");
-    for (int i =0; i < pt.size(); i++) {
-        cur_pt.append(QString::number(pt[i])+ ",");
+    for (int i =0; i < jpt.size(); i++) {
+        cur_pt.append(QString::number(jpt[i])+ ",");
     }
     cur_pt += "),";
     //если при добвланеии точки команда превывшает максимлаьнй размер
@@ -199,7 +235,6 @@ int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
     if (cur_pt.size() + m_ContinousCommand.size() >= MAX_CMD_SIZE-1)
     {
         m_ContinousCommand += ";";
-        qDebug() << "sending " << m_ContinousCommand;
         sendCmdEvent(m_ContinousCommand);
         //сбросим команду
         m_ContinousCommand = "JCOORD ";
@@ -211,17 +246,28 @@ int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
     }
 }
 //---------------------------------------------------------------------------
+//отправка точки
+//---------------------------------------------------------------------------
+int RobotMotion::sendTrackPoint()
+{
+    m_ContinousCommand += ";";
+    sendCmdEvent(m_ContinousCommand);
+    //сбросим команду
+    m_ContinousCommand = "JCOORD ";
+}
+//---------------------------------------------------------------------------
 bool RobotMotion::isConnected()
 {
-    return  m_WorkSocket->isOpen();
+    return  m_WorkSocket->isOpen() && m_StateSocket->isOpen();
 }
 //---------------------------------------------------------------------------
 //вызвываем слот создания сокета в потоке - обрабочткие
 //---------------------------------------------------------------------------
-bool RobotMotion::createConnection(QString ip, int port)
+bool RobotMotion::createConnection(QString ip, int port_tcp, int port_udp)
 {
     m_HostIp = ip;
-    m_HostPort = port;
+    m_HostPort = port_tcp;
+    m_HostUdpPort = port_udp;
     //m_KinTaskSolv.loadGeometry();
 
     m_mutexObj.lock();
@@ -247,7 +293,7 @@ void RobotMotion::closeConnection()
     m_mutexObj.lock();
 
     //межптотчный вызов
-    QTimer::singleShot(0, this, SLOT(slotSocketСlose()));
+    QTimer::singleShot(0, this, SLOT(slotSocketClose()));
 
     m_conditionMutex.lock();
     //блокируем основой поток пока поток обработчик не закроет порт
@@ -273,14 +319,13 @@ void RobotMotion::sendCmdEvent(QString cmd)
         if (wr_pos > 0) {
             cmd += QString::number(cmd_counter++);
         }
-        qDebug() << "cmd " << cmd;
         m_queueWriteSocket.append(cmd);
     }
     m_mutexObj.unlock();
     //межпоотчный вызов (через 0 милискеуд)
     // в event_Loop потка данного обьект постопуит обрабочтки фукцнии
     //загрузки данных во фреймбуффер сокета
-    //QTimer::singleShot(0, this, SLOT(writeCommand()));
+    QTimer::singleShot(0, this, SLOT(writeCommand()));
 }
 //---------------------------------------------------------------------------
 //очистка очереди команд
@@ -300,34 +345,27 @@ void RobotMotion::clearCmdQueue()
 //---------------------------------------------------------------------------
 void RobotMotion::slotSocketOpen()
 {
-    //биднлим соект на локал хост
-    if (m_WorkSocket->open(QIODevice::ReadWrite))
-    {
-        qDebug() << "opened";
-        if (m_WorkSocket->bind())
-        {
-            qDebug() << "bingend";
-            //вызывваем блокирующий методо ожмания утсвик соедниния
-            m_WorkSocket->connectToHost(m_HostIp, m_HostPort);
-            if (m_WorkSocket->waitForConnected(500)) {
-                qDebug() << "connctede";
-                //активурем таймер отправки
-                m_timerCmdTimeout->start(TIMEOUT_COORD);
-                //отправляем команду инициализации
-                //initRobot();
-            }
-            else {
-                qDebug() << "conn error" << m_WorkSocket->error();
-                m_WorkSocket->close();
-            }
-        }
-        else {
-            qDebug() << "bind_erroro";
-            m_WorkSocket->close();
-        }
+    try {
+        //настройаа udp сокета
+        if (!m_StateSocket->open(QIODevice::ReadWrite)) throw QString("udp openerror");
+        if (!m_StateSocket->bind(QHostAddress::AnyIPv4, 8200)) throw QString("udp bind error");
+        //получим порт udp киента
+        m_UdpClientPort = m_StateSocket->localPort();
+        //настройка tcp сокета
+        if (!m_WorkSocket->open(QIODevice::ReadWrite)) throw QString("tcp openerror");
+        if (!m_WorkSocket->bind()) throw QString("bind_erroro");
+        //вызывваем блокирующий методо ожмания утсвик соедниния
+        m_WorkSocket->connectToHost(m_HostIp, m_HostPort);
+        if (!m_WorkSocket->waitForConnected(500)) throw QString("conn error");
+        //активурем таймер отправки
+        m_timerCmdTimeout->start(TIMEOUT_COORD);
+        qDebug() << "conncteded StThr" << m_StateSocket->thread() << " ThisThr " << this->thread() << " err " << m_StateSocket->error();
     }
-    else {
-        qDebug() << "openerror";
+    catch (QString msg) {
+        //зкароем все соекты
+        if (m_WorkSocket->isOpen()) m_WorkSocket->close();
+        if (m_StateSocket->isOpen()) m_StateSocket->close();
+        qDebug() << "error " << msg;
     }
 
     //деблокируем основной поток, ожидабщий содания сокета
@@ -338,66 +376,89 @@ void RobotMotion::slotSocketOpen()
 //---------------------------------------------------------------------------
 void RobotMotion::slotSocketClose()
 {
-    //биднлим соект на локал хост
-    if (m_WorkSocket->isOpen())
-    {
+    //закрваем все соекты
+    if (m_WorkSocket->isOpen()) {
         m_WorkSocket->close();
-        //сбросим буффрепримеа
-        memset(RxBuffer, 0, sizeof(RxBuffer));
-        qDebug() << "closed";
+        qDebug() << "tcp closed";
     }
-    else {
-        qDebug() << "a;redy close";
+
+    if (m_StateSocket->isOpen()) {
+        m_StateSocket->close();
+        ////сбросим буффрер приема
+        //memset(RxBuffer, 0, sizeof(RxBuffer));
+        qDebug() << "udp closed";
     }
 
     //деблокируем основной поток, ожидабщий содания сокета
     m_waitSockeSlot.wakeAll();
 }
 //---------------------------------------------------------------------------
-// запись комнды во фреймбуффер udp (функция вызывается с помщью сгбытия отложенного такймера)
-// обрабочтик соытия таймера реализуется в потоке eventLoopa (в потоке данного обьекта)
+//отправление команды активности клиента по таймеру
+//---------------------------------------------------------------------------
+void RobotMotion::writeUdpReqest()
+{
+    if (m_StateSocket->isOpen())
+    {
+        char buf[256];
+        memset(buf,0, sizeof(buf));
+        //фомриум команду
+        QString cmd = m_CmdState + QString::number(m_UdpClientPort) + ";";
+        memcpy(buf,cmd.toUtf8(), cmd.size());
+        //отпраовяем запрос
+        m_mutexObj.lock();
+        m_StateSocket->writeDatagram(buf, sizeof(buf), QHostAddress(m_HostIp), m_HostUdpPort);
+        m_mutexObj.unlock();
+    }
+}
+//---------------------------------------------------------------------------
+// запись комнды во фреймбуффер udp (функция вызывается с помщью межпточного вызова)
+// обрабочтик события реализуется в потоке eventLoopa (в потоке данного обьекта)
 // тайой спосб позволяет осуществить межпооточный вызов данной функции
 // из пубдицчных метоло класса (исполнямых в основном потоке)
 //---------------------------------------------------------------------------
 void RobotMotion::writeCommand()
 {
-//    //есть команда ответ на которую еще не получен
-//    // или выполение команды двжиения еще не закночилось
-//    if (m_waitStatus == STATE_WAIT_ANS && !MotionProgramm) {
-//        //повторим запрос немного позже
-//        QTimer::singleShot(5, this, SLOT(writeCommand()));
-//        return;
-//    }
-    try {
-        //есил есть команжы для отправки - отправим
-        if (!m_queueWriteSocket.isEmpty() && m_waitStatus != STATE_WAIT_ANS)
-        {
-            //отправим команду
-            m_mutexObj.lock();
-            QString cmd = m_queueWriteSocket.dequeue();
-            char buf[256];
-            memset(buf,0, sizeof(buf));
-            memcpy(buf,cmd.toUtf8(), cmd.size());
-            m_WorkSocket->write(buf, sizeof(buf));
-            m_mutexObj.unlock();
-            //запомниаем на какую команул ждем ответ
-            m_wait_cmd = cmd;
-            //активерум таймер оканчания ожижаения ответа
-            m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
-            m_waitStatus = STATE_WAIT_ANS;
-        }
-        else throw m_CmdState;
+    //есть команда ответ на которую еще не получен
+    // или выполение команды двжиения еще не закночилось
+    if (m_waitStatus == STATE_WAIT_ANS) {
+        //повторим запрос немного позже
+        QTimer::singleShot(5, this, SLOT(writeCommand()));
+        return;
     }
-    catch (QString cmd)
+    //try {
+    char buf[256];
+    memset(buf,0, sizeof(buf));
+    //есил есть команжы для отправки - отправим
+    if (!m_queueWriteSocket.isEmpty() && m_waitStatus != STATE_WAIT_ANS)
     {
-        //отправи запрос координаты
         m_mutexObj.lock();
-        char buf[256];
-        memset(buf,0, sizeof(buf));
-        memcpy(buf, cmd.toUtf8(), cmd.size());
+        //отправим команду
+        QString cmd = m_queueWriteSocket.dequeue();
+        memcpy(buf,cmd.toUtf8(), cmd.size());
         m_WorkSocket->write(buf, sizeof(buf));
         m_mutexObj.unlock();
+        //поднимаем флаг ожидания ответа на команду двжиения
+        m_ContinousModeWait = true;
+        //запомниаем на какую команул ждем ответ
+        m_wait_cmd = cmd;
+        //активерум таймер оканчания ожижаения ответа
+        m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
+        m_waitStatus = STATE_WAIT_ANS;
     }
+
+//    else {
+//        static int statei = 0;
+//        //отправи запрос координаты
+//        m_mutexObj.lock();
+//        QString cmd = m_CmdState;
+//        memcpy(buf, cmd.toUtf8(), cmd.size());
+//        m_WorkSocket->write(buf, sizeof(buf));
+//        m_mutexObj.unlock();
+//    }
+//    }
+//    catch (QString cmd)
+//    {
+//    }
 }
 //---------------------------------------------------------------------------
 //инициализация неперевыного режима
@@ -436,30 +497,31 @@ void RobotMotion::stopCommand()
 void RobotMotion::checkResponse()
 {
     static int cmd_count = 0;
-    static long timer =0;
+    static quint32 timer = 0;
 
-    //при нличии данных в буффере прочтем их
-    int rx_count = m_WorkSocket->readLine(RxBuffer, sizeof(RxBuffer));
-    if (rx_count > 0)
+    //читаем накопившивеся датаграммы
+    while (m_StateSocket->hasPendingDatagrams())
     {
-        while (rx_count > 0)
+        QByteArray rdata;
+        rdata.resize(int(m_StateSocket->pendingDatagramSize()));
+        QHostAddress addr; quint16 host;
+        qint64 rx_count = m_StateSocket->readDatagram(rdata.data(), rdata.size(), &addr, &host);
+        //провеярм что ответе пришел от нужного серврера
+        if ((addr == QHostAddress(m_HostIp)) && (host = m_UdpClientPort))
         {
-            //парсим сторку
-            QString resp =  QString(RxBuffer);
-            //обработаем получение стаутса
-            if (resp.endsWith(m_status_ident))
+            //разбираем команду
+            if (rx_count > 0)
             {
+                QString resp = QString::fromUtf8(rdata.constData(), int(rx_count));
                 resp.remove(m_status_ident);
                 QStringList coords = resp.split(";");
                 if (coords.size() < 4) {
                     qDebug() << "; count error";
-                    return;
+                    continue;
                 }
                 QString jt_pos = coords[0];
-                //QString xyz_pos = coords[1];
                 //парсим координаты
                 QStringList jt_nums = jt_pos.split(",");
-                //QStringList xyz_nums = xyz_pos.split(",");
                 //if (jt_nums.size() != ) return;
                 for (int i = 0; i < jt_nums.size(); i++) {
                     //кооринаты jt
@@ -473,7 +535,7 @@ void RobotMotion::checkResponse()
                 //определим id текущей команды
                 int wait_id = -1;
                 int pos = m_wait_cmd.lastIndexOf(";") + 1;
-                if (pos > 0) { 
+                if (pos > 0) {
                     QString num = m_wait_cmd.right(m_wait_cmd.length() - pos);
                     wait_id = num.toInt();
                 }
@@ -488,6 +550,7 @@ void RobotMotion::checkResponse()
                         //команда выполнилась успешно, если отуствующт ошибки контрлолера
                         m_ContinousModeAck = true;
                         //здесь мжно излучить сигнал
+                        //1qDebug() << "cmdAAck";
                         emit autoModeEvent();
                     }
                     m_timerAnsTimeout->stop();
@@ -510,17 +573,17 @@ void RobotMotion::checkResponse()
                     timer = GetTickCount();
                 }
             }
-            rx_count = m_WorkSocket->readLine(RxBuffer, sizeof(RxBuffer));
+            else
+            {
+                qDebug() << " read Error " << rx_count << " ee " << m_StateSocket->errorString();
+                //сьрасываем таймер ожидания ответа
+                m_timerAnsTimeout->stop();
+                //emit transaction(false);
+                //закроем сокеты
+                slotSocketClose();
+                break;
+            }
         }
-    }
-    else
-    {
-        qDebug() << " read Error " << rx_count << " ee " << m_WorkSocket->errorString();
-        //сьрасываем таймер ожидания ответа
-        m_timerAnsTimeout->stop();
-        emit transaction(false);
-        //закроем сокет
-        slotSocketClose();
     }
 }
 //---------------------------------------------------------------------------
@@ -566,6 +629,7 @@ void RobotMotion::timerAnsTimeout()
 void RobotMotion::Disconnect()
 {
     qDebug() << "dicsted ";
+    slotSocketClose();
     //сбросим таймер отрпрвки
     m_timerCmdTimeout->stop();
 }

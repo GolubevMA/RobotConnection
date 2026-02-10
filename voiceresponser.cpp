@@ -96,6 +96,11 @@ void VoiceResponser::initAudio()
     format.setByteOrder(QAudioFormat::LittleEndian);
     format.setSampleType(QAudioFormat::SignedInt);
 
+    QList<QAudioDeviceInfo>devs = QAudioDeviceInfo::availableDevices(QAudio::AudioInput);
+    foreach(QAudioDeviceInfo inf, devs) {
+        qDebug() << " dev " << inf.deviceName();
+    }
+
     QAudioDeviceInfo info = QAudioDeviceInfo::defaultInputDevice();
     if (!info.isFormatSupported(format)) {
         qWarning() << "Default format not supported, trying to use the nearest.";

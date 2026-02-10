@@ -6,6 +6,7 @@ AutoScanController::AutoScanController(RobotMotion* robot, QObject *parent)
     m_RobotMotion = robot;
 
     m_ScanFlag = false;
+    m_ScanEnable = false;
     m_ScanState = StartHoming;
     //ошибка процесса сканирования
     m_ScanErrorState = NoError;
@@ -31,8 +32,9 @@ void AutoScanController::setScanParams(QList<DecartPoint> &points, QVector3D sta
     foreach(DecartPoint pt, points) {
         DecartPoint rel_pt = pt;
         rel_pt.setX(pt.x() + m_StartScanPt.x());
-        rel_pt.setX(pt.y() + m_StartScanPt.y());
-        rel_pt.setX(pt.z() + m_StartScanPt.z());
+        rel_pt.setY(pt.y() + m_StartScanPt.y());
+        rel_pt.setZ(pt.z() + m_StartScanPt.z());
+        qDebug() << " x " << rel_pt.x() << " y " << rel_pt.y() << " z " << rel_pt.z();
         m_ScanLine.append(rel_pt);
     }
     m_RedyToScan = true;
@@ -48,6 +50,7 @@ int AutoScanController::startScan()
     {
         m_ScanErrorState = 0;
         m_ScanState =  ScanSetup;
+        m_ScanEnable = true;
         m_ScanFlag = true;
         emit scanState(m_ScanFlag, m_ScanErrorState);
         QTimer::singleShot(0, this, SLOT(onScanProcess()));
@@ -59,7 +62,9 @@ int AutoScanController::startScan()
 //------------------------------------------------------------------------------
 void AutoScanController::stopScan()
 {
-    if (m_ScanFlag) m_ScanFlag = false;
+    if (m_ScanFlag && m_ScanEnable) {
+        m_ScanEnable = false;
+    }
 }
 //------------------------------------------------------------------------------
 //процесс сканирования
@@ -68,7 +73,7 @@ void AutoScanController::onScanProcess()
 {   
     //итератор для прохждения по скипску точек
     static  QListIterator<DecartPoint> scanIter = QListIterator<DecartPoint>(m_ScanLine);
-    if (m_ScanFlag)
+    if (m_ScanFlag && m_ScanEnable)
     {
         try  {
             //сбросим таймер ожидания ответа от сканера
@@ -78,79 +83,166 @@ void AutoScanController::onScanProcess()
             case ScanSetup :
                 {
                     //если сканер не активен - выйдем
-//                    if (!m_RobotMotion->isConnected()) throw ScanError::NoConnection;
-//                    if (!m_RobotMotion->isReady()) throw ScanError::NoConnection;
+                    if (!m_RobotMotion->isConnected()) throw ScanError::NoConnection;
+                    if (!m_RobotMotion->isReady()) throw ScanError::NoConnection;
                     //устаановилеаем стостяниее режима
                     m_ScanState = StartHoming;
                     //ошибка процесса сканирования
                     m_ScanErrorState = NoError;
                     m_ScanLineDir = false;
                     m_ScanCurrLine = -1;
-                    //активурем таймер простоя
-                    m_WaitResonseTimer->start();
                     QTimer::singleShot(0, this, SLOT(onScanProcess()));
                 }
                 break;
             case StartHoming :
                 {
-                    if (!m_RobotMotion->moveHome(m_ScanSpeed)) throw HomeErrror;
-                    //заупскаем ождиние выхода в 0
-                    m_ScanState = WaitHoming;
-                    qDebug() << "waitng homeg";
+                    //if (!m_RobotMotion->moveHome(m_ScanSpeed)) throw HomeErrror;
+                    if (m_RobotMotion->moveHome(m_ScanSpeed))
+                    {
+                        //заупскаем ождиние выхода в 0
+                        m_ScanState = WaitHoming;
+                        qDebug() << "waitng homeg";
+                    }
+                    else {
+                        //сразу начинаем сканирвоание
+                        m_ScanState = ScanWaitNextLine;
+                        qDebug() << "wait line";
+                        QTimer::singleShot(0, this, SLOT(onScanProcess()));
+                    }
                     emit scanState(m_ScanFlag, m_ScanState);
                 }
                 break;
             case WaitHoming :
                 {
-                    const JTPoint &cur = m_RobotMotion->GetCurrentJT();
-                    const JTPoint &targ = m_RobotMotion->GetCurrentHome();
+                    const DecartPoint &cur = m_RobotMotion->GetCurrentXYZ();
+                    DecartPoint targ = cur;
+                    targ.setY(m_RobotMotion->HomeXYOffset); targ.setZ(m_RobotMotion->HomeZOffset);
                     //если стоим в нужной точке
-                    if (JTPoint::equals(cur, targ, 1.0f)) {
+                    if (DecartPoint::equals(cur, targ, 1.0f)) {
                         //заупскаем ождиние выхода на нчало линии сканирования
                         m_ScanState = ScanWaitNextLine;
                         qDebug() << " waiwed ";
+                        QTimer::singleShot(0, this, SLOT(onScanProcess()));
                     }
+                    //повторрим запрос позже
+                    else QTimer::singleShot(10, this, SLOT(onScanProcess()));
                     emit scanState(m_ScanFlag, m_ScanState);
                 }
                 break;
             //запсиь линии скана в напрввлении вперед/назад
             case ScanLineForward :
+                if (m_ScanLineDir)
                 {
-                    if (m_ScanLineDir)
-                    {
-                        //прохдомся по точка траектории
-                        while (scanIter.hasNext()) {
-                            DecartPoint target = scanIter.next();
-                            //перемещаем робота в точку
-                            if (!m_RobotMotion->appendTrackPoint(target, m_ScanSpeed))  {
-                                //если точку добавить не удалось - команда сформирована - ждем подтвержения с последубщим вызом слота
-                                //cсдвинем итератор назад
-                                scanIter.previous();
-                                break;
-                            }
+                    //прохдомся по точка траектории
+                    bool cmd_created = false;
+                    while (scanIter.hasNext() && !cmd_created) {
+                        DecartPoint target = scanIter.next();
+                        //qDebug() << " x " << target.x() << " y " << target.y() << " z " << target.z() << " a " << target.a();
+                        //перемещаем робота в точку
+                        if (!m_RobotMotion->appendTrackPoint(target, m_ScanSpeed))  {
+                            //если точку добавить не удалось - команда сформирована - ждем подтвержения с последубщим вызом слота
+                            //cсдвинем итератор назад
+                            scanIter.previous();
+                            //поднимем флаг сфоримрованной команжы
+                            cmd_created = true;
                         }
+                    }
+                    //если команда не сфомриована - вышли поскльку точки знакчились
+                    if (!cmd_created && !scanIter.hasNext()) {
+                        m_RobotMotion->sendTrackPoint();
+                        m_ScanState = ScanWaitLineForward ;
+                        qDebug() << "wait edning";
+                    }
+                }
+                break;
+            case ScanWaitLineForward :
+                if (m_ScanLineDir)
+                {
+                    const DecartPoint &cur_pt = m_RobotMotion->GetCurrentXYZ();
+                    const DecartPoint &target = m_ScanLine.last();
+                    if (DecartPoint::equals(cur_pt, target, 0.5f))
+                    {
+                        //заупскаем ождиние выхода на нчало линии сканирования
+                        m_ScanState = ScanWaitNextLine;
+                        qDebug() << " NEw Line ";
+                        QTimer::singleShot(0, this, SLOT(onScanProcess()));
+                    }
+                    //повторрим запрос позже
+                    else {
+                        qDebug() << " chek line " << cur_pt.y() << " z " << cur_pt.z();
+                        qDebug() << " tline " << target.y() << " z " << target.z();
+                        QTimer::singleShot(10, this, SLOT(onScanProcess()));
+                        emit scanState(m_ScanFlag, m_ScanState);
                     }
                 }
                 break;
             case ScanLineReverse :
+                if (!m_ScanLineDir)
                 {
-
+                    //прохдомся по точка траектории
+                    bool cmd_created = false;
+                    while (scanIter.hasPrevious() && !cmd_created) {
+                        DecartPoint target = scanIter.previous();
+                        //qDebug() << " x " << target.x() << " y " << target.y() << " z " << target.z() << " a " << target.a();
+                        //перемещаем робота в точку
+                        if (!m_RobotMotion->appendTrackPoint(target, m_ScanSpeed))  {
+                            //если точку добавить не удалось - команда сформирована - ждем подтвержения с последубщим вызом слота
+                            //cсдвинем итератор назад
+                            scanIter.next();
+                            //поднимем флаг сфоримрованной команжы
+                            cmd_created = true;
+                        }
+                    }
+                    //если команда не сфомриована - вышли поскльку точки знакчились
+                    if (!cmd_created) {
+                        m_RobotMotion->sendTrackPoint();
+                        m_ScanState = ScanWaitLineReverse;
+                        qDebug() << "to Next Linere Rev";
+                    }
+                }
+                break;
+            case ScanWaitLineReverse :
+                if (!m_ScanLineDir)
+                {
+                    const DecartPoint &cur_pt = m_RobotMotion->GetCurrentXYZ();
+                    const DecartPoint &target = m_ScanLine.first();
+                    if (DecartPoint::equals(cur_pt, target, 0.5f))
+                    {
+                        //заупскаем ождиние выхода на нчало линии сканирования
+                        m_ScanState = ScanWaitNextLine;
+                        qDebug() << " NEw Line ";
+                        QTimer::singleShot(0, this, SLOT(onScanProcess()));
+                    }
+                    //повторрим запрос позже
+                    else {
+                        QTimer::singleShot(10, this, SLOT(onScanProcess()));
+                        emit scanState(m_ScanFlag, m_ScanState);
+                    }
                 }
                 break;
             //перемещение сканера в точку сканирвоаничя следующей линии на слеудющую линию
             case ScanWaitNextLine :
                 {
+                    qDebug() << "new line";
                     //зесдь всегда считаем что вышли на новую линию сканирвоания
                     //увлеичиаем чсило линий - меням напрвление
                     m_ScanCurrLine++;
-                    if (m_ScanCurrLine >= m_ScanLineAmout - 1) {
+                    if (m_ScanCurrLine > m_ScanLineAmout - 1) {
                         m_ScanFlag =false;
+                        qDebug() << "cline " << m_ScanCurrLine << " lamount " << m_ScanLineAmout;
                         scanEnding(NoError);
                     }
                     else {
-                        //сбрасываем итератор
+
+                        //инвретурем направление
+                        m_ScanLineDir = !m_ScanLineDir;//сбрасываем итератор
+                        scanIter = QListIterator<DecartPoint>(m_ScanLine);
                         if (m_ScanLineDir) scanIter.toFront();
                         else  scanIter.toBack();
+
+                        m_ScanState = m_ScanLineDir ? ScanLineForward : ScanLineReverse;
+                        qDebug() << "statte " << m_ScanState;
+                        QTimer::singleShot(0, this, SLOT(onScanProcess()));
                     }
                 }
                 break;
@@ -161,7 +253,7 @@ void AutoScanController::onScanProcess()
             scanEnding(code);
         };
     }
-    else {
+    else if (!m_ScanEnable){
         scanEnding(NoError);
     }
 }
@@ -170,9 +262,11 @@ void AutoScanController::onScanProcess()
 //------------------------------------------------------------------------------
 void AutoScanController::scanEnding(int exit_code)
 {
+    if (m_ScanFlag) m_ScanFlag = false;
     //отсновим таймер ождиания
     m_WaitResonseTimer->stop();
     //отсновим двжиение
+    qDebug() << "stopping";
     m_RobotMotion->stopCommand();
     //запомним сотстяние ошибки
     m_ScanErrorState = exit_code;
@@ -184,6 +278,7 @@ void AutoScanController::scanEnding(int exit_code)
 //------------------------------------------------------------------------------
 void AutoScanController::ScanerNoRespnse()
 {
+    qDebug() << "scsnTIMerOut";
     if (m_ScanFlag) m_ScanFlag =false;
     scanEnding(CmdTimeOut);
 }

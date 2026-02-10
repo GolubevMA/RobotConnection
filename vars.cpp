@@ -1,5 +1,4 @@
-﻿
-#include "vars.h"
+﻿#include "vars.h"
 #include "qdebug.h"
 #include <BRepPrimAPI_MakeCylinder.hxx>
 #include <QVector3D>
@@ -17,14 +16,13 @@ ControlSystemModel::ControlSystemModel()
 //------------------------------------------------------------------------------
 // модель сисьтемы контроля разделятся на подвижные детали (оси робота ) и непожвижные
 //-----------------------------------------------------------------------------
-void ControlSystemModel::LoadSystemModel(QString filename)
+void ControlSystemModel::LoadSystemModel(QString step_filename)
 {
     //парсин STEP
     std::string fl = "J:\\test\\occt-samples-qopenglwidget-master\\occt-qopenglwidget\\RS007N-BC01.stp";
     Standard_CString fname = fl.c_str();// = (char*)filename.toLatin1().data();
     //Standard_CString fname = "J:\\test\\occt-samples-qopenglwidget-master\\occt-qopenglwidget\\RS007N-BC01.stp";
     STEPControl_Reader step_reader;
-
     qDebug() << fname;
 
     int ret  = step_reader.ReadFile(fname);
@@ -42,13 +40,50 @@ void ControlSystemModel::LoadSystemModel(QString filename)
     Standard_Integer NbTrans = step_reader.TransferRoots();
     qDebug() << "STEP roots transferred " << NbTrans;
     qDebug() << "Number of resulting shapes is " << step_reader.NbShapes();
-
     //выполеям преобразования обьектов step в обьекты opencacade
     step_reader.TransferRoots();
     TopoDS_Shape aShape = step_reader.OneShape();
 
+    //загружаем смещеение начального положения
+    double offset_x = 0, offset_y = 0, offset_z = 0;
+    QFile fn("J:\\WorkProjects\\RoboScan\\model_offset.txt");
+    if (fn.open(QIODevice::ReadWrite)) {
+        QTextStream out(&fn);
+        QList<QString> args;
+        while (!out.atEnd()) {
+            args.append(out.readLine());
+        }
+        fn.close();
+
+        foreach(QString vec, args)  {
+            if (!vec.isEmpty()) {
+                QString r_translate = "robot_translate:";
+                QString r_rotate = "robot_rotate:";
+                if (vec.startsWith(r_translate)) {
+                    vec.remove(r_translate);
+                    qDebug() << "vec " << vec;
+                    QList<QString> xyz = vec.split(",");
+                    if (xyz.size() >= 3) {
+                        offset_x = xyz[0].toDouble();
+                        offset_y = xyz[1].toDouble();
+                        offset_z = xyz[2].toDouble();
+                    }
+                }
+                else if (vec.startsWith(r_rotate)) {
+                    vec.remove(r_rotate);
+                    QList<QString> xyz = vec.split(",");
+//                    if (xyz.size() >= 3) {
+//                        offset_x = xyz[0].toDouble();
+//                        offset_y = xyz[1].toDouble();
+//                        offset_z = xyz[2].toDouble();
+//                    }
+                }
+            }
+        }
+    }
+
     //точка куда смщается начало робота
-    gp_Pnt pt_offset = gp_Pnt(0,-500,-300);
+    gp_Pnt pt_offset = gp_Pnt(offset_x,offset_y,offset_z);
     gp_Trsf offset;
     offset.SetTranslation(gp_Vec(gp_Pnt(0,0,0), pt_offset));
 
@@ -298,8 +333,9 @@ DecartPoint KinTaskSolver::calcDecart(QMatrix4x4 &mat, DecartPoint &curr_xyz)
     curr_xyz.setX(mat(0,3));
     curr_xyz.setY(mat(1,3));
     curr_xyz.setZ(mat(2,3));
-    curr_xyz.setO(atan2(mat(1,2), mat(0,2)) * 180 / M_PI);
     curr_xyz.setA(atan2(pow(1 - pow(mat(2,2), 2), 0.5f), mat(2,2)) * 180 / M_PI);
+    float o = atan2(mat(1,2), mat(0,2)) * 180 / M_PI;
+    curr_xyz.setO(curr_xyz.a() > 0 ? o : -o);
     curr_xyz.setT((atan2(mat(2,1), mat(2,0)) - M_PI / 2) * 180 / M_PI);
     return curr_xyz;
 }
@@ -366,8 +402,6 @@ int KinTaskSolver::solveOZK(DecartPoint &xyz, JTPoint &jpt)
     //рассчитаем коордианты сочленения Pt4 в базоваой СК
     QVector3D R6vec=  R06.mapVector(QVector3D(0,0,1)) * jt5_len;
     QVector3D P4 = Pt - R6vec;
-//    qDebug() << "P4 x" <<  P4.x() << " P4y " << P4.y() << " P4z " << P4.z();
-//    qDebug() << "R6 x" <<  R6vec.x() << " R6y " << R6vec.y() << " R6z " << R6vec.z();
 
     //рассчитаем угол jt1 для положитльеной полуплосоксти (игнорируя угол atan(P4y,P4x) - pi)
     QVector3D P1(offset_x, offset_y, offset_z);
@@ -450,14 +484,27 @@ int KinTaskSolver::solveOZK(DecartPoint &xyz, JTPoint &jpt)
     QMatrix4x4 R30 = rt * calcR(jpt, 3);
     //расчет смщениея системы коодринат шестой точки относительно системы коордиант третьей
     QMatrix4x4 R36 = R30.transposed() * R06;
-    //расчте угла jt5
-    float a5 = atan2(R36(0,2),R36(2,2));
-    //qDebug() << "a5 " << a5 * 180 / M_PI;
-    jpt.setA5Rad(a5);
 
-    //пока устанваливаем как нули
-    jpt.setA4(0);
-    jpt.setA6(0);
+    //расчет углов jt4 jt6
+    float a4 = atan2(R36(1,2),R36(0,2));
+    //qDebug() << "a5 " << a5 * 180 / M_PI;
+    jpt.setA4Rad(0);
+    float a6 = atan2(R36(2,0),R36(2,2));
+    //qDebug() << "a5 " << a5 * 180 / M_PI;
+    jpt.setA6Rad(0);
+    float a5 = atan2(R36(0,2),R36(2,2));;
+
+//    //расчте угла jt5
+//    float a5 = 0;
+//    if (a4 > -0.01f && a4 < 0.01f) {
+//        a5 = atan2(R36(0,2),R36(2,2));
+//    }
+//    else {
+//        a5 = atan2(powf(powf(R36(0,2),2)+powf(R36(0,2),2),0.5f),R36(2,2));
+//    }
+//    //qDebug() << "a5 " << a5 * 180 / M_PI;
+
+    jpt.setA5Rad(a5);
     return  checkPointRange(jpt);
 }
 //------------------------------------------------------------------------------
@@ -465,22 +512,23 @@ int KinTaskSolver::solveOZK(DecartPoint &xyz, JTPoint &jpt)
 //------------------------------------------------------------------------------
 int KinTaskSolver::checkPointRange(JTPoint &pt)
 {
-//    //прверка диапазлна jt1
-//    if ((pt.a1() < j1_min) || (pt.a1() > j1_max)) {
-//        return JT1_Error;
-//    }
-//    //прверка диапазлна jt2
-//    else if ((pt.a2() < j2_min ) || (pt.a2() > j2_max)) {
-//        return JT2_Error;
-//    }
-//    //прверка диапазлна jt3
-//    else if ((pt.a3() < j3_min ) || (pt.a3() > j3_max)) {
-//        return JT3_Error;
-//    }
-//    //прверка диапазлна jt3
-//    else if ((pt.a4() < j4_min ) || (pt.a4() > j4_max)) {
-//        return JT4_Error;
-//    }
+    //прверка диапазлна jt1
+    if ((pt.a1() < j1_min) || (pt.a1() > j1_max)) {
+        return JT1_Error;
+    }
+    //прверка диапазлна jt2
+    else if ((pt.a2() < j2_min ) || (pt.a2() > j2_max)) {
+        return JT2_Error;
+    }
+    //прверка диапазлна jt3
+    else if ((pt.a3() < j3_min ) || (pt.a3() > j3_max)) {
+        qDebug() << " a3 " << pt.a3() << " min " << j3_min << " max " << j3_max;
+        return JT3_Error;
+    }
+    //прверка диапазлна jt4
+    else if ((pt.a4() < j4_min ) || (pt.a4() > j4_max)) {
+        return JT4_Error;
+    }
     //прверка диапазлна jt5
     if ((pt.a5() < j5_min ) || (pt.a5() > j5_max)) {
         qDebug() << " a5 " << pt.a5() << " min " << j5_min << " max " << j5_max;
@@ -545,3 +593,5 @@ void ScanModel::buildModel(float rad, float angle, QVector3D dir_vec)
     }
     qDebug() << "build end";
 }
+//-----------------------------------------------------------------------------
+ScanModel * SelectedModel = NULL;

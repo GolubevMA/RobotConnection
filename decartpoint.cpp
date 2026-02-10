@@ -89,3 +89,19 @@ void DecartPoint::setPoints(const std::array<float, CoordCount>& points)
      }
   }
 }
+//-----------------------------------------------------------------------------
+bool DecartPoint::equals(const DecartPoint &pt1, const  DecartPoint &pt2, float acc)
+{
+    bool equal = true;
+    if (pt1.size() == pt2.size()) {
+        for (int i = 0; i < 3; i++)
+        {
+            if ((pt1.points()[i] < pt2.points()[i] - acc) || (pt1.points()[i] > pt2.points()[i] + acc)) {
+                equal = false;
+                break;
+            }
+        }
+    }
+    return equal;
+}
+

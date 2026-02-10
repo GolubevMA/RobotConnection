@@ -14,7 +14,7 @@ class AutoScanController : public QObject
     Q_OBJECT
 public:
     //стояния сканирвоания
-    enum ScanState {ScanSetup, StartHoming, WaitHoming,  ScanLineForward, ScanLineReverse, ScanWaitNextLine};
+    enum ScanState {ScanSetup, StartHoming, WaitHoming,  ScanLineForward, ScanWaitLineForward, ScanLineReverse, ScanWaitLineReverse, ScanWaitNextLine};
 
     //ошбика режима автоматчиеского сканироваия
     enum ScanError {NoConnection, PrepareMcRunning, HomeErrror, CmdTimeOut, NoError};
@@ -45,6 +45,8 @@ private:
     QTimer *m_WaitResonseTimer;
     bool m_RedyToScan;
 
+    //разрешение сканирования
+    bool m_ScanEnable;
     //флаг режима скнаирования
     bool m_ScanFlag;
     //напправление сканирования линии

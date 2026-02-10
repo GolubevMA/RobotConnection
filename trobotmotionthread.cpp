@@ -66,7 +66,7 @@ int TRobotMotionThread::LinearMove(QList<TPoint> &points)
 {
     QString cmd = "LINEAR ";
     foreach (TPoint pt, points) {
-        QString strpt = "(";
+          QString strpt = "(";
         foreach (float axis, pt) {
             strpt += QString::number(axis) + ",";
         }

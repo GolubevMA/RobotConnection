@@ -223,8 +223,6 @@ private slots :
 
 signals :
     void coordChanged();
-    void transaction(bool);
-    void buildStarted();
     void autoModeEvent();
 
 };

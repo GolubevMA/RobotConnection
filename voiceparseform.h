@@ -50,6 +50,8 @@ private:
     QList<QString> m_VoiceManageStartCmd;
     QList<QString> m_GreetingsCmd;
     QList<QString> m_VoiceManageEndCmd;
+    QList<QString> m_RotateCmd;
+    QList<QString> m_LookCmd;
 
     //иконки
     QIcon *m_OffIcon;
@@ -59,7 +61,7 @@ private:
     Ui::VoiceParseForm *ui;
 
     void initCmdDictionary();
-    bool intersectsJaro(QList<QString> &s1, QList<QString> &s2);
+    double intersectsJaro(QList<QString> &s1, QList<QString> &s2);
 };
 
 #endif // VOICEPARSEFORM_H

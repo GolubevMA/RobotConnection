@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1472</width>
-    <height>934</height>
+    <width>1216</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="font">
@@ -21,17 +21,23 @@
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
-     <widget class="QSplitter" name="splitter_3">
+     <widget class="QSplitter" name="splitter_4">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="AutoScanerlForm" name="widget_AutoScan" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>0</height>
-        </size>
+      <widget class="QSplitter" name="splitter_3">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
+       <widget class="ModelForm" name="widget_Model" native="true"/>
+       <widget class="AutoScanerlForm" name="widget_AutoScan" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
       </widget>
       <widget class="QSplitter" name="splitter">
        <property name="orientation">
@@ -509,7 +515,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1472</width>
+     <width>1216</width>
      <height>21</height>
     </rect>
    </property>
@@ -552,7 +558,13 @@
   <customwidget>
    <class>AutoScanerlForm</class>
    <extends>QWidget</extends>
-   <header location="global">autoscanerlform.h</header>
+   <header>autoscanerlform.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>ModelForm</class>
+   <extends>QWidget</extends>
+   <header location="global">modelform.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

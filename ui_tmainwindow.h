@@ -26,7 +26,8 @@
 #include <QtWidgets/QToolBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include <autoscanerlform.h>
+#include <modelform.h>
+#include "autoscanerlform.h"
 #include "formremote.h"
 #include "occtqtviewer.h"
 #include "voiceparseform.h"
@@ -38,7 +39,9 @@ class Ui_TMainWindow
 public:
     QWidget *centralWidget;
     QVBoxLayout *verticalLayout_2;
+    QSplitter *splitter_4;
     QSplitter *splitter_3;
+    ModelForm *widget_Model;
     AutoScanerlForm *widget_AutoScan;
     QSplitter *splitter;
     QWidget *layoutWidget;
@@ -75,7 +78,7 @@ public:
     {
         if (TMainWindow->objectName().isEmpty())
             TMainWindow->setObjectName(QString::fromUtf8("TMainWindow"));
-        TMainWindow->resize(1472, 934);
+        TMainWindow->resize(1216, 694);
         QFont font;
         font.setPointSize(12);
         TMainWindow->setFont(font);
@@ -85,14 +88,21 @@ public:
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        splitter_3 = new QSplitter(centralWidget);
+        splitter_4 = new QSplitter(centralWidget);
+        splitter_4->setObjectName(QString::fromUtf8("splitter_4"));
+        splitter_4->setOrientation(Qt::Horizontal);
+        splitter_3 = new QSplitter(splitter_4);
         splitter_3->setObjectName(QString::fromUtf8("splitter_3"));
-        splitter_3->setOrientation(Qt::Horizontal);
+        splitter_3->setOrientation(Qt::Vertical);
+        widget_Model = new ModelForm(splitter_3);
+        widget_Model->setObjectName(QString::fromUtf8("widget_Model"));
+        splitter_3->addWidget(widget_Model);
         widget_AutoScan = new AutoScanerlForm(splitter_3);
         widget_AutoScan->setObjectName(QString::fromUtf8("widget_AutoScan"));
         widget_AutoScan->setMinimumSize(QSize(100, 0));
         splitter_3->addWidget(widget_AutoScan);
-        splitter = new QSplitter(splitter_3);
+        splitter_4->addWidget(splitter_3);
+        splitter = new QSplitter(splitter_4);
         splitter->setObjectName(QString::fromUtf8("splitter"));
         splitter->setOrientation(Qt::Horizontal);
         layoutWidget = new QWidget(splitter);
@@ -309,14 +319,14 @@ public:
         widget_Voice->setMinimumSize(QSize(0, 100));
         splitter_2->addWidget(widget_Voice);
         splitter->addWidget(splitter_2);
-        splitter_3->addWidget(splitter);
+        splitter_4->addWidget(splitter);
 
-        verticalLayout_2->addWidget(splitter_3);
+        verticalLayout_2->addWidget(splitter_4);
 
         TMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(TMainWindow);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1472, 21));
+        menuBar->setGeometry(QRect(0, 0, 1216, 21));
         menu = new QMenu(menuBar);
         menu->setObjectName(QString::fromUtf8("menu"));
         TMainWindow->setMenuBar(menuBar);

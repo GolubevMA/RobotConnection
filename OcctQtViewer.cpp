@@ -67,7 +67,6 @@ public:
     OpenGl_FrameBuffer::BindReadBuffer (theGlCtx);
   }
 };
-
 // ================================================================
 //конструрктор
 // ================================================================
@@ -208,7 +207,7 @@ void OcctQtViewer::initializeGL()
   if (!aGlCtx->Init (myIsCoreProfile))
   {
     Message::SendFail() << "Error: OpenGl_Context is unable to wrap OpenGL context";
-    QMessageBox::critical (this, "Failure", "OpenGl_Context is unable to wrap OpenGL context");
+    QMessageBox::critical (this, "Failure", tr("OpenGl_Context is unable to wrap OpenGL context"));
     QApplication::exit (1);
     return;
   }
@@ -251,20 +250,19 @@ void OcctQtViewer::initializeGL()
             //shape->SetLocalTransformation(offset);
             myContext->Display(shape, AIS_Shaded, 0, true);
         }
-
         foreach (const Handle(AIS_Shape) &shape, robotModel->robotShape) {
             //shape->SetLocalTransformation(offset);
             myContext->Display(shape, AIS_Shaded, 0, true);
         }
     }
 
-    //тествоые фигуры
-    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(80, 200).Shape();
-    gp_Trsf trf;
-    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,0)));
-    aCylc.Move(trf);
-    aShape = new AIS_Shape(aCylc);
-    myContext->Display (aShape, AIS_Shaded, 0, false);
+//    //тествоые фигуры
+//    TopoDS_Shape aCylc = BRepPrimAPI_MakeCylinder(80, 200).Shape();
+//    gp_Trsf trf;
+//    trf.SetTranslation(gp_Vec(gp_Pnt(0,0,0), gp_Pnt(0,0,0)));
+//    aCylc.Move(trf);
+//    aShape = new AIS_Shape(aCylc);
+//    myContext->Display (aShape, AIS_Shaded, 0, false);
 }
 
 //------------------------------------------------------------------------------
