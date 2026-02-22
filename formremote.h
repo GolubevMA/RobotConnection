@@ -2,7 +2,7 @@
 #define FORMREMOTE_H
 
 #include <QWidget>
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 #include "vars.h"
 #include <QDialog>
 #include <QTimer>
@@ -25,15 +25,17 @@ public:
     explicit FormRemote(QWidget *parent = nullptr);
     ~FormRemote();
 
-    void setObjMotion(RobotMotion * obj);
+    void setObjMotion(KawasakiMotion * obj);
     void showEvent(QShowEvent  *event) override;
     void closeEvent(QCloseEvent *event) override;
 
 private:
 
     //обьект упровения роботом
-    RobotMotion *m_RobotMotion;    
+    KawasakiMotion *m_RobotMotion;    
     QTimer *updateTimer;
+    //таймер запроса на установку соединения
+    QTimer *connectTimer;
 
     //список точек JT траеткории
     QList<JTPoint> m_TrackJtPoints;
@@ -42,11 +44,8 @@ private:
 
     //массим плосокостей точек траектории
     //QList<EulerAngles> m_TrackPlanes;
-
-
     //текущая точка
     int CurrentPoint;
-
     Ui::FormRemote *ui;
 
     void UpdateTable();
@@ -76,6 +75,7 @@ public slots:
 
     //void updatePos(QString pos);
     void UpdateSystemState();
+    void checkConnection();
     void step_plus_clicked();
     void step_minus_clicked();
     void UpdateTrack();

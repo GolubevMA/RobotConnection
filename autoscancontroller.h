@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QQueue>
 #include "vars.h"
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 #include <QTimer>
 //-----------------------------------------------------------------------------
 //класс инкапсулирующий управление сканированием
@@ -19,7 +19,7 @@ public:
     //ошбика режима автоматчиеского сканироваия
     enum ScanError {NoConnection, PrepareMcRunning, HomeErrror, CmdTimeOut, NoError};
 
-    explicit AutoScanController(RobotMotion *robot, QObject *parent=nullptr);
+    explicit AutoScanController(KawasakiMotion *robot, QObject *parent=nullptr);
 
     //устанваливаем парматры сканировнаяия
     void setScanParams(QList<DecartPoint> &points, QVector3D start_pt, int scan_speed, int lines_count);
@@ -55,7 +55,7 @@ private:
     int m_ScanCurrLine;
 
     //обьект управлениея движением робота
-    RobotMotion *m_RobotMotion;
+    KawasakiMotion *m_RobotMotion;
     //обьект решения обратной задачи кинметики
     //KinTaskSolver *m_KinSolver;
 

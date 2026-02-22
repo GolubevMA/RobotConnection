@@ -39,7 +39,7 @@ VoiceParseForm::~VoiceParseForm()
     delete m_VoiceParser;
 }
 //------------------------------------------------------------------------------
-void VoiceParseForm::setRobotObject(RobotMotion *obj)
+void VoiceParseForm::setRobotObject(KawasakiMotion *obj)
 {
     m_RobotMotion = obj;
 }

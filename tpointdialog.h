@@ -2,7 +2,7 @@
 #define TPOINTDIALOG_H
 
 #include <QDialog>
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 
 namespace Ui {
 class TPointDialog;

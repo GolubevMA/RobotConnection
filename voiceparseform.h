@@ -2,7 +2,7 @@
 #define VOICEPARSEFORM_H
 
 #include <QWidget>
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 #include "voiceresponser.h"
 #include <QIcon>
 
@@ -18,7 +18,7 @@ public:
     explicit VoiceParseForm(QWidget *parent = nullptr);
     ~VoiceParseForm();
 
-    void setRobotObject(RobotMotion *obj);
+    void setRobotObject(KawasakiMotion *obj);
     void speak(QString text);
 
 public slots :
@@ -34,7 +34,7 @@ private slots :
 
 private:
     //обьект управления роботом
-    RobotMotion *m_RobotMotion;
+    KawasakiMotion *m_RobotMotion;
     //обьект распознавания команд
     VoiceResponser *m_VoiceParser;
 

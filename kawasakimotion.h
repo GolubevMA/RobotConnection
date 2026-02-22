@@ -1,6 +1,6 @@
 
-#ifndef ROBOTMOTION_H
-#define ROBOTMOTION_H
+#ifndef KAWASAKIMOTION_H
+#define KAWASAKIMOTION_H
 
 #include <QObject>
 #include <QMutex>
@@ -12,6 +12,7 @@
 #include <QVector3D>
 #include <QMatrix4x4>
 #include <QtNetwork/QTcpSocket>
+#include "irobotmotion.h"
 
 /*
  * Класс управления движением робота
@@ -29,9 +30,10 @@
 */
 
 
-class RobotMotion : public QObject
+class KawasakiMotion : public QObject, public IRobotMotion
 {
     Q_OBJECT
+    Q_INTERFACES(IRobotMotion)
 
 private:
 
@@ -147,53 +149,47 @@ public:
     int HomeZOffset;
     int HomeXYOffset;
 
-    RobotMotion(QObject *parent = 0);
-    ~RobotMotion();
+    explicit KawasakiMotion(QObject *parent = 0);
+    ~KawasakiMotion();
 
-    const JTPoint &GetCurrentJT() {return m_CoordJT;}
-    const DecartPoint &GetCurrentXYZ() {return m_CoordDecart;}
+    const JTPoint &GetCurrentJT() override {return m_CoordJT;}
+    const DecartPoint &GetCurrentXYZ() override {return m_CoordDecart;}
     //const JTPoint &GetCurrentHome() {return m_HomePos;}
-    int GetFreq() {return  CoordFreq;}    
+    int GetFreq() override {return  CoordFreq;}
 
     //прверка достижимости точки
-    int checkPtIsValid(DecartPoint &pt);
+    int checkPtIsValid(DecartPoint &pt) override;
     //флаг готовности робота - устанваливается если есть рсдениение с роботм
     //и если запущенна MC прогрмамма непервыног режима
-    bool isReady();
+    bool isReady() override;
     //проверка возможности оправки команды в авто режиме
-    bool autoScanCmdEnable();
+    bool autoScanCmdEnable() override;
 
     //-------------------------------------
     //команды упралвения
     //-------------------------------------
     //ининициализация робота - отправка команды запуска непервыного режима
-    void initRobot();
+    void initRobot() override;
     //завршения MC прогрмамы непрерывного движеиня
-    void closeRobot();
+    void closeRobot() override;
     //прервать текущую исполнмю команду
-    void stopCommand();
+    void stopCommand() override;
     //добавление точки траектории
-    int appendTrackPoint(DecartPoint pt, int speed);
-    int sendTrackPoint();
+    int appendTrackPoint(DecartPoint pt, int speed) override;
+    int sendTrackPoint() override;
 
     //выход в ноль
-    bool moveHome(int speed);
+    bool moveHome(int speed) override;
     //пермещение в точку в угалх осей
-    void movePointJT(JTPoint point, int speed);
+    void movePointJT(JTPoint point, int speed) override;
     //перемещение в точку (в базисе XYZ)
-    bool stepMoveXYZ(int axis, float step, int speed);
-    int movePointXYZ(DecartPoint point,  int speed);
-    void ParseTrackJT(QList<JTPoint> &points, int speed);
-    int ParseTrackXyz(QList<DecartPoint> points, int speed);
-
+    bool stepMoveXYZ(int axis, float step, int speed) override;
+    int movePointXYZ(DecartPoint point,  int speed) override;
+    void ParseTrackJT(QList<JTPoint> &points, int speed) override;
+    int ParseTrackXyz(QList<DecartPoint> points, int speed) override;
     //перемещение на шаг в углах осей
     //void StepMoveJT(int axis, int step, int speed);
     //пермещение на шаг в базисе XYZ
-    bool StepMoveXYZ(int axis, int step, int speed);
-
-//    //отправлем массив точек в режиме потсроения траектории
-//    void ParseTrackJT(QList<JTPoint> &points, int speed);
-//    int ParseTrackXyz(QList<DecartPoint> &points, int speed);
 
     //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
     // функции отправки данных по tcp
@@ -202,9 +198,9 @@ public:
     void clearCmdQueue();
 
     //метод вызывают создаение сокетов в через межпоточный вызов
-    bool createConnection(QString ip, int port_tcp, int port_udp);
-    void closeConnection();
-    bool isConnected();
+    bool createConnection(QString ip, int port_tcp, int port_udp) override;
+    void closeConnection() override;
+    bool isConnected() override;
 
 
 //слоты выполняемые в отднльном потоке

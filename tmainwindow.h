@@ -2,7 +2,7 @@
 #define TMAINWINDOW_H
 
 #include <QMainWindow>
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 #include "vars.h"
 #include <QShowEvent>
 #include <QCloseEvent>
@@ -21,7 +21,7 @@ class TMainWindow : public QMainWindow
 public:
 
     //обьект упровения роботом
-    RobotMotion *m_RobotMotion;
+    KawasakiMotion *m_RobotMotion;
     //обьект графического предсталения робота
     ControlSystemModel *CSystemModel;
     //обьект упралвения сканированием
@@ -59,6 +59,7 @@ public slots :
     void UpdateSystemState();
 
 private:
+
     Ui::TMainWindow *ui;
 };
 

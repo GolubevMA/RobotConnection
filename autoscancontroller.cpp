@@ -1,6 +1,6 @@
 #include "autoscancontroller.h"
 //------------------------------------------------------------------------------
-AutoScanController::AutoScanController(RobotMotion* robot, QObject *parent)
+AutoScanController::AutoScanController(KawasakiMotion* robot, QObject *parent)
     : QObject(parent)
 {
     m_RobotMotion = robot;

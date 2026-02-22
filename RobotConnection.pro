@@ -33,9 +33,9 @@ SOURCES += \
     decartpoint.cpp \
     formremote.cpp \
     jtpoint.cpp \
+    kawasakimotion.cpp \
         main.cpp \
     modelform.cpp \
-    robotmotion.cpp \
         tmainwindow.cpp \
     trobotmotionthread.cpp \
     vars.cpp \
@@ -50,9 +50,10 @@ HEADERS += \
     autoscanerlform.h \
     decartpoint.h \
     formremote.h \
+    irobotmotion.h \
     jtpoint.h \
+    kawasakimotion.h \
     modelform.h \
-    robotmotion.h \
         tmainwindow.h \
     trobotmotionthread.h \
     vars.h \

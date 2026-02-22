@@ -1,4 +1,4 @@
-#include "voiceresponser.h"
+  #include "voiceresponser.h"
 #include <QRegularExpression>
 
 VoiceResponser::VoiceResponser(QObject *parent) : QObject(parent)

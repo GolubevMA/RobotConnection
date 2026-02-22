@@ -1,8 +1,8 @@
- #include "robotmotion.h"
+ #include "kawasakimotion.h"
 #include "QTimer"
 #include <QFile>
 //---------------------------------------------------------------------------
-RobotMotion::RobotMotion(QObject *parent)
+KawasakiMotion::KawasakiMotion(QObject *parent)
     : QObject(parent)
 {
     //создаем объекы сокетов
@@ -46,7 +46,7 @@ RobotMotion::RobotMotion(QObject *parent)
     //memset(RxBuffer, 0, sizeof(RxBuffer));
 }
 //---------------------------------------------------------------------------
-RobotMotion::~RobotMotion()
+KawasakiMotion::~KawasakiMotion()
 {
     m_timerCmdTimeout->stop();
     delete m_timerCmdTimeout;
@@ -59,13 +59,13 @@ RobotMotion::~RobotMotion()
 //---------------------------------------------------------------------------
 //проверка ддостижимтоси точки
 //---------------------------------------------------------------------------
-int RobotMotion::checkPtIsValid(DecartPoint &pt)
+int KawasakiMotion::checkPtIsValid(DecartPoint &pt)
 {
     JTPoint jpt;
     return m_KinTaskSolv.solveOZK(pt, jpt);
 }
 //---------------------------------------------------------------------------
-bool RobotMotion::calcStepMove(int axis, float step, DecartPoint &res_point)
+bool KawasakiMotion::calcStepMove(int axis, float step, DecartPoint &res_point)
 {
 //    JTPoint jpt;
 //    int err = m_KinTaskSolv.solveOZK(pt, jpt)
@@ -74,7 +74,7 @@ bool RobotMotion::calcStepMove(int axis, float step, DecartPoint &res_point)
 //---------------------------------------------------------------------------
 //преобразование точки в строку
 //---------------------------------------------------------------------------
-QString RobotMotion::pointToString(JTPoint &pt, int speed)
+QString KawasakiMotion::pointToString(JTPoint &pt, int speed)
 {
     QString cur_pt = "("+QString::number(speed)+",";
     for (int i =0; i < pt.size(); i++) {
@@ -95,7 +95,7 @@ QString RobotMotion::pointToString(JTPoint &pt, int speed)
 //---------------------------------------------------------------------------
 //пермещение на шаг в базисе XYZ
 //---------------------------------------------------------------------------
-bool RobotMotion::stepMoveXYZ(int axis, float step, int speed)
+bool KawasakiMotion::stepMoveXYZ(int axis, float step, int speed)
 {
     if (axis > 0 && axis < DecartPoint::CoordCount) return false;
 
@@ -117,7 +117,7 @@ bool RobotMotion::stepMoveXYZ(int axis, float step, int speed)
 //---------------------------------------------------------------------------
 //пермещение в точку в угалх осей
 //---------------------------------------------------------------------------
-void RobotMotion::movePointJT(JTPoint point, int speed)
+void KawasakiMotion::movePointJT(JTPoint point, int speed)
 {
     QString cmd = "JCOORD ";
     QString cur_pt = "("+QString::number(speed)+",";
@@ -131,7 +131,7 @@ void RobotMotion::movePointJT(JTPoint point, int speed)
 //---------------------------------------------------------------------------
 //перемещение в точку (в базисе XYZ)
 //---------------------------------------------------------------------------
-int RobotMotion::movePointXYZ(DecartPoint point,  int speed)
+int KawasakiMotion::movePointXYZ(DecartPoint point,  int speed)
 {
     JTPoint jpt;
     int res = m_KinTaskSolv.solveOZK(point, jpt);
@@ -142,7 +142,7 @@ int RobotMotion::movePointXYZ(DecartPoint point,  int speed)
 //---------------------------------------------------------------------------
 //вжиение в позицию HOME в непрервыном режиме
 //---------------------------------------------------------------------------
-bool RobotMotion::moveHome(int speed)
+bool KawasakiMotion::moveHome(int speed)
 {
     //пермещение вдоль оси z
     DecartPoint z_move = m_CoordDecart;
@@ -168,7 +168,7 @@ bool RobotMotion::moveHome(int speed)
     sendCmdEvent(cmd);
 }
 //---------------------------------------------------------------------------
-void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
+void KawasakiMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
 {
     QString cmd ="JCOORD ";
     foreach (JTPoint pt, points)
@@ -197,7 +197,7 @@ void RobotMotion::ParseTrackJT(QList<JTPoint> &points, int speed)
     }
 }
 //---------------------------------------------------------------------------
-int RobotMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
+int KawasakiMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
 {
     //форимурем массив точек
     QList<JTPoint> jt_points;
@@ -217,7 +217,7 @@ int RobotMotion::ParseTrackXyz(QList<DecartPoint> points, int speed)
 //возращет true если может добавить точку в команду
 //если нет - возращет false и оптравлет команду
 //---------------------------------------------------------------------------
-int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
+int KawasakiMotion::appendTrackPoint(DecartPoint pt, int speed)
 {
     JTPoint jpt;
     int res =  m_KinTaskSolv.solveOZK(pt,jpt);
@@ -248,7 +248,7 @@ int RobotMotion::appendTrackPoint(DecartPoint pt, int speed)
 //---------------------------------------------------------------------------
 //отправка точки
 //---------------------------------------------------------------------------
-int RobotMotion::sendTrackPoint()
+int KawasakiMotion::sendTrackPoint()
 {
     m_ContinousCommand += ";";
     sendCmdEvent(m_ContinousCommand);
@@ -256,14 +256,14 @@ int RobotMotion::sendTrackPoint()
     m_ContinousCommand = "JCOORD ";
 }
 //---------------------------------------------------------------------------
-bool RobotMotion::isConnected()
+bool KawasakiMotion::isConnected()
 {
     return  m_WorkSocket->isOpen() && m_StateSocket->isOpen();
 }
 //---------------------------------------------------------------------------
 //вызвываем слот создания сокета в потоке - обрабочткие
 //---------------------------------------------------------------------------
-bool RobotMotion::createConnection(QString ip, int port_tcp, int port_udp)
+bool KawasakiMotion::createConnection(QString ip, int port_tcp, int port_udp)
 {
     m_HostIp = ip;
     m_HostPort = port_tcp;
@@ -288,7 +288,7 @@ bool RobotMotion::createConnection(QString ip, int port_tcp, int port_udp)
 //---------------------------------------------------------------------------
 //закрытие сокето из основного птока
 //---------------------------------------------------------------------------
-void RobotMotion::closeConnection()
+void KawasakiMotion::closeConnection()
 {
     m_mutexObj.lock();
 
@@ -307,7 +307,7 @@ void RobotMotion::closeConnection()
 //метод добавлеят команлду в очердь и осущемтвеляет межпоотоный вызов
 // функции отправки данных по tcp
 //---------------------------------------------------------------------------
-void RobotMotion::sendCmdEvent(QString cmd)
+void KawasakiMotion::sendCmdEvent(QString cmd)
 {
     static uint16_t cmd_counter = 0;
     //добавлям команду в очередь (так как метоы класса очреди так же вызыываюся
@@ -330,20 +330,19 @@ void RobotMotion::sendCmdEvent(QString cmd)
 //---------------------------------------------------------------------------
 //очистка очереди команд
 //---------------------------------------------------------------------------
-void RobotMotion::clearCmdQueue()
+void KawasakiMotion::clearCmdQueue()
 {
     m_mutexObj.lock();
 
     if (!m_queueWriteSocket.isEmpty()) {
         m_queueWriteSocket.clear();
     }
-
     m_mutexObj.unlock();
 }
 //---------------------------------------------------------------------------
 //бидним сокет в слоте в потоке
 //---------------------------------------------------------------------------
-void RobotMotion::slotSocketOpen()
+void KawasakiMotion::slotSocketOpen()
 {
     try {
         //настройаа udp сокета
@@ -359,29 +358,27 @@ void RobotMotion::slotSocketOpen()
         if (!m_WorkSocket->waitForConnected(500)) throw QString("conn error");
         //активурем таймер отправки
         m_timerCmdTimeout->start(TIMEOUT_COORD);
-        qDebug() << "conncteded StThr" << m_StateSocket->thread() << " ThisThr " << this->thread() << " err " << m_StateSocket->error();
+        qDebug() << "conncteded StThr" << m_StateSocket->thread() << " ThisThr " << this->thread() << " err " << m_StateSocket->error();        
     }
     catch (QString msg) {
         //зкароем все соекты
         if (m_WorkSocket->isOpen()) m_WorkSocket->close();
         if (m_StateSocket->isOpen()) m_StateSocket->close();
         qDebug() << "error " << msg;
+        //деблокируем основной поток, ожидабщий содания сокета
+        m_waitSockeSlot.wakeAll();
     }
-
-    //деблокируем основной поток, ожидабщий содания сокета
-    m_waitSockeSlot.wakeAll();
 }
 //---------------------------------------------------------------------------
 //закрываем сокет в слоет в потоке
 //---------------------------------------------------------------------------
-void RobotMotion::slotSocketClose()
+void KawasakiMotion::slotSocketClose()
 {
     //закрваем все соекты
     if (m_WorkSocket->isOpen()) {
         m_WorkSocket->close();
         qDebug() << "tcp closed";
     }
-
     if (m_StateSocket->isOpen()) {
         m_StateSocket->close();
         ////сбросим буффрер приема
@@ -395,7 +392,7 @@ void RobotMotion::slotSocketClose()
 //---------------------------------------------------------------------------
 //отправление команды активности клиента по таймеру
 //---------------------------------------------------------------------------
-void RobotMotion::writeUdpReqest()
+void KawasakiMotion::writeUdpReqest()
 {
     if (m_StateSocket->isOpen())
     {
@@ -416,7 +413,7 @@ void RobotMotion::writeUdpReqest()
 // тайой спосб позволяет осуществить межпооточный вызов данной функции
 // из пубдицчных метоло класса (исполнямых в основном потоке)
 //---------------------------------------------------------------------------
-void RobotMotion::writeCommand()
+void KawasakiMotion::writeCommand()
 {
     //есть команда ответ на которую еще не получен
     // или выполение команды двжиения еще не закночилось
@@ -425,7 +422,6 @@ void RobotMotion::writeCommand()
         QTimer::singleShot(5, this, SLOT(writeCommand()));
         return;
     }
-    //try {
     char buf[256];
     memset(buf,0, sizeof(buf));
     //есил есть команжы для отправки - отправим
@@ -445,25 +441,11 @@ void RobotMotion::writeCommand()
         m_timerAnsTimeout->start(TIMEOUT_ANS_ROBOT);
         m_waitStatus = STATE_WAIT_ANS;
     }
-
-//    else {
-//        static int statei = 0;
-//        //отправи запрос координаты
-//        m_mutexObj.lock();
-//        QString cmd = m_CmdState;
-//        memcpy(buf, cmd.toUtf8(), cmd.size());
-//        m_WorkSocket->write(buf, sizeof(buf));
-//        m_mutexObj.unlock();
-//    }
-//    }
-//    catch (QString cmd)
-//    {
-//    }
 }
 //---------------------------------------------------------------------------
 //инициализация неперевыного режима
 //---------------------------------------------------------------------------
-void RobotMotion::initRobot()
+void KawasakiMotion::initRobot()
 {
     if (!m_Active)
     {
@@ -471,10 +453,17 @@ void RobotMotion::initRobot()
         m_ContinousModeAck = false;
         //отправка команды инициализации
         sendCmdEvent("CONTIN_INIT ;");
+
+        m_conditionMutex.lock();
+        //блокируем основой поток пока поток обработчик не ответит на команду
+        // или пока не срабоатет таймер
+        m_waitSockeSlot.wait(&m_conditionMutex, TIMEOUT_OPEN_CLOSE);
+        m_conditionMutex.unlock();
+
     }
 }
 //---------------------------------------------------------------------------
-void RobotMotion::closeRobot()
+void KawasakiMotion::closeRobot()
 {
     if (m_Active) {
         //отправка команды инициализации
@@ -485,7 +474,7 @@ void RobotMotion::closeRobot()
 //---------------------------------------------------------------------------
 //остновка выполения команды двжиения
 //---------------------------------------------------------------------------
-void RobotMotion::stopCommand()
+void KawasakiMotion::stopCommand()
 {
     if (m_Active) {
         sendCmdEvent("CMD_STOP ;");
@@ -494,10 +483,11 @@ void RobotMotion::stopCommand()
 //---------------------------------------------------------------------------
 //проверка ответа отклиента
 //---------------------------------------------------------------------------
-void RobotMotion::checkResponse()
+void KawasakiMotion::checkResponse()
 {
     static int cmd_count = 0;
     static quint32 timer = 0;
+    bool m_active = 0;
 
     //читаем накопившивеся датаграммы
     while (m_StateSocket->hasPendingDatagrams())
@@ -528,7 +518,7 @@ void RobotMotion::checkResponse()
                     m_CoordJT[i] = jt_nums[i].toFloat();
                 }
                 //парсим флаг неперрывного режима
-                m_Active = coords[1].toInt();
+                m_active = coords[1].toInt();
                 //читаем идентификаторо команды
                 int recv_ident = coords[3].toInt();
 
@@ -556,8 +546,6 @@ void RobotMotion::checkResponse()
                     m_timerAnsTimeout->stop();
                     //если дождаличь отсвета обновим статус ожидания
                     m_waitStatus = STATE_NO_WAIT_DATA;
-                    //здесь можно испустить сигнал получения отвтоета
-                    emit transaction(false);
                 }
 
                 //считаетм текущую координату
@@ -585,18 +573,26 @@ void RobotMotion::checkResponse()
             }
         }
     }
+
+    //если активировалcя непреывный режим
+    if (!m_Active && m_active) {
+        m_Active = true;
+        //деблокируем осной поток (если по какой то причине был заблокирован)
+        m_waitSockeSlot.wakeAll();
+    }
 }
 //---------------------------------------------------------------------------
 //проверка активности сканера
 //---------------------------------------------------------------------------
-bool RobotMotion::isReady()
+bool KawasakiMotion::isReady()
 {
+    qDebug() << " active " << m_Active;
     return isConnected() && m_Active;
 }
 //---------------------------------------------------------------------------
 //проверка возмжоности отправки команды в автоержиме
 //---------------------------------------------------------------------------
-bool RobotMotion::autoScanCmdEnable()
+bool KawasakiMotion::autoScanCmdEnable()
 {
     //есть запрос на отрпвку команлы в авторежме
     if (m_ContinousModeWait) {
@@ -611,7 +607,7 @@ bool RobotMotion::autoScanCmdEnable()
 //---------------------------------------------------------------------------
 //таймер ожидаения ответа на команду
 //---------------------------------------------------------------------------
-void RobotMotion::timerAnsTimeout()
+void KawasakiMotion::timerAnsTimeout()
 {
     m_waitStatus = STATE_NO_WAIT_DATA;
     qDebug() << "timeout";
@@ -623,10 +619,10 @@ void RobotMotion::timerAnsTimeout()
     m_timerAnsTimeout->stop();
     //деблокируем осной поток (если по какой то причине был заблокирован)
     m_waitSockeSlot.wakeAll();
-    emit transaction(false);
+   // emit transaction(false);
 }
 //---------------------------------------------------------------------------
-void RobotMotion::Disconnect()
+void KawasakiMotion::Disconnect()
 {
     qDebug() << "dicsted ";
     slotSocketClose();

@@ -26,8 +26,11 @@ FormRemote::FormRemote(QWidget *parent) :
         axisis[i]->setVisible(false);
     }
 
+    //иниициализация таймеров
     updateTimer = new QTimer();
     updateTimer->start(16);
+    connectTimer = new QTimer();
+    //connectTimer->start(2000);
 
     m_TrackPoints.clear();
     m_TrackJtPoints.clear();    
@@ -50,6 +53,7 @@ FormRemote::FormRemote(QWidget *parent) :
 
     connect(ui->tableWidget_points, SIGNAL(cellDoubleClicked(int,int)), this, SLOT(on_pushButton_ChangePt_clicked()));
     connect(updateTimer, SIGNAL(timeout()), this, SLOT(UpdateSystemState()));
+    connect(connectTimer, SIGNAL(timeout()), this, SLOT(checkConnection()));
 
     ui->tableWidget_points->setColumnCount(6);
     UpdateTable();
@@ -60,10 +64,12 @@ FormRemote::~FormRemote()
     savePoints();
     updateTimer->stop();
     delete  updateTimer;
+    connectTimer->stop();
+    delete connectTimer;
     delete ui;  
 }
 //------------------------------------------------------------------------------
-void FormRemote::setObjMotion(RobotMotion *obj)
+void FormRemote::setObjMotion(KawasakiMotion *obj)
 {
     m_RobotMotion = obj;
     connect(m_RobotMotion, SIGNAL(buildStarted()), this, SLOT(UpdateTrack()), Qt::QueuedConnection);
@@ -106,6 +112,19 @@ void FormRemote::closeEvent(QCloseEvent *event)
     sett.setValue("step",ui->spinBox_Step->value());
     sett.endGroup();
 
+}
+//------------------------------------------------------------------------------
+//контроль активности сканера
+//------------------------------------------------------------------------------
+void FormRemote::checkConnection()
+{
+    if (!m_RobotMotion->isConnected()) {
+        m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
+    }
+    else if (!m_RobotMotion->isReady()) {
+        //если соедиенеие устанрлено контролируем установление активного режима
+        m_RobotMotion->initRobot();
+    }
 }
 //------------------------------------------------------------------------------
 //обновляем состояние графичексого интерфейса в соотвевсие с состоянием робота
@@ -452,11 +471,6 @@ void FormRemote::on_pushButton_ChangePt_clicked()
         }
     }
 }
-//------------------------------------------------------------------------------
-//void FormRemote::on_tableWidget_points_cellClicked(int row, int column)
-//{
-
-//}
 //------------------------------------------------------------------------------
 //запускаем программу посторения траектории
 //------------------------------------------------------------------------------

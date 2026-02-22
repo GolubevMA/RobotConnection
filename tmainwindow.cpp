@@ -22,9 +22,10 @@ TMainWindow::TMainWindow(QWidget *parent) :
     //CSystemModel->LoadSystemModel("J:\\WorkProjects\\RoboScan\\RobotConnection\\RS007N-BC01_mod.STEP");
     test = {0,0,0,0,0,0};
 
-    m_RobotMotion = new RobotMotion();
+    m_RobotMotion = new KawasakiMotion();
     //отруваем соедининиеме
     bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
+    if (conn) m_RobotMotion->initRobot();
 
     //фомриуем обьект сканирования
     m_ScanController = new AutoScanController(m_RobotMotion, this);
@@ -119,8 +120,8 @@ void TMainWindow::UpdateSystemState()
 void TMainWindow::on_pushButton_conn_clicked()
 {
     //if (!m_RobotMotion->isConnected()) {
-        qDebug() << "recc";
-        m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
+    bool conn = m_RobotMotion->createConnection("192.168.0.1", 9015, 9020);
+    if (conn) m_RobotMotion->initRobot();
     //}
 }
 //------------------------------------------------------------------------------

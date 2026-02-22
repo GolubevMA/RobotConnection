@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QVector3D>
-#include "robotmotion.h"
+#include "kawasakimotion.h"
 #include <QCloseEvent>
 #include <QShowEvent>
 #include "autoscancontroller.h"
