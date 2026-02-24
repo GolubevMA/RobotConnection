@@ -32,8 +32,8 @@ public slots:
     void stopScan();
 
 private slots:
-    void onScanProcess();
-    void ScanerNoRespnse();
+    //void onScanProcess();
+//    void ScanerNoRespnse();
 
 private:
 
@@ -69,7 +69,7 @@ private:
     int m_ScanSpeed;
 
     //завреншение сканирвоания
-    void scanEnding(int code);
+    //void scanEnding(int code);
 
 signals :
     void scanState(bool scan_proc, int err_state);
